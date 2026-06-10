@@ -8,6 +8,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentMonth = todayObj.getMonth();
     let currentDay = todayObj.getDate();
     let highlightedDate = null; // 用于记录双击卡片定位日期的高亮状态
+    let isTouchDevice = false;
+    document.addEventListener("touchstart", () => {
+        isTouchDevice = true;
+    }, { passive: true });
+
 
     // ==========================================================================
     // 手机网络版专属视图切换与工具逻辑
@@ -213,8 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (timer3000) clearTimeout(timer3000);
             if (fire100OnEnd) el.style.opacity = "";
             
-            if (!isMoving && fired100 && !fired3000 && fire100OnEnd) {
-                if (cb100) cb100(e);
+            if (fire100OnEnd) {
+                // 抬手触发模式：只要松手前没怎么滑动，且没有触发 3 秒长按，就立刻响应短按 (无 100ms 门槛限制)
+                if (!isMoving && !fired3000) {
+                    if (cb100) cb100(e);
+                }
             }
 
             if (fired3000) {
@@ -601,7 +609,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 cardEl.addEventListener("contextmenu", (e) => {
                     e.preventDefault();
                     e.stopPropagation(); // 阻止事件冒泡到父文件夹
-                    trackToCalendar(true);
+                    if (!isTouchDevice) {
+                        trackToCalendar(true);
+                    }
                 });
 
                 // 手机端手势：0.1秒跳转日历，3秒弹出重命名/删除菜单
@@ -679,10 +689,12 @@ document.addEventListener("DOMContentLoaded", () => {
             // 5. 右键菜单
             titleEl.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
-                activeRightClickedFolderId = group.id;
-                contextMenu.style.display = "block";
-                contextMenu.style.left = `${e.pageX}px`;
-                contextMenu.style.top = `${e.pageY}px`;
+                if (!isTouchDevice) {
+                    activeRightClickedFolderId = group.id;
+                    contextMenu.style.display = "block";
+                    contextMenu.style.left = `${e.pageX}px`;
+                    contextMenu.style.top = `${e.pageY}px`;
+                }
             });
 
             // 5. 手机长按菜单
