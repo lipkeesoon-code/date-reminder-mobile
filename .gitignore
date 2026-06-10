@@ -1,0 +1,6 @@
+# Windows system files
+desktop.ini
+Thumbs.db
+
+# Design source files (optional to ignore, uncomment if you don't want to upload large .ai files)
+# *.ai

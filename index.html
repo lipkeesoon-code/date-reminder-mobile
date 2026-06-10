@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务+生日+节日 提醒 PC家用版本</title>
+    <link rel="stylesheet" href="style.css?v=3.0">
+    <!-- 引入谷歌中文字体以获得清新的排版 -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧栏大框架 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <button id="btn-import" class="icon-btn-header" title="Import Notpad 数据">
+                    <img src="设计风格/Import Notpad 数据 .png" alt="Import 数据" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">📥</span>
+                </button>
+                <button id="btn-new-group" class="icon-btn-header" title="+ 新增群组 Add Folder">
+                    <img src="设计风格/+新增群组 Add Folder .png" alt="+ 新增群组" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">➕</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-content" id="sidebar-folders-container">
+                <!-- 文件夹和卡片内容将由 JavaScript 动态生成以支持无限新增、双击折叠、右键菜单和点选存盘 -->
+            </div>
+
+            <!-- 自定义右键上下文菜单 -->
+            <div id="folder-context-menu" class="context-menu" style="display: none;">
+                <div class="context-menu-item" id="menu-rename">重命名</div>
+                <div class="context-menu-item" id="menu-delete">删除</div>
+            </div>
+
+            <!-- 自定义卡片右键上下文菜单 -->
+            <div id="card-context-menu" class="context-menu" style="display: none;">
+                <div class="context-menu-item" id="card-menu-rename">重命名</div>
+                <div class="context-menu-item" id="card-menu-delete">删除</div>
+            </div>
+
+            <!-- 左侧栏底部操作 -->
+            <div class="sidebar-footer">
+                <div class="action-icons">
+                    <button class="icon-btn" id="btn-save" title="存档 Save">
+                        <img src="设计风格/save.png" alt="保存" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                        <span class="fallback-icon">💾</span>
+                    </button>
+                    <button class="icon-btn" id="btn-bg" title="截图 Save JPG">
+                        <img src="设计风格/snapshot.png" alt="截图" class="icon-snapshot" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                        <span class="fallback-icon">📸</span>
+                    </button>
+                    <button class="icon-btn" id="btn-refresh" title="刷新 refresh">
+                        <img src="设计风格/refresh.png" alt="刷新" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                        <span class="fallback-icon">🔄</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧日历大框架 -->
+        <main class="calendar-container">
+            <div class="calendar-border-wrapper">
+                <!-- 顶部工具栏 -->
+                <header class="calendar-header">
+                    <div class="date-selectors">
+                        <select id="select-year" class="cute-select">
+                            <!-- 动态生成年份 -->
+                            <option value="2006">2006</option>
+                            <option value="2026" selected>2026</option>
+                        </select>
+                        <div class="month-nav">
+                            <button id="btn-month-prev" class="month-nav-btn" title="上一个月">‹</button>
+                            <select id="select-month" class="cute-select">
+                                <option value="0">Jan 一月</option>
+                                <option value="1">Feb 二月</option>
+                                <option value="2">Mar 三月</option>
+                                <option value="3">Apr 四月</option>
+                                <option value="4">May 五月</option>
+                                <option value="5" selected>Jun 六月</option>
+                                <option value="6">Jul 七月</option>
+                                <option value="7">Aug 八月</option>
+                                <option value="8">Sep 九月</option>
+                                <option value="9">Oct 十月</option>
+                                <option value="10">Nov 十一</option>
+                                <option value="11">Dec 十二</option>
+                            </select>
+                            <button id="btn-month-next" class="month-nav-btn" title="下一个月">›</button>
+                        </div>
+                        <select id="select-day" class="cute-select">
+                            <!-- 动态生成日期 -->
+                            <option value="8" selected>08</option>
+                        </select>
+                    </div>
+                    
+                    <div class="search-bar-wrapper">
+                        <input type="text" id="search-input" placeholder="输入: 任务名称 / 姓名 / 节日">
+                        <button id="btn-save-top" class="cute-btn">存档Save</button>
+                        <button id="btn-refresh-top" class="cute-btn">刷新Refresh</button>
+                    </div>
+
+                    <!-- 动态日期农历显示 -->
+                    <div class="lunar-display" id="lunar-info-header">
+                        廿三 四月丙午年 <span class="week-text weekday-1">星期一</span>
+                    </div>
+                </header>
+
+                <!-- 日历网格区域 -->
+                <div class="calendar-grid-wrapper">
+                    <!-- 日历日子网格 (由 JS 动态填入 7 行 7 列，包含最左侧的星期标题) -->
+                    <div class="calendar-days-grid" id="calendar-days">
+                        <!-- 由 JS 动态填入日子 -->
+                    </div>
+                </div>
+
+
+            </div>
+        </main>
+    </div>
+    <!-- 引入用于公历农历精准转换的 lunar-javascript 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.4/lunar.min.js"></script>
+    <!-- 引入用于网页截图导出的 html2canvas 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="script.js?v=1.1"></script>
+</body>
+</html>
