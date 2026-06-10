@@ -185,6 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let startY = 0;
         
         const start = (e) => {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
             if (e.touches && e.touches.length > 0) {
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
@@ -214,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         
         const end = (e) => {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
             if (timer100) clearTimeout(timer100);
             if (timer3000) clearTimeout(timer3000);
             if (fire100OnEnd) el.style.opacity = "";
@@ -241,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
         el.addEventListener("touchstart", start, { passive: false });
         el.addEventListener("touchend", end, { passive: false });
         el.addEventListener("touchmove", (e) => {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
             if (e.touches && e.touches.length > 0) {
                 const dx = Math.abs(e.touches[0].clientX - startX);
                 const dy = Math.abs(e.touches[0].clientY - startY);
