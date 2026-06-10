@@ -9,6 +9,246 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentDay = todayObj.getDate();
     let highlightedDate = null; // 用于记录双击卡片定位日期的高亮状态
 
+    // ==========================================================================
+    // 手机网络版专属视图切换与工具逻辑
+    // ==========================================================================
+    const viewFolders = document.getElementById("view-folders");
+    const viewCalendar = document.getElementById("view-calendar");
+    const navBtnList = document.getElementById("nav-btn-list");
+    const navBtnCalendar = document.getElementById("nav-btn-calendar");
+
+    // 全局 Toast 提示框方法
+    const showToast = (msg) => {
+        const toast = document.getElementById("toast-container");
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.style.display = "block";
+        
+        // 强制触发 reflow 使 transition 生效
+        toast.offsetHeight; 
+        toast.classList.add("show");
+
+        if (window.toastTimeout) clearTimeout(window.toastTimeout);
+        window.toastTimeout = setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 200);
+        }, 1500);
+    };
+
+    if (navBtnList && navBtnCalendar) {
+        navBtnList.addEventListener("click", () => {
+            viewFolders.classList.add("active");
+            viewCalendar.classList.remove("active");
+            navBtnList.classList.add("active");
+            navBtnCalendar.classList.remove("active");
+
+            // 按钮物理点击微动动画
+            navBtnList.classList.add("clicked");
+            setTimeout(() => navBtnList.classList.remove("clicked"), 300);
+
+            // 弹出数据提醒 toast
+            showToast("数据提醒");
+        });
+
+        navBtnCalendar.addEventListener("click", () => {
+            viewCalendar.classList.add("active");
+            viewFolders.classList.remove("active");
+            navBtnCalendar.classList.add("active");
+            navBtnList.classList.remove("active");
+
+            // 按钮物理点击微动动画
+            navBtnCalendar.classList.add("clicked");
+            setTimeout(() => navBtnCalendar.classList.remove("clicked"), 300);
+
+            // 切换到日历页面时触发重新渲染以防宽高不对齐
+            setTimeout(() => {
+                renderCalendar(currentYear, currentMonth);
+            }, 50);
+        });
+    }
+
+    // (Restored Add Card logic)
+    const btnAddCardTop = document.getElementById("btn-add-card-top");
+    const addCardPanel = document.getElementById("add-card-panel");
+    const mobileCardTitleInput = document.getElementById("mobile-card-title-input");
+    const mobileCardDay = document.getElementById("mobile-card-day");
+    const mobileCardMonth = document.getElementById("mobile-card-month");
+    const mobileCardYear = document.getElementById("mobile-card-year");
+    const mobileCardHour = document.getElementById("mobile-card-hour");
+    const btnMobileSaveCard = document.getElementById("btn-mobile-save-card");
+
+    if (btnAddCardTop && addCardPanel) {
+        btnAddCardTop.addEventListener("click", () => {
+            // 切换新增面板的显示与隐藏
+            if (addCardPanel.style.display === "none") {
+                addCardPanel.style.display = "block";
+                // 按钮图标高亮
+                btnAddCardTop.classList.add("active");
+                // 初始化下拉框选项
+                initMobileCardFormSelectors();
+                updateHourSelectVisibility();
+            } else {
+                addCardPanel.style.display = "none";
+                btnAddCardTop.classList.remove("active");
+            }
+        });
+    }
+
+    if (btnMobileSaveCard) {
+        btnMobileSaveCard.addEventListener("click", () => {
+            if (typeof saveMobileReminder === "function") {
+                saveMobileReminder();
+            }
+        });
+    }
+
+    const initMobileCardFormSelectors = () => {
+        if (!mobileCardYear || !mobileCardDay) return;
+        
+        // 年份：无年 和 2026-2126
+        mobileCardYear.innerHTML = '<option value="">无年</option>';
+        for (let y = 2026; y <= 2126; y++) {
+            const opt = document.createElement("option");
+            opt.value = y;
+            opt.textContent = y;
+            mobileCardYear.appendChild(opt);
+        }
+        mobileCardYear.value = currentYear;
+
+        // 日期：无日 和 1-31
+        mobileCardDay.innerHTML = '<option value="">无日</option>';
+        for (let d = 1; d <= 31; d++) {
+            const opt = document.createElement("option");
+            opt.value = d;
+            opt.textContent = String(d).padStart(2, "0");
+            mobileCardDay.appendChild(opt);
+        }
+        mobileCardDay.value = currentDay;
+
+        // 月份默认当月
+        if (mobileCardMonth) mobileCardMonth.value = currentMonth;
+    };
+
+    const updateHourSelectVisibility = () => {
+        if (!mobileCardHour) return;
+        const activeFolder = foldersData && foldersData.find(g => g.id === selectedSaveGroupId);
+        if (activeFolder && typeof isBirthdayGroup === "function" && isBirthdayGroup(activeFolder)) {
+            mobileCardHour.style.display = "inline-block";
+        } else {
+            mobileCardHour.style.display = "none";
+            mobileCardHour.value = ""; // 清空
+        }
+    };
+    // 手机触屏长按手势检测
+    const addLongPressListener = (el, callback) => {
+        let timer = null;
+        let isMoving = false;
+        
+        const start = (e) => {
+            isMoving = false;
+            // 600 毫秒视为长按
+            timer = setTimeout(() => {
+                if (!isMoving) {
+                    callback(e);
+                }
+            }, 600);
+        };
+        
+        const cancel = () => {
+            if (timer) clearTimeout(timer);
+        };
+        
+        el.addEventListener("touchstart", start, { passive: true });
+        el.addEventListener("touchend", cancel);
+        el.addEventListener("touchmove", () => {
+            isMoving = true;
+            cancel();
+        });
+        el.addEventListener("touchcancel", cancel);
+    };
+
+    // 手机触屏双阶手势检测 (100ms 和 3000ms)
+    const addDualPressListener = (el, cb100, cb3000, fire100OnEnd = false) => {
+        let timer100 = null;
+        let timer3000 = null;
+        let isMoving = false;
+        let fired100 = false;
+        let fired3000 = false;
+        let startX = 0;
+        let startY = 0;
+        
+        const start = (e) => {
+            if (e.touches && e.touches.length > 0) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }
+            isMoving = false;
+            fired100 = false;
+            fired3000 = false;
+            
+            timer100 = setTimeout(() => {
+                if (!isMoving) {
+                    fired100 = true;
+                    if (!fire100OnEnd && cb100) {
+                        cb100(e);
+                    } else if (fire100OnEnd) {
+                        el.style.opacity = "0.6"; // Visual cue
+                    }
+                }
+            }, 100);
+            
+            timer3000 = setTimeout(() => {
+                if (!isMoving) {
+                    fired3000 = true;
+                    if (fire100OnEnd) el.style.opacity = "";
+                    if (cb3000) cb3000(e);
+                }
+            }, 3000);
+        };
+        
+        const end = (e) => {
+            if (timer100) clearTimeout(timer100);
+            if (timer3000) clearTimeout(timer3000);
+            if (fire100OnEnd) el.style.opacity = "";
+            
+            if (!isMoving && fired100 && !fired3000 && fire100OnEnd) {
+                if (cb100) cb100(e);
+            }
+
+            if (fired3000) {
+                // 如果已经触发了 3 秒事件（弹出了菜单），放开手指时阻止生成 click 事件，避免菜单瞬间被全局 click 监听器关掉。
+                if (e.cancelable) e.preventDefault();
+            }
+        };
+        
+        const cancel = () => {
+            if (timer100) clearTimeout(timer100);
+            if (timer3000) clearTimeout(timer3000);
+            if (fire100OnEnd) el.style.opacity = "";
+        };
+        
+        // 注意：如果要阻止默认事件，passive 必须为 false
+        el.addEventListener("touchstart", start, { passive: false });
+        el.addEventListener("touchend", end, { passive: false });
+        el.addEventListener("touchmove", (e) => {
+            if (e.touches && e.touches.length > 0) {
+                const dx = Math.abs(e.touches[0].clientX - startX);
+                const dy = Math.abs(e.touches[0].clientY - startY);
+                // 允许手指有 15px 以内的微小晃动，不取消长按
+                if (dx > 15 || dy > 15) {
+                    isMoving = true;
+                    cancel();
+                }
+            } else {
+                isMoving = true;
+                cancel();
+            }
+        }, { passive: true });
+        el.addEventListener("touchcancel", cancel);
+    };
+
     // 默认文件夹与卡片初始数据
     const defaultFolders = [
         {
@@ -141,10 +381,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 精准解析卡片中的日期格式
     const parseCardDate = (dateStr, defaultYear) => {
-        if (!dateStr) return { year: defaultYear, month: 0, day: 1 };
+        if (!dateStr) return { year: defaultYear, month: 0, day: 1, hasYear: false };
         const str = dateStr.toLowerCase().trim();
         
         let year = defaultYear;
+        let hasYear = false;
         let month = 0;
         let day = null;
 
@@ -152,6 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const yearMatch = str.match(/\b(19\d{2}|20\d{2}|21\d{2})\b/);
         if (yearMatch) {
             year = parseInt(yearMatch[1]);
+            hasYear = true;
         }
 
         // 2. 匹配月份 (英文缩写/全称)
@@ -209,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        return { year, month, day };
+        return { year, month, day, hasYear };
     };
 
     // 使用 lunar-javascript 获取精准农历日期
@@ -289,21 +531,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 cardEl.className = "reminder-card";
                 cardEl.id = card.id; // 赋予 DOM id，方便重命名操作时提取
                 cardEl.innerHTML = `
-                    <div class="card-title">${card.title}</div>
-                    <div class="card-date">${card.dateStr}</div>
+                    <div class="card-info">
+                        <div class="card-title">${card.title}</div>
+                        <div class="card-date">${card.dateStr}</div>
+                    </div>
                 `;
                 
-                // 双击卡片自动跳转日历到对应的年月及日子
-                cardEl.addEventListener("dblclick", () => {
+                const trackToCalendar = (showMenu) => {
                     const parsed = parseCardDate(card.dateStr, currentYear);
-                    const isRecur = isBirthdayGroup(group) || isFestivalGroup(group);
+                    const isRecur = !parsed.hasYear || isBirthdayGroup(group) || isFestivalGroup(group);
                     if (!isRecur) {
                         currentYear = parsed.year;
                     }
                     currentMonth = parsed.month;
                     currentDay = (parsed.day !== null && parsed.day !== undefined) ? parsed.day : 1;
                     
-                    // 记录当前双击卡片需要高亮的特定日期
+                    // 记录当前卡片需要高亮的特定日期
                     highlightedDate = {
                         year: currentYear,
                         month: currentMonth,
@@ -317,23 +560,73 @@ document.addEventListener("DOMContentLoaded", () => {
                     initDaySelect(currentDay);
                     selectDay.value = currentDay;
                     
+                    // 自动切换到日历视图
+                    viewFolders.classList.remove("active");
+                    viewCalendar.classList.add("active");
+                    navBtnList.classList.remove("active");
+                    navBtnCalendar.classList.add("active");
+
                     // 重新渲染该月日历
                     renderCalendar(currentYear, currentMonth);
+
+                    if (showMenu) {
+                        setTimeout(() => {
+                            const targetCell = document.querySelector(".day-cell.highlighted-target");
+                            if (targetCell) {
+                                activeRightClickedCardId = card.id;
+                                activeRightClickedCardGroupId = group.id;
+
+                                const rect = targetCell.getBoundingClientRect();
+                                const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+                                const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+                                contextMenu.style.display = "none";
+                                cardContextMenu.style.display = "block";
+                                cardContextMenu.style.left = `${rect.left + rect.width / 2 + scrollX}px`;
+                                cardContextMenu.style.top = `${rect.top + rect.height / 2 + scrollY}px`;
+                            }
+                        }, 120);
+                    } else {
+                        contextMenu.style.display = "none";
+                        cardContextMenu.style.display = "none";
+                    }
+                };
+
+                // 双击卡片自动跳转日历到对应的年月及日子
+                cardEl.addEventListener("dblclick", () => {
+                    trackToCalendar(false);
                 });
 
-                // 右键上下文菜单事件
+                // 右键上下文菜单事件 -> 追踪到日历，并在高亮的日期格子上弹出菜单
                 cardEl.addEventListener("contextmenu", (e) => {
                     e.preventDefault();
                     e.stopPropagation(); // 阻止事件冒泡到父文件夹
-                    
-                    activeRightClickedCardId = card.id;
-                    activeRightClickedCardGroupId = group.id;
-                    
-                    contextMenu.style.display = "none";
-                    cardContextMenu.style.display = "block";
-                    cardContextMenu.style.left = `${e.pageX}px`;
-                    cardContextMenu.style.top = `${e.pageY}px`;
+                    trackToCalendar(true);
                 });
+
+                // 手机端手势：0.1秒跳转日历，3秒弹出重命名/删除菜单
+                addDualPressListener(cardEl, 
+                    (e) => {
+                        trackToCalendar(false);
+                    },
+                    (e) => {
+                        e.stopPropagation();
+                        activeRightClickedCardId = card.id;
+                        activeRightClickedCardGroupId = group.id;
+                        
+                        // 由于 3 秒后 e.touches 往往已经清空（浏览器回收了事件对象），
+                        // 这里直接使用卡片元素的中心位置来弹出菜单，这是最稳妥的！
+                        const rect = cardEl.getBoundingClientRect();
+                        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+                        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+                        contextMenu.style.display = "none";
+                        cardContextMenu.style.display = "block";
+                        cardContextMenu.style.left = `${rect.left + rect.width / 2 + scrollX}px`;
+                        cardContextMenu.style.top = `${rect.top + rect.height / 2 + scrollY}px`;
+                    },
+                    true // fire100OnEnd
+                );
 
                 cardListEl.appendChild(cardEl);
             });
@@ -343,23 +636,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // === 绑定文件夹交互事件 ===
 
-            // 1. 双击展开/收回
-            titleEl.addEventListener("dblclick", (e) => {
-                if (e.target.classList.contains("folder-circle-select") || e.target.classList.contains("folder-visibility-toggle")) return; 
-                group.collapsed = !group.collapsed;
-                groupEl.classList.toggle("collapsed", group.collapsed);
-                saveData();
-            });
-
-            // 2. 单击文件夹行即可选择为存盘目的地
+            // 1. 单击文件夹行：既切换折叠/展开状态，又选择其为存盘目的地
             titleEl.addEventListener("click", (e) => {
                 if (e.target.classList.contains("folder-circle-select") || e.target.classList.contains("folder-visibility-toggle")) return;
+                
+                // 选择存盘目的地
                 selectedSaveGroupId = group.id;
-                saveData();
                 document.querySelectorAll(".folder-circle-select").forEach(el => {
                     el.classList.remove("selected");
                 });
                 circleSelect.classList.add("selected");
+
+                // 切换折叠/展开状态
+                group.collapsed = !group.collapsed;
+                groupEl.classList.toggle("collapsed", group.collapsed);
+                
+                saveData();
+                updateHourSelectVisibility();
             });
 
             // 3. 点击空点圈作为存档地
@@ -371,6 +664,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     el.classList.remove("selected");
                 });
                 circleSelect.classList.add("selected");
+                updateHourSelectVisibility();
             });
 
             // 4. 点击开关控制日期提醒
@@ -389,6 +683,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 contextMenu.style.display = "block";
                 contextMenu.style.left = `${e.pageX}px`;
                 contextMenu.style.top = `${e.pageY}px`;
+            });
+
+            // 5. 手机长按菜单
+            addLongPressListener(titleEl, (e) => {
+                const touch = e.touches[0];
+                activeRightClickedFolderId = group.id;
+                contextMenu.style.display = "block";
+                contextMenu.style.left = `${touch.pageX}px`;
+                contextMenu.style.top = `${touch.pageY}px`;
             });
         });
     };
@@ -603,10 +906,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", () => {
         contextMenu.style.display = "none";
         cardContextMenu.style.display = "none";
-        // 清除双击标签后的左栏高亮
         document.querySelectorAll(".reminder-card.sidebar-highlight").forEach(el => {
             el.classList.remove("sidebar-highlight");
         });
+        const tooltip = document.getElementById("event-tag-tooltip");
+        if (tooltip) {
+            tooltip.style.opacity = "0";
+            setTimeout(() => { tooltip.style.display = "none"; }, 150);
+        }
     });
 
     // 动态计算节气主题色 (双重保险：优先通过 jqTable 精准对比，报错时则通过公历日期进行高准确度切割估算)
@@ -679,7 +986,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let startOffset = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
 
-        // 构建包含 42 个日子的扁平数据数组
+        // 动态计算本月实际需要几列（几周）
+        const numWeeks = Math.ceil((startOffset + totalDays) / 7);
+        const totalCells = numWeeks * 7;
+
+        // 动态更新 grid 列数（1 星期表头列 + numWeeks 数据列）
+        calendarDays.style.gridTemplateColumns = `32px repeat(${numWeeks}, 1fr)`;
+
+        // 构建扁平数据数组（精确格子数）
         const daysData = [];
 
         // 1. 填充上月余格
@@ -695,16 +1009,15 @@ document.addEventListener("DOMContentLoaded", () => {
             daysData.push({ year: year, month: month, day: dayNum, isDimmed: false });
         }
 
-        // 3. 填充下月余格
-        const totalCells = startOffset + totalDays;
-        const remainingCells = 42 - totalCells;
+        // 3. 填充下月余格（只填到 totalCells，不再硬编码 42）
+        const remainingCells = totalCells - startOffset - totalDays;
         for (let i = 1; i <= remainingCells; i++) {
             const nextMonth = month === 11 ? 0 : month + 1;
             const nextYear = month === 11 ? year + 1 : year;
             daysData.push({ year: nextYear, month: nextMonth, day: i, isDimmed: true });
         }
 
-        // 以星期几分行构建：7行，每行 1(表头) + 6(周跨度格子)
+        // 以星期几分行构建：7行，每行 1(表头) + numWeeks(周跨度格子)
         const weekDayNames = ["一", "二", "三", "四", "五", "六", "日"];
         const cssWeekClasses = ["weekday-1", "weekday-2", "weekday-3", "weekday-4", "weekday-5", "weekday-6", "weekday-0"];
 
@@ -715,8 +1028,8 @@ document.addEventListener("DOMContentLoaded", () => {
             rowHeader.innerHTML = `星<br>期<br>${weekDayNames[r]}`;
             calendarDays.appendChild(rowHeader);
 
-            // 插入本行对应的 6 个日历格
-            for (let c = 0; c < 6; c++) {
+            // 插入本行对应的 numWeeks 个日历格
+            for (let c = 0; c < numWeeks; c++) {
                 const cellData = daysData[c * 7 + r];
                 createDayCell(cellData.year, cellData.month, cellData.day, cellData.isDimmed);
             }
@@ -794,8 +1107,8 @@ document.addEventListener("DOMContentLoaded", () => {
             group.cards.forEach(card => {
                 const parsed = parseCardDate(card.dateStr, year);
                 
-                // 生日和节日按年重复匹配
-                const isRecurring = isBirthdayGroup(group) || isFestivalGroup(group);
+                // 如果卡片没有指定年份，或者属于生日群组，判定为每年重复
+                const isRecurring = !parsed.hasYear || isBirthdayGroup(group) || isFestivalGroup(group);
                 
                 let matches = false;
                 if (isRecurring) {
@@ -806,7 +1119,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         matches = (parsed.month === month && day === 1);
                     }
                 } else {
-                    // 任务卡片等常规提醒精确匹配年份
+                    // 常规提醒精确匹配年份
                     if (parsed.day !== null && parsed.day !== undefined) {
                         matches = (parsed.year === year && parsed.month === month && parsed.day === day);
                     } else {
@@ -829,28 +1142,88 @@ document.addEventListener("DOMContentLoaded", () => {
         activeCards.forEach(card => {
             const tag = document.createElement("span");
             tag.className = "event-tag";
-            // 分类着色
-            if (isTaskGroup(card.group)) {
-                tag.style.backgroundColor = "var(--color-fire)";
-            } else if (isBirthdayGroup(card.group)) {
-                tag.style.backgroundColor = "var(--color-gold)";
-            } else if (isFestivalGroup(card.group)) {
-                tag.style.backgroundColor = "var(--color-water)";
-            } else {
-                tag.style.backgroundColor = "var(--color-water)";
-            }
+            // 颜色由 CSS --theme-tag-color 随节气自动控制，不再单独赋色
             tag.textContent = card.title;
-            tag.title = card.title; // 鼠标悬停时浏览器显示原生的完整提示气泡
+            tag.title = card.title;
 
-            // 双击标签 → 高亮左栏对应卡片并滚动到可见
-            tag.addEventListener("dblclick", (e) => {
-                e.stopPropagation();
-                // 清除所有旧的高亮
+            // 手指或滑鼠 → 显示浮动完整文字 tooltip
+            const showTagTooltip = (e) => {
+                let tooltip = document.getElementById("event-tag-tooltip");
+                if (!tooltip) {
+                    tooltip = document.createElement("div");
+                    tooltip.id = "event-tag-tooltip";
+                    tooltip.className = "event-tag-tooltip";
+                    document.body.appendChild(tooltip);
+                }
+                tooltip.textContent = card.title;
+                tooltip.style.backgroundColor = tag.style.backgroundColor;
+                tooltip.style.display = "block";
+
+                // 取得触发位置
+                let clientX, clientY;
+                if (e.touches && e.touches.length > 0) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                // 确保 tooltip 不超出画面右边
+                tooltip.style.left = "0px";
+                tooltip.style.top = "-9999px";
+                const tw = tooltip.offsetWidth;
+                const vw = window.innerWidth;
+                let left = clientX - 4;
+                if (left + tw > vw - 4) left = vw - tw - 4;
+                if (left < 4) left = 4;
+                let top = clientY - tooltip.offsetHeight - 6;
+                if (top < 4) top = clientY + 18;
+
+                tooltip.style.left = left + "px";
+                tooltip.style.top = top + "px";
+                tooltip.style.opacity = "1";
+            };
+
+            const hideTagTooltip = () => {
+                const tooltip = document.getElementById("event-tag-tooltip");
+                if (tooltip) {
+                    tooltip.style.opacity = "0";
+                    setTimeout(() => { tooltip.style.display = "none"; }, 150);
+                }
+            };
+
+            tag.addEventListener("mouseenter", showTagTooltip);
+            tag.addEventListener("mouseleave", hideTagTooltip);
+
+            // stickyTooltip: 久按标签后 tooltip 会保持显示，直到用户点其他地方
+            let stickyTooltip = false;
+
+            tag.addEventListener("touchend", () => {
+                // 普通短触 -> 收起；久按后 sticky=true -> 保持显示
+                if (!stickyTooltip) {
+                    tag.classList.remove("expanded");
+                    hideTagTooltip();
+                }
+            });
+            tag.addEventListener("touchcancel", () => {
+                stickyTooltip = false;
+                tag.classList.remove("expanded");
+                hideTagTooltip();
+            });
+
+            // Unified reverse tracking logic: switch views, expand folders, highlight cards
+            const trackToSidebar = (evt, showMenu) => {
+                evt.stopPropagation();
+                evt.preventDefault();
+                hideTagTooltip();
+
+                // 1. Clear old highlights
                 document.querySelectorAll(".reminder-card.sidebar-highlight").forEach(el => {
                     el.classList.remove("sidebar-highlight");
                 });
 
-                // 自动展开已折叠的源头文件夹
+                // 2. Expand collapsed source folders
                 const parentGroup = foldersData.find(g => g.id === card.group.id);
                 if (parentGroup && parentGroup.collapsed) {
                     parentGroup.collapsed = false;
@@ -861,13 +1234,68 @@ document.addEventListener("DOMContentLoaded", () => {
                     saveData();
                 }
 
-                // 找到左侧对应卡片 DOM
+                // 3. Switch to list view
+                viewFolders.classList.add("active");
+                viewCalendar.classList.remove("active");
+                navBtnList.classList.add("active");
+                navBtnCalendar.classList.remove("active");
+
+                // 4. Highlight target card and optionally show context menu
                 const targetCard = document.getElementById(card.cardId);
                 if (targetCard) {
                     targetCard.classList.add("sidebar-highlight");
-                    targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
+                    
+                    setTimeout(() => {
+                        targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
+                        
+                        if (showMenu) {
+                            activeRightClickedCardId = card.cardId;
+                            activeRightClickedCardGroupId = card.group.id;
+
+                            const rect = targetCard.getBoundingClientRect();
+                            const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+                            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+                            contextMenu.style.display = "none";
+                            cardContextMenu.style.display = "block";
+                            cardContextMenu.style.left = `${rect.left + rect.width / 2 + scrollX}px`;
+                            cardContextMenu.style.top = `${rect.top + rect.height / 2 + scrollY}px`;
+                        } else {
+                            contextMenu.style.display = "none";
+                            cardContextMenu.style.display = "none";
+                        }
+                    }, 120);
                 }
+            };
+
+            // 单击：显示完整文字 tooltip
+            tag.addEventListener("click", (e) => {
+                e.stopPropagation();
+                showTagTooltip(e);
             });
+
+            // 双击：反追踪 → 切换到左侧栏，高亮源卡片（#ddbbd9），不弹菜单
+            tag.addEventListener("dblclick", (e) => {
+                trackToSidebar(e, false);
+            });
+
+            // 右键（桌面）：追踪到左侧栏 + 弹出重命名/删除菜单
+            tag.addEventListener("contextmenu", (e) => {
+                trackToSidebar(e, true);
+            });
+
+            // 手机端双阶手势：0.1秒全文，3秒反追踪+菜单
+            addDualPressListener(tag, 
+                (e) => {
+                    stickyTooltip = true;
+                    tag.classList.add("expanded");
+                    showTagTooltip(e);
+                },
+                (e) => {
+                    trackToSidebar(e, true);
+                },
+                false // fire100OnEnd = false (即 0.1 秒马上弹出 tooltip)
+            );
 
             tagsContainer.appendChild(tag);
         });
@@ -909,7 +1337,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 动态初始化三个西历下拉选择框
     const initYearSelect = () => {
-        selectYear.innerHTML = "";
+        selectYear.innerHTML = '<option value="">无年</option>';
         for (let y = 2026; y <= 2126; y++) {
             const opt = document.createElement("option");
             opt.value = y;
@@ -920,7 +1348,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const initDaySelect = (selectedDayVal) => {
-        selectDay.innerHTML = "";
+        selectDay.innerHTML = '';
         for (let d = 1; d <= 31; d++) {
             const opt = document.createElement("option");
             opt.value = d;
@@ -935,43 +1363,50 @@ document.addEventListener("DOMContentLoaded", () => {
     // 绑定下拉选择栏 Change 事件
     selectYear.addEventListener("change", (e) => {
         highlightedDate = null; // 手动切换选择时，清除双击定位的高亮底色
-        currentYear = parseInt(e.target.value);
-        currentDay = parseInt(selectDay.value);
+        currentYear = e.target.value ? parseInt(e.target.value) : new Date().getFullYear();
+        currentDay = selectDay.value ? parseInt(selectDay.value) : 1;
         renderCalendar(currentYear, currentMonth);
     });
 
     selectMonth.addEventListener("change", (e) => {
         highlightedDate = null; // 手动切换选择时，清除双击定位的高亮底色
         currentMonth = parseInt(e.target.value);
-        currentDay = parseInt(selectDay.value);
-        renderCalendar(currentYear, currentMonth);
-    });
-    // ‹ 上一个月 / › 下一个月 按钮
-    document.getElementById("btn-month-prev").addEventListener("click", () => {
-        highlightedDate = null;
-        currentMonth -= 1;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear = Math.max(2026, currentYear - 1);
-            selectYear.value = currentYear;
-        }
-        selectMonth.value = currentMonth;
-        currentDay = parseInt(selectDay.value);
+        currentDay = selectDay.value ? parseInt(selectDay.value) : 1;
         renderCalendar(currentYear, currentMonth);
     });
 
-    document.getElementById("btn-month-next").addEventListener("click", () => {
-        highlightedDate = null;
-        currentMonth += 1;
-        if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear = Math.min(2126, currentYear + 1);
+    const btnMonthPrev = document.getElementById("btn-month-prev");
+    const btnMonthNext = document.getElementById("btn-month-next");
+    
+    if (btnMonthPrev) {
+        btnMonthPrev.addEventListener("click", () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+                if (currentYear < 2026) currentYear = 2026;
+            }
             selectYear.value = currentYear;
-        }
-        selectMonth.value = currentMonth;
-        currentDay = parseInt(selectDay.value);
-        renderCalendar(currentYear, currentMonth);
-    });
+            selectMonth.value = currentMonth;
+            highlightedDate = null;
+            renderCalendar(currentYear, currentMonth);
+        });
+    }
+
+    if (btnMonthNext) {
+        btnMonthNext.addEventListener("click", () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+                if (currentYear > 2126) currentYear = 2126;
+            }
+            selectYear.value = currentYear;
+            selectMonth.value = currentMonth;
+            highlightedDate = null;
+            renderCalendar(currentYear, currentMonth);
+        });
+    }
 
     selectDay.addEventListener("change", (e) => {
         highlightedDate = null; // 手动切换选择时，清除双击定位的高亮底色
@@ -1029,13 +1464,101 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // 绑定顶部存档按钮
-    document.getElementById("btn-save-top").addEventListener("click", saveNewReminder);
-    document.getElementById("search-input").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") saveNewReminder();
-    });
+    if (document.getElementById("btn-save-top")) {
+        document.getElementById("btn-save-top").addEventListener("click", saveNewReminder);
+    }
+    if (document.getElementById("search-input")) {
+        document.getElementById("search-input").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") saveNewReminder();
+        });
+    }
+
+    // 手机网络版专属双排卡片表单存档逻辑
+    const saveMobileReminder = () => {
+        const titleVal = mobileCardTitleInput.value.trim();
+        if (!titleVal) {
+            alert("请输入项目或任务名称！");
+            return;
+        }
+
+        const activeFolder = foldersData.find(g => g.id === selectedSaveGroupId);
+        if (!activeFolder) {
+            alert("请点击选择一个 Folder 作为保存目的地！");
+            return;
+        }
+
+        const dayVal = mobileCardDay.value ? parseInt(mobileCardDay.value) : null;
+        const monthVal = parseInt(mobileCardMonth.value);
+        const yearVal = mobileCardYear.value ? parseInt(mobileCardYear.value) : null;
+        const hourVal = mobileCardHour.value;
+
+        // 生成规范的日期字符串
+        let newDateStr = "";
+        const isBirthday = isBirthdayGroup(activeFolder);
+
+        if (isBirthday) {
+            // 生日格式例如: 1984 May 15 寅时 或者 May 15 寅时
+            const monthName = monthNamesAbbr[monthVal];
+            let parts = [];
+            if (yearVal) parts.push(yearVal);
+            parts.push(monthName);
+            if (dayVal) parts.push(dayVal);
+            
+            newDateStr = parts.join(" ");
+            if (hourVal) newDateStr += ` ${hourVal}`;
+        } else {
+            // 普通提醒格式例如: 27 Oct 2026 或者 27 Oct 或者 Oct 2026 或者 Oct
+            const monthName = monthNamesAbbr[monthVal];
+            if (dayVal) {
+                if (yearVal) {
+                    newDateStr = `${dayVal} ${monthName} ${yearVal}`;
+                } else {
+                    newDateStr = `${dayVal} ${monthName}`;
+                }
+            } else {
+                if (yearVal) {
+                    newDateStr = `${monthName} ${yearVal}`;
+                } else {
+                    newDateStr = `${monthName}`;
+                }
+            }
+        }
+
+        const newCard = {
+            id: `c-${Date.now()}`,
+            title: titleVal,
+            dateStr: newDateStr
+        };
+
+        activeFolder.cards.push(newCard);
+        saveData();
+
+        // 重置表单状态并收起
+        mobileCardTitleInput.value = "";
+        addCardPanel.style.display = "none";
+        
+        // 刷新列表和日历视图
+        renderFolders();
+        renderCalendar(currentYear, currentMonth);
+    };
+
+    if (btnMobileSaveCard && mobileCardTitleInput) {
+        btnMobileSaveCard.addEventListener("click", saveMobileReminder);
+        mobileCardTitleInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") saveMobileReminder();
+        });
+    }
+
 
     // 刷新跳回当天日期
-    const resetToToday = () => {
+    const resetToToday = (e) => {
+        // 按钮物理点击微动动画
+        if (e && e.currentTarget) {
+            const btn = e.currentTarget;
+            btn.classList.add("clicked");
+            setTimeout(() => btn.classList.remove("clicked"), 300);
+        }
+
         highlightedDate = null; // 刷新时，清除双击定位的高亮底色
         const today = new Date();
         currentYear = today.getFullYear();
@@ -1046,14 +1569,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         selectYear.value = currentYear;
         selectMonth.value = currentMonth;
+        initDaySelect(currentDay);
         selectDay.value = currentDay;
 
+        // 刷新时跳回日历视图
+        if (!viewCalendar.classList.contains("active")) {
+            viewFolders.classList.remove("active");
+            viewCalendar.classList.add("active");
+            navBtnCalendar.classList.add("active");
+            navBtnList.classList.remove("active");
+        }
+
         renderCalendar(currentYear, currentMonth);
+        showToast("已跳回今天！");
     };
 
     // 绑定所有刷新按钮
-    document.getElementById("btn-refresh").addEventListener("click", resetToToday);
-    document.getElementById("btn-refresh-top").addEventListener("click", resetToToday);
+    if (document.getElementById("btn-refresh")) {
+        document.getElementById("btn-refresh").addEventListener("click", resetToToday);
+    }
+    if (document.getElementById("btn-refresh-top")) {
+        document.getElementById("btn-refresh-top").addEventListener("click", resetToToday);
+    }
 
     // 将数据整理并格式化，导出为漂亮的 .txt 文件自动拉起浏览器下载
     const exportDataToTxt = () => {
@@ -1096,13 +1633,24 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // 侧栏底部的主数据保存按钮（保存至 LocalStorage + 同步自动导出下载 .txt 文本）
-    document.getElementById("btn-save").addEventListener("click", () => {
+    document.getElementById("btn-save").addEventListener("click", (e) => {
+        // 按钮物理点击微动动画
+        const btnSave = e.currentTarget;
+        btnSave.classList.add("clicked");
+        setTimeout(() => btnSave.classList.remove("clicked"), 300);
+
         saveData();
         exportDataToTxt();
+        showToast("数据已存盘！");
     });
 
     // 相机按钮点击事件：播放快门音 Canon DSLR Shutter Sound.mp3，截取日历区域，另存为 YYYYMMDD-HHmm.jpg 并下载
-    document.getElementById("btn-bg").addEventListener("click", () => {
+    document.getElementById("btn-bg").addEventListener("click", (e) => {
+        // 按钮物理点击微动动画
+        const btnBg = e.currentTarget;
+        btnBg.classList.add("clicked");
+        setTimeout(() => btnBg.classList.remove("clicked"), 300);
+
         // 1. 播放 DSLR 快门声音
         try {
             const shutterSound = new Audio("设计风格/shutter_sound.mp3");
@@ -1113,114 +1661,133 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Audio error:", e);
         }
 
-        // 2. 截取日历大框区域 (.calendar-border-wrapper)
-        const calendarEl = document.querySelector(".calendar-border-wrapper");
-        if (!calendarEl) {
-            alert("找不到日历容器，无法截图！");
-            return;
-        }
+        // 弹出 Toast 提示
+        showToast("正在截取月历...");
 
-        // 调用 html2canvas 进行高清渲染
-        html2canvas(calendarEl, {
-            useCORS: true,
-            scale: 2, // 2倍清晰度
-            backgroundColor: "#ffffff", // 白色背景填充（JPG 格式无透明）
-            onclone: (clonedDoc) => {
-                // 在克隆出来的 DOM 树中，处理所有的 select 元素
-                const selects = clonedDoc.querySelectorAll('.cute-select');
-                const realSelects = document.querySelectorAll('.cute-select');
-                selects.forEach((select, idx) => {
-                    const realSel = realSelects[idx];
-                    const widthVal = realSel ? realSel.offsetWidth : null;
-                    const heightVal = realSel ? realSel.offsetHeight : null;
-
-                    const div = clonedDoc.createElement('div');
-                    // 复制 class 这样可以继承 css 中的样式（如边框、圆角、背景色、字号等）
-                    div.className = select.className;
-                    
-                    const selectedOption = select.options[select.selectedIndex];
-                    div.textContent = selectedOption ? selectedOption.textContent : select.value;
-                    
-                    // 强制覆盖一些布局属性，使 div 表现为行内块，且内部文字居中
-                    div.style.display = 'inline-flex';
-                    div.style.alignItems = 'center';
-                    div.style.justifyContent = 'center';
-                    div.style.textAlign = 'center';
-                    div.style.lineHeight = '1.2';
-                    div.style.verticalAlign = 'middle';
-                    div.style.boxSizing = 'border-box';
-                    
-                    if (widthVal) div.style.width = widthVal + 'px';
-                    if (heightVal) div.style.height = heightVal + 'px';
-                    
-                    // 替换元素
-                    select.parentNode.replaceChild(div, select);
-                });
-
-                // 处理所有的 input 元素
-                const inputs = clonedDoc.querySelectorAll('.search-bar-wrapper input');
-                const realInputs = document.querySelectorAll('.search-bar-wrapper input');
-                inputs.forEach((input, idx) => {
-                    const realInp = realInputs[idx];
-                    const widthVal = realInp ? realInp.offsetWidth : 300;
-                    const heightVal = realInp ? realInp.offsetHeight : 48;
-
-                    const div = clonedDoc.createElement('div');
-                    div.className = input.className;
-                    div.textContent = input.value || input.placeholder || "";
-                    if (!input.value) {
-                        div.style.color = '#a3b2e9'; // placeholder 的颜色
-                    } else {
-                        div.style.color = '#2f56b8'; // 输入文字的颜色
-                    }
-                    
-                    // 强制覆盖一些布局属性，使其表现和 input 一致
-                    div.style.display = 'inline-flex';
-                    div.style.alignItems = 'center';
-                    div.style.justifyContent = 'flex-start';
-                    div.style.lineHeight = '1.2';
-                    div.style.verticalAlign = 'middle';
-                    div.style.boxSizing = 'border-box';
-                    div.style.border = '1px solid #7a8ad0';
-                    div.style.borderRadius = '8px';
-                    div.style.backgroundColor = '#fff';
-                    div.style.paddingLeft = '10px';
-                    div.style.fontSize = '29px';
-                    div.style.fontWeight = 'normal';
-                    div.style.fontFamily = 'inherit';
-                    
-                    div.style.width = widthVal + 'px';
-                    div.style.height = heightVal + 'px';
-                    
-                    // 替换元素
-                    input.parentNode.replaceChild(div, input);
-                });
+        const captureAndDownload = () => {
+            // 2. 截取日历大框区域 (.calendar-border-wrapper)
+            const calendarEl = document.querySelector(".calendar-border-wrapper");
+            if (!calendarEl) {
+                alert("找不到日历容器，无法截图！");
+                return;
             }
-        }).then(canvas => {
-            // 导出质量为 0.95 的 JPEG 图像
-            const imgData = canvas.toDataURL("image/jpeg", 0.95);
-            
-            // 格式化当前时间为 YYYYMMDD-HHmm
-            const now = new Date();
-            const yearStr = now.getFullYear();
-            const monthStr = String(now.getMonth() + 1).padStart(2, "0");
-            const dayStr = String(now.getDate()).padStart(2, "0");
-            const hourStr = String(now.getHours()).padStart(2, "0");
-            const minStr = String(now.getMinutes()).padStart(2, "0");
-            
-            const filename = `${yearStr}${monthStr}${dayStr}-${hourStr}${minStr}.jpg`;
 
-            // 模拟链接点击进行下载
-            const link = document.createElement("a");
-            link.href = imgData;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }).catch(err => {
-            console.error("html2canvas screenshot error:", err);
-            alert("生成日历截图失败，请重试！");
-        });
+            // 调用 html2canvas 进行高清渲染
+            html2canvas(calendarEl, {
+                useCORS: true,
+                scale: 2, // 2倍清晰度
+                backgroundColor: "#ffffff", // 白色背景填充（JPG 格式无透明）
+                onclone: (clonedDoc) => {
+                    // 在克隆出来的 DOM 树中，处理所有的 select 元素
+                    const selects = clonedDoc.querySelectorAll('.cute-select');
+                    const realSelects = document.querySelectorAll('.cute-select');
+                    selects.forEach((select, idx) => {
+                        const realSel = realSelects[idx];
+                        const widthVal = realSel ? realSel.offsetWidth : null;
+                        const heightVal = realSel ? realSel.offsetHeight : null;
+
+                        const div = clonedDoc.createElement('div');
+                        // 复制 class 这样可以继承 css 中的样式（如边框、圆角、背景色、字号等）
+                        div.className = select.className;
+                        
+                        const selectedOption = select.options[select.selectedIndex];
+                        div.textContent = selectedOption ? selectedOption.textContent : select.value;
+                        
+                        // 强制覆盖一些布局属性，使 div 表现为行内块，且内部文字居中
+                        div.style.display = 'inline-flex';
+                        div.style.alignItems = 'center';
+                        div.style.justifyContent = 'center';
+                        div.style.textAlign = 'center';
+                        div.style.lineHeight = '1.2';
+                        div.style.verticalAlign = 'middle';
+                        div.style.boxSizing = 'border-box';
+                        
+                        if (widthVal) div.style.width = widthVal + 'px';
+                        if (heightVal) div.style.height = heightVal + 'px';
+                        
+                        // 替换元素
+                        select.parentNode.replaceChild(div, select);
+                    });
+
+                    // 处理所有的 input 元素
+                    const inputs = clonedDoc.querySelectorAll('.search-bar-wrapper input');
+                    const realInputs = document.querySelectorAll('.search-bar-wrapper input');
+                    inputs.forEach((input, idx) => {
+                        const realInp = realInputs[idx];
+                        const widthVal = realInp ? realInp.offsetWidth : 300;
+                        const heightVal = realInp ? realInp.offsetHeight : 48;
+
+                        const div = clonedDoc.createElement('div');
+                        div.className = input.className;
+                        div.textContent = input.value || input.placeholder || "";
+                        if (!input.value) {
+                            div.style.color = '#a3b2e9'; // placeholder 的颜色
+                        } else {
+                            div.style.color = '#2f56b8'; // 输入文字的颜色
+                        }
+                        
+                        // 强制覆盖一些布局属性，使其表现和 input 一致
+                        div.style.display = 'inline-flex';
+                        div.style.alignItems = 'center';
+                        div.style.justifyContent = 'flex-start';
+                        div.style.lineHeight = '1.2';
+                        div.style.verticalAlign = 'middle';
+                        div.style.boxSizing = 'border-box';
+                        div.style.border = '1px solid #7a8ad0';
+                        div.style.borderRadius = '8px';
+                        div.style.backgroundColor = '#fff';
+                        div.style.paddingLeft = '10px';
+                        div.style.fontSize = '29px';
+                        div.style.fontWeight = 'normal';
+                        div.style.fontFamily = 'inherit';
+                        
+                        div.style.width = widthVal + 'px';
+                        div.style.height = heightVal + 'px';
+                        
+                        // 替换元素
+                        input.parentNode.replaceChild(div, input);
+                    });
+                }
+            }).then(canvas => {
+                // 导出质量为 0.95 的 JPEG 图像
+                const imgData = canvas.toDataURL("image/jpeg", 0.95);
+                
+                // 格式化当前时间为 YYYYMMDD-HHmm
+                const now = new Date();
+                const yearStr = now.getFullYear();
+                const monthStr = String(now.getMonth() + 1).padStart(2, "0");
+                const dayStr = String(now.getDate()).padStart(2, "0");
+                const hourStr = String(now.getHours()).padStart(2, "0");
+                const minStr = String(now.getMinutes()).padStart(2, "0");
+                
+                const filename = `${yearStr}${monthStr}${dayStr}-${hourStr}${minStr}.jpg`;
+
+                // 模拟链接点击进行下载
+                const link = document.createElement("a");
+                link.href = imgData;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast("截图已保存！");
+            }).catch(err => {
+                console.error("html2canvas screenshot error:", err);
+                alert("生成日历截图失败，请重试！");
+            });
+        };
+
+        // 如果当前不是日历视图，先切回日历视图并渲染
+        if (!viewCalendar.classList.contains("active")) {
+            viewFolders.classList.remove("active");
+            viewCalendar.classList.add("active");
+            navBtnCalendar.classList.add("active");
+            navBtnList.classList.remove("active");
+            renderCalendar(currentYear, currentMonth);
+            setTimeout(captureAndDownload, 300); // 延时300ms确保渲染和切换完成
+        } else {
+            setTimeout(captureAndDownload, 100);
+        }
     });
 
     // 绑定导入数据按钮
@@ -1474,4 +2041,21 @@ document.addEventListener("DOMContentLoaded", () => {
     initDaySelect(currentDay);
     renderFolders();
     renderCalendar(currentYear, currentMonth);
+
+    // 全局点击/触碰其他地方时隐藏所有 tooltip 和右键菜单
+    const hideAllTooltipsAndMenusGlobally = (e) => {
+        if (!e.target.closest('.event-tag') && !e.target.closest('.event-tag-tooltip')) {
+            const tooltip = document.getElementById("event-tag-tooltip");
+            if (tooltip) {
+                tooltip.style.opacity = "0";
+                setTimeout(() => { tooltip.style.display = "none"; }, 150);
+            }
+            document.querySelectorAll(".event-tag.expanded").forEach(tag => {
+                tag.classList.remove("expanded");
+            });
+        }
+    };
+    
+    document.addEventListener("touchstart", hideAllTooltipsAndMenusGlobally, { passive: true });
+    document.addEventListener("click", hideAllTooltipsAndMenusGlobally);
 });

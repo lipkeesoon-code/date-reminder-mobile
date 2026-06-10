@@ -2,125 +2,220 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>schedule-mission-pc-app</title>
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>计划,任务,提醒</title>
+    <link rel="stylesheet" href="style.css?v=8.0">
+    <!-- PWA 配置及添加到手机主屏幕图标设置 -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="Date_Reminder.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="计划任务提醒">
     <!-- 引入谷歌中文字体以获得清新的排版 -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <!-- 左侧栏大框架 -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <button id="btn-import" class="icon-btn-header" title="Import Notpad 数据">
-                    <img src="设计风格/import_data.png" alt="Import 数据" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                    <span class="fallback-icon">📥</span>
-                </button>
-                <button id="btn-new-group" class="icon-btn-header" title="+ 新增群组 Add Folder">
-                    <img src="设计风格/add_folder.png" alt="+ 新增群组" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                    <span class="fallback-icon">➕</span>
-                </button>
-            </div>
-            
-            <div class="sidebar-content" id="sidebar-folders-container">
-                <!-- 文件夹和卡片内容将由 JavaScript 动态生成以支持无限新增、双击折叠、右键菜单和点选存盘 -->
+    <div class="phone-wrapper">
+        <div class="app-container">
+            <!-- 第一页: 群组文件夹与卡片列表视图 -->
+            <div id="view-folders" class="app-view active">
+                <!-- 顶部留白，给电话、时间留空位 -->
+                <div class="status-bar-spacer"></div>
+
+                <header class="view-header">
+                    <h1 class="view-title">计划,任务,提醒</h1>
+                    <div class="header-actions">
+                        <button id="btn-import" class="header-icon-btn" title="导入数据">
+                            <img src="设计风格/import_data.png" alt="Import" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                            <span class="fallback-icon">📥</span>
+                        </button>
+                        <button id="btn-new-group" class="header-icon-btn" title="新增群组 Folder">
+                            <img src="设计风格/add_folder.png" alt="Add Folder" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                            <span class="fallback-icon">📁</span>
+                        </button>
+                        <button id="btn-add-card-top" class="header-icon-btn" title="新增提醒 Card">
+                            <img src="设计风格/Add Remider .png" alt="Add Card" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                            <span class="fallback-icon">📋</span>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- 新建提醒卡片的双排输入面板 -->
+                <div id="add-card-panel" class="add-card-panel" style="display: none;">
+                    <div class="add-card-form">
+                        <div class="form-row">
+                            <span class="form-label">事项:</span>
+                            <input type="text" id="mobile-card-title-input" placeholder="输入事项名称" />
+                        </div>
+                        <div class="form-row date-selects-row">
+                            <span class="form-label">时间:</span>
+                            <div class="form-date-selectors">
+                                <select id="mobile-card-day" class="mobile-date-select">
+                                    <option value="">日(无)</option>
+                                    <!-- 动态生成 01 - 31 -->
+                                </select>
+                                <select id="mobile-card-month" class="mobile-date-select">
+                                    <option value="0">Jan 一月</option>
+                                    <option value="1">Feb 二月</option>
+                                    <option value="2">Mar 三月</option>
+                                    <option value="3">Apr 四月</option>
+                                    <option value="4">May 五月</option>
+                                    <option value="5">Jun 六月</option>
+                                    <option value="6">Jul 七月</option>
+                                    <option value="7">Aug 八月</option>
+                                    <option value="8">Sep 九月</option>
+                                    <option value="9">Oct 十月</option>
+                                    <option value="10">Nov 十一</option>
+                                    <option value="11">Dec 十二</option>
+                                </select>
+                                <select id="mobile-card-year" class="mobile-date-select">
+                                    <!-- 动态生成 2026 - 2126 -->
+                                </select>
+                                <select id="mobile-card-hour" class="mobile-date-select" style="display: none;">
+                                    <option value="">时辰(无)</option>
+                                    <option value="子时">子时</option>
+                                    <option value="丑时">丑时</option>
+                                    <option value="寅时">寅时</option>
+                                    <option value="卯时">卯时</option>
+                                    <option value="辰时">辰时</option>
+                                    <option value="巳时">巳时</option>
+                                    <option value="午时">午时</option>
+                                    <option value="未时">未时</option>
+                                    <option value="申时">申时</option>
+                                    <option value="酉时">酉时</option>
+                                    <option value="戌时">戌时</option>
+                                    <option value="亥时">亥时</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions-row">
+                            <button id="btn-mobile-save-card" class="confirm-btn">确认新增</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view-content" id="sidebar-folders-container">
+                    <!-- 文件夹和卡片内容由 JS 动态生成 -->
+                </div>
             </div>
 
-            <!-- 自定义右键上下文菜单 -->
+            <!-- 第二页: 日历大框架 -->
+            <div id="view-calendar" class="app-view">
+                <!-- 顶部留白，给电话、时间留空位 -->
+                <div class="status-bar-spacer"></div>
+
+                <div class="calendar-border-wrapper">
+                    <header class="calendar-header">
+                        <div class="calendar-header-top">
+                            <div class="date-selectors">
+                                <select id="select-year" class="cute-select">
+                                    <!-- 动态生成年份 -->
+                                    <option value="2026" selected>2026</option>
+                                </select>
+                                <div class="month-nav">
+                                    <button id="btn-month-prev" class="month-nav-btn" title="上一个月">‹</button>
+                                    <select id="select-month" class="cute-select">
+                                        <option value="0">Jan 一月</option>
+                                        <option value="1">Feb 二月</option>
+                                        <option value="2">Mar 三月</option>
+                                        <option value="3">Apr 四月</option>
+                                        <option value="4">May 五月</option>
+                                        <option value="5" selected>Jun 六月</option>
+                                        <option value="6">Jul 七月</option>
+                                        <option value="7">Aug 八月</option>
+                                        <option value="8">Sep 九月</option>
+                                        <option value="9">Oct 十月</option>
+                                        <option value="10">Nov 十一</option>
+                                        <option value="11">Dec 十二</option>
+                                    </select>
+                                    <button id="btn-month-next" class="month-nav-btn" title="下一个月">›</button>
+                                </div>
+                                <select id="select-day" class="cute-select">
+                                    <!-- 动态生成日期 -->
+                                </select>
+                            </div>
+                            
+                            <!-- 动态日期农历显示 -->
+                            <div class="lunar-display" id="lunar-info-header">
+                                丙午年 四月廿三 <span class="week-text weekday-1">星期一</span>
+                            </div>
+                        </div>
+
+                        <div class="search-bar-wrapper">
+                            <input type="text" id="search-input" placeholder="输入 : 任务名称 / 姓名 / 节日">
+                            <button id="btn-save-top" class="cute-btn">存档Save</button>
+                            <button id="btn-refresh-top" class="cute-btn">刷新Refresh</button>
+                        </div>
+                    </header>
+
+                    <!-- 日历网格区域 -->
+                    <div class="calendar-grid-wrapper">
+                        <div class="calendar-days-grid" id="calendar-days">
+                            <!-- 由 JS 动态填入日子 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 自定义右键/长按上下文菜单 (文件夹) -->
             <div id="folder-context-menu" class="context-menu" style="display: none;">
                 <div class="context-menu-item" id="menu-rename">重命名</div>
                 <div class="context-menu-item" id="menu-delete">删除</div>
             </div>
 
-            <!-- 自定义卡片右键上下文菜单 -->
+            <!-- 自定义右键/长按上下文菜单 (卡片) -->
             <div id="card-context-menu" class="context-menu" style="display: none;">
                 <div class="context-menu-item" id="card-menu-rename">重命名</div>
                 <div class="context-menu-item" id="card-menu-delete">删除</div>
             </div>
 
-            <!-- 左侧栏底部操作 -->
-            <div class="sidebar-footer">
-                <div class="action-icons">
-                    <button class="icon-btn" id="btn-save" title="存档 Save">
-                        <img src="设计风格/save.png" alt="保存" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                        <span class="fallback-icon">💾</span>
-                    </button>
-                    <button class="icon-btn" id="btn-bg" title="截图 Save JPG">
-                        <img src="设计风格/snapshot.png" alt="截图" class="icon-snapshot" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                        <span class="fallback-icon">📸</span>
-                    </button>
-                    <button class="icon-btn" id="btn-refresh" title="刷新 refresh">
-                        <img src="设计风格/refresh.png" alt="刷新" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                        <span class="fallback-icon">🔄</span>
-                    </button>
-                </div>
-            </div>
-        </aside>
+            <!-- 底部导航工具栏 -->
+            <nav class="bottom-nav">
+                <button class="nav-btn active" id="nav-btn-list" title="列表">
+                    <img src="设计风格/提醒Folder Icon .png" alt="📂" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">📂</span>
+                </button>
+                <button class="nav-btn" id="nav-btn-calendar" title="日历">
+                    <img src="设计风格/YueLi Icon.png" alt="📅" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">📅</span>
+                </button>
+                <button class="nav-btn" id="btn-bg" title="截图 Save JPG">
+                    <img src="设计风格/snapshot.png" alt="📸" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">📸</span>
+                </button>
+                <button class="nav-btn" id="btn-save" title="存档 Save">
+                    <img src="设计风格/save.png" alt="💾" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">💾</span>
+                </button>
+                <button class="nav-btn" id="btn-refresh" title="刷新 refresh">
+                    <img src="设计风格/refresh.png" alt="🔄" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">🔄</span>
+                </button>
+            </nav>
 
-        <!-- 右侧日历大框架 -->
-        <main class="calendar-container">
-            <div class="calendar-border-wrapper">
-                <!-- 顶部工具栏 -->
-                <header class="calendar-header">
-                    <div class="date-selectors">
-                        <select id="select-year" class="cute-select">
-                            <!-- 动态生成年份 -->
-                            <option value="2006">2006</option>
-                            <option value="2026" selected>2026</option>
-                        </select>
-                        <div class="month-nav">
-                            <button id="btn-month-prev" class="month-nav-btn" title="上一个月">‹</button>
-                            <select id="select-month" class="cute-select">
-                                <option value="0">Jan 一月</option>
-                                <option value="1">Feb 二月</option>
-                                <option value="2">Mar 三月</option>
-                                <option value="3">Apr 四月</option>
-                                <option value="4">May 五月</option>
-                                <option value="5" selected>Jun 六月</option>
-                                <option value="6">Jul 七月</option>
-                                <option value="7">Aug 八月</option>
-                                <option value="8">Sep 九月</option>
-                                <option value="9">Oct 十月</option>
-                                <option value="10">Nov 十一</option>
-                                <option value="11">Dec 十二</option>
-                            </select>
-                            <button id="btn-month-next" class="month-nav-btn" title="下一个月">›</button>
-                        </div>
-                        <select id="select-day" class="cute-select">
-                            <!-- 动态生成日期 -->
-                            <option value="8" selected>08</option>
-                        </select>
-                    </div>
-                    
-                    <div class="search-bar-wrapper">
-                        <input type="text" id="search-input" placeholder="输入: 任务名称 / 姓名 / 节日">
-                        <button id="btn-save-top" class="cute-btn">存档Save</button>
-                        <button id="btn-refresh-top" class="cute-btn">刷新Refresh</button>
-                    </div>
-
-                    <!-- 动态日期农历显示 -->
-                    <div class="lunar-display" id="lunar-info-header">
-                        廿三 四月丙午年 <span class="week-text weekday-1">星期一</span>
-                    </div>
-                </header>
-
-                <!-- 日历网格区域 -->
-                <div class="calendar-grid-wrapper">
-                    <!-- 日历日子网格 (由 JS 动态填入 7 行 7 列，包含最左侧的星期标题) -->
-                    <div class="calendar-days-grid" id="calendar-days">
-                        <!-- 由 JS 动态填入日子 -->
-                    </div>
-                </div>
-
-
-            </div>
-        </main>
+            <!-- Toast 提示容器 -->
+            <div id="toast-container" class="toast-container" style="display: none;"></div>
+        </div>
     </div>
-    <!-- 引入用于公历农历精准转换的 lunar-javascript 库 -->
+
+    <!-- 用于公历农历精准转换的库 -->
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.4/lunar.min.js"></script>
-    <!-- 引入用于网页截图导出的 html2canvas 库 -->
+    <!-- 用于网页截图导出的库 -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="script.js?v=1.1"></script>
+    <script src="script.js?v=5.0"></script>
+    <script>
+        // 注册 PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
