@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mobileCardYear.value = currentYear;
 
         // 日期：无日 和 1-31
-        mobileCardDay.innerHTML = '<option value="">无日</option>';
+        mobileCardDay.innerHTML = '';
         for (let d = 1; d <= 31; d++) {
             const opt = document.createElement("option");
             opt.value = d;
