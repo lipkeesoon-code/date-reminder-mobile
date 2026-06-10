@@ -1105,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-bg").addEventListener("click", () => {
         // 1. 播放 DSLR 快门声音
         try {
-            const shutterSound = new Audio("设计风格/Canon DSLR Shutter Sound.mp3");
+            const shutterSound = new Audio("设计风格/shutter_sound.mp3");
             shutterSound.play().catch(err => {
                 console.log("Audio play blocked or file not found:", err);
             });
