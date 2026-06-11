@@ -678,14 +678,14 @@ body {
 
 .day-header {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-end;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: baseline;
     margin-bottom: 2px;
 }
 
 .solar-date {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: bold;
     color: var(--color-weekday);
 }
@@ -693,11 +693,11 @@ body {
 .day-cell.sun .solar-date { color: var(--color-sunday); }
 
 .lunar-date {
-    font-size: 9px;
+    font-size: 12px;
     color: var(--color-lunar);
 }
 .lunar-date.is-month-start {
-    font-size: 10px;
+    font-size: 13px;
     font-weight: bold;
 }
 
@@ -716,7 +716,7 @@ body {
     display: block;
     max-width: 100%;
     box-sizing: border-box;
-    font-size: 8px;
+    font-size: 12px;
     padding: 1px 2px;
     border-radius: 3px;
     color: #000 !important;  /* 字永远黑色 */
