@@ -1171,7 +1171,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.body.appendChild(tooltip);
                 }
                 tooltip.textContent = card.title;
-                tooltip.style.backgroundColor = tag.style.backgroundColor;
+                tooltip.style.backgroundColor = window.getComputedStyle(tag).backgroundColor;
                 tooltip.style.display = "block";
 
                 // 取得触发位置
