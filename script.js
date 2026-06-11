@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const mobileCardDay = document.getElementById("mobile-card-day");
     const mobileCardMonth = document.getElementById("mobile-card-month");
     const mobileCardYear = document.getElementById("mobile-card-year");
-    const mobileCardHour = document.getElementById("mobile-card-hour");
     const btnMobileSaveCard = document.getElementById("btn-mobile-save-card");
 
     if (btnAddCardTop && addCardPanel) {
@@ -93,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 btnAddCardTop.classList.add("active");
                 // 初始化下拉框选项
                 initMobileCardFormSelectors();
-                updateHourSelectVisibility();
             } else {
                 addCardPanel.style.display = "none";
                 btnAddCardTop.classList.remove("active");
@@ -136,16 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (mobileCardMonth) mobileCardMonth.value = currentMonth;
     };
 
-    const updateHourSelectVisibility = () => {
-        if (!mobileCardHour) return;
-        const activeFolder = foldersData && foldersData.find(g => g.id === selectedSaveGroupId);
-        if (activeFolder && typeof isBirthdayGroup === "function" && isBirthdayGroup(activeFolder)) {
-            mobileCardHour.style.display = "inline-block";
-        } else {
-            mobileCardHour.style.display = "none";
-            mobileCardHour.value = ""; // 清空
-        }
-    };
+
     // 手机触屏长按手势检测
     const addLongPressListener = (el, callback) => {
         let timer = null;
@@ -665,7 +654,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 groupEl.classList.toggle("collapsed", group.collapsed);
                 
                 saveData();
-                updateHourSelectVisibility();
             });
 
             // 3. 点击空点圈作为存档地
@@ -677,7 +665,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     el.classList.remove("selected");
                 });
                 circleSelect.classList.add("selected");
-                updateHourSelectVisibility();
             });
 
             // 4. 点击开关控制日期提醒
@@ -1545,7 +1532,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const dayVal = mobileCardDay.value ? parseInt(mobileCardDay.value) : null;
         const monthVal = parseInt(mobileCardMonth.value);
         const yearVal = mobileCardYear.value ? parseInt(mobileCardYear.value) : null;
-        const hourVal = mobileCardHour.value;
 
         // 生成规范的日期字符串
         let newDateStr = "";
@@ -1560,7 +1546,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (dayVal) parts.push(dayVal);
             
             newDateStr = parts.join(" ");
-            if (hourVal) newDateStr += ` ${hourVal}`;
         } else {
             // 普通提醒格式例如: 27 Oct 2026 或者 27 Oct 或者 Oct 2026 或者 Oct
             const monthName = monthNamesAbbr[monthVal];
