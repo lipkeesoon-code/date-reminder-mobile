@@ -673,7 +673,8 @@ body {
 }
 
 .day-cell.highlighted-target {
-    background-color: #ddbbd9 !important;
+    border: 3px solid rgb(126, 137, 193) !important;
+    box-sizing: border-box;
 }
 
 .day-header {
@@ -682,6 +683,8 @@ body {
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 2px;
+    position: relative;
+    z-index: 2;
 }
 
 .solar-date {
@@ -708,6 +711,8 @@ body {
     gap: 1px;
     overflow-y: auto;
     flex: 1;
+    position: relative;
+    z-index: 2;
 }
 
 
@@ -872,4 +877,32 @@ body {
     0% { transform: scale(1); }
     50% { transform: scale(1.18); }
     100% { transform: scale(1); }
+}
+
+/* 多天事项高亮颜色 */
+.multi-day-highlight-1 {
+    background-color: #f5f29f !important;
+}
+.multi-day-highlight-2 {
+    background-color: #adddd2 !important;
+}
+.multi-day-highlight-3 {
+    background-color: #d4c1ea !important;
+}
+.multi-day-highlight-4 {
+    background-color: #afafd8 !important;
+}
+.multi-day-highlight-5 {
+    background-color: #d3a7aa !important;
+}
+
+.day-cell-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 1;
 }

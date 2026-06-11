@@ -18,7 +18,7 @@
     <div class="phone-wrapper">
         <div class="app-container">
             <!-- 第一页: 群组文件夹与卡片列表视图 -->
-            <div id="view-folders" class="app-view active">
+            <div id="view-folders" class="app-view">
                 <!-- 顶部留白，给电话、时间留空位 -->
                 <div class="status-bar-spacer"></div>
 
@@ -72,6 +72,31 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="form-row date-selects-row">
+                            <span class="form-label" style="text-align: right; padding-right: 4px;">到:</span>
+                            <div class="form-date-selectors">
+                                <select id="mobile-card-end-day" class="mobile-date-select">
+                                    <!-- 动态生成 01 - 31 -->
+                                </select>
+                                <select id="mobile-card-end-month" class="mobile-date-select">
+                                    <option value="0">Jan 一月</option>
+                                    <option value="1">Feb 二月</option>
+                                    <option value="2">Mar 三月</option>
+                                    <option value="3">Apr 四月</option>
+                                    <option value="4">May 五月</option>
+                                    <option value="5">Jun 六月</option>
+                                    <option value="6">Jul 七月</option>
+                                    <option value="7">Aug 八月</option>
+                                    <option value="8">Sep 九月</option>
+                                    <option value="9">Oct 十月</option>
+                                    <option value="10">Nov 十一</option>
+                                    <option value="11">Dec 十二</option>
+                                </select>
+                                <select id="mobile-card-end-year" class="mobile-date-select">
+                                    <!-- 动态生成 2026 - 2126 -->
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-actions-row">
                             <button id="btn-mobile-save-card" class="confirm-btn">确认新增</button>
                         </div>
@@ -84,7 +109,7 @@
             </div>
 
             <!-- 第二页: 日历大框架 -->
-            <div id="view-calendar" class="app-view">
+            <div id="view-calendar" class="app-view active">
                 <!-- 顶部留白，给电话、时间留空位 -->
                 <div class="status-bar-spacer"></div>
 
@@ -155,11 +180,11 @@
 
             <!-- 底部导航工具栏 -->
             <nav class="bottom-nav">
-                <button class="nav-btn active" id="nav-btn-list" title="列表">
+                <button class="nav-btn" id="nav-btn-list" title="列表">
                     <img src="设计风格/提醒Folder Icon .png" alt="📂" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📂</span>
                 </button>
-                <button class="nav-btn" id="nav-btn-calendar" title="日历">
+                <button class="nav-btn active" id="nav-btn-calendar" title="日历">
                     <img src="设计风格/YueLi Icon.png" alt="📅" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📅</span>
                 </button>

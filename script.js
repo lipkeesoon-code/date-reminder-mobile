@@ -81,6 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const mobileCardDay = document.getElementById("mobile-card-day");
     const mobileCardMonth = document.getElementById("mobile-card-month");
     const mobileCardYear = document.getElementById("mobile-card-year");
+    const mobileCardEndDay = document.getElementById("mobile-card-end-day");
+    const mobileCardEndMonth = document.getElementById("mobile-card-end-month");
+    const mobileCardEndYear = document.getElementById("mobile-card-end-year");
     const btnMobileSaveCard = document.getElementById("btn-mobile-save-card");
 
     if (btnAddCardTop && addCardPanel) {
@@ -112,26 +115,45 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // 年份：无年 和 2026-2126
         mobileCardYear.innerHTML = '<option value="">无年</option>';
+        if (mobileCardEndYear) mobileCardEndYear.innerHTML = '<option value="">无年</option>';
         for (let y = 2026; y <= 2126; y++) {
             const opt = document.createElement("option");
             opt.value = y;
             opt.textContent = y;
             mobileCardYear.appendChild(opt);
+            
+            if (mobileCardEndYear) {
+                const endOpt = document.createElement("option");
+                endOpt.value = y;
+                endOpt.textContent = y;
+                mobileCardEndYear.appendChild(endOpt);
+            }
         }
         mobileCardYear.value = currentYear;
+        if (mobileCardEndYear) mobileCardEndYear.value = currentYear;
 
         // 日期：无日 和 1-31
         mobileCardDay.innerHTML = '';
+        if (mobileCardEndDay) mobileCardEndDay.innerHTML = '';
         for (let d = 1; d <= 31; d++) {
             const opt = document.createElement("option");
             opt.value = d;
             opt.textContent = String(d).padStart(2, "0");
             mobileCardDay.appendChild(opt);
+            
+            if (mobileCardEndDay) {
+                const endOpt = document.createElement("option");
+                endOpt.value = d;
+                endOpt.textContent = String(d).padStart(2, "0");
+                mobileCardEndDay.appendChild(endOpt);
+            }
         }
         mobileCardDay.value = currentDay;
+        if (mobileCardEndDay) mobileCardEndDay.value = currentDay;
 
         // 月份默认当月
         if (mobileCardMonth) mobileCardMonth.value = currentMonth;
+        if (mobileCardEndMonth) mobileCardEndMonth.value = currentMonth;
     };
 
 
@@ -379,24 +401,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // 精准解析卡片中的日期格式
-    const parseCardDate = (dateStr, defaultYear) => {
-        if (!dateStr) return { year: defaultYear, month: 0, day: 1, hasYear: false };
-        const str = dateStr.toLowerCase().trim();
-        
+    // 精准解析单个日期字符串的辅助函数
+    const parseSingleDate = (str, defaultYear) => {
         let year = defaultYear;
         let hasYear = false;
         let month = 0;
         let day = null;
 
-        // 1. 提取 4 位数字年份 (1900-2199)
         const yearMatch = str.match(/\b(19\d{2}|20\d{2}|21\d{2})\b/);
         if (yearMatch) {
             year = parseInt(yearMatch[1]);
             hasYear = true;
         }
 
-        // 2. 匹配月份 (英文缩写/全称)
         let foundMonth = false;
         for (let i = 0; i < 12; i++) {
             if (str.includes(monthNamesAbbr[i].toLowerCase()) || str.includes(monthFullNames[i])) {
@@ -405,7 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 break;
             }
         }
-        // 匹配中文月份 (如：4月，或者 八月、十一月)
         if (!foundMonth) {
             const cnMonthMatch = str.match(/(\d{1,2})\s*月/);
             if (cnMonthMatch) {
@@ -432,7 +448,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // 3. 匹配天数
         let cleanStr = str;
         if (yearMatch) {
             cleanStr = str.replace(yearMatch[0], "");
@@ -452,6 +467,45 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return { year, month, day, hasYear };
+    };
+
+    // 精准解析卡片中的日期格式，支持 "~" 或 "到" 分隔的区间
+    const parseCardDate = (dateStr, defaultYear) => {
+        if (!dateStr) return { year: defaultYear, month: 0, day: 1, hasYear: false, hasEndDate: false };
+        let str = dateStr.toLowerCase().trim();
+        
+        let startStr = str;
+        let endStr = null;
+        
+        if (str.includes("~")) {
+            const parts = str.split("~");
+            startStr = parts[0];
+            endStr = parts[1];
+        } else if (str.includes("到")) {
+            const parts = str.split("到");
+            startStr = parts[0];
+            endStr = parts[1];
+        }
+        
+        const startParsed = parseSingleDate(startStr, defaultYear);
+        const result = {
+            year: startParsed.year,
+            month: startParsed.month,
+            day: startParsed.day,
+            hasYear: startParsed.hasYear,
+            hasEndDate: false
+        };
+        
+        if (endStr) {
+            const endParsed = parseSingleDate(endStr, defaultYear);
+            result.hasEndDate = true;
+            result.endYear = endParsed.year;
+            result.endMonth = endParsed.month;
+            result.endDay = endParsed.day;
+            result.hasEndYear = endParsed.hasYear;
+        }
+        
+        return result;
     };
 
     // 使用 lunar-javascript 获取精准农历日期
@@ -592,8 +646,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 };
 
-                // 双击卡片自动跳转日历到对应的年月及日子
-                cardEl.addEventListener("dblclick", () => {
+                // 单击卡片自动跳转日历到对应的年月及日子
+                cardEl.addEventListener("click", () => {
                     trackToCalendar(false);
                 });
 
@@ -606,11 +660,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
 
-                // 手机端手势：0.1秒跳转日历，3秒弹出重命名/删除菜单
+                // 手机端手势：3秒弹出重命名/删除菜单
                 addDualPressListener(cardEl, 
-                    (e) => {
-                        trackToCalendar(false);
-                    },
+                    null,
                     (e) => {
                         e.stopPropagation();
                         activeRightClickedCardId = card.id;
@@ -1005,8 +1057,68 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    let currentMonthMultiDayTracksMap = {};
+
     // 渲染右侧日历网格
     const renderCalendar = (year, month) => {
+        // --- 预处理当前月所有跨天事件，分配固定 Color Index ---
+        currentMonthMultiDayTracksMap = {};
+        
+        const monthStart = new Date(year, month, 1).getTime();
+        const monthEnd = new Date(year, month + 1, 0).getTime();
+        
+        let activeMultiDayEvents = [];
+        
+        foldersData.forEach(group => {
+            if (group.visible === false) return;
+            group.cards.forEach(card => {
+                const parsed = parseCardDate(card.dateStr, year);
+                if (!parsed.hasEndDate) return;
+                
+                const isRecurring = !parsed.hasYear || isBirthdayGroup(group) || isFestivalGroup(group);
+                
+                const sYear = isRecurring ? year : parsed.year;
+                const sMonth = parsed.month;
+                const sDay = parsed.day || 1;
+
+                let eYear = isRecurring ? year : parsed.endYear;
+                const eMonth = parsed.endMonth;
+                const eDay = parsed.endDay || 1;
+                
+                if (isRecurring && eMonth < sMonth) {
+                    if (month <= eMonth) eYear = year;
+                    else eYear = year + 1;
+                }
+
+                const startTime = new Date(isRecurring && month <= eMonth && eMonth < sMonth ? year - 1 : sYear, sMonth, sDay).getTime();
+                const endTime = new Date(eYear, eMonth, eDay).getTime();
+
+                // 2天以上的行程才加入高亮
+                const durationDays = Math.round((endTime - startTime) / (24 * 60 * 60 * 1000)) + 1;
+                if (durationDays < 2) return;
+
+                if (endTime >= monthStart && startTime <= monthEnd) {
+                    activeMultiDayEvents.push({
+                        id: card.id,
+                        startTime: startTime,
+                        endTime: endTime,
+                        colorIndex: 0
+                    });
+                }
+            });
+        });
+
+        // 排序规则：先按开始时间，然后按结束时间
+        activeMultiDayEvents.sort((a, b) => {
+            if (a.startTime !== b.startTime) return a.startTime - b.startTime;
+            return a.endTime - b.endTime;
+        });
+
+        activeMultiDayEvents.forEach((evt, idx) => {
+            evt.colorIndex = (idx % 5) + 1;
+            currentMonthMultiDayTracksMap[evt.id] = evt;
+        });
+        // --- 预处理结束 ---
         // 根据当月1号动态计算并更新对应的节气色主题类名
         try {
             const solar = Solar.fromYmd(year, month + 1, 1);
@@ -1144,6 +1256,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 1. 匹配并收集当前日期的用户卡片提醒
         const activeCards = [];
+        const dayHighlights = []; // 收集当日所有跨天高亮颜色索引
+
         foldersData.forEach(group => {
             if (group.visible === false) return;
             group.cards.forEach(card => {
@@ -1152,33 +1266,62 @@ document.addEventListener("DOMContentLoaded", () => {
                 // 如果卡片没有指定年份，或者属于生日群组，判定为每年重复
                 const isRecurring = !parsed.hasYear || isBirthdayGroup(group) || isFestivalGroup(group);
                 
-                let matches = false;
-                if (isRecurring) {
-                    if (parsed.day !== null && parsed.day !== undefined) {
-                        matches = (parsed.month === month && parsed.day === day);
-                    } else {
-                        // 无具体日期则匹配到该月第一天
-                        matches = (parsed.month === month && day === 1);
+                let matchesStart = false;
+                let isInRange = false;
+
+                const currentDateTime = new Date(year, month, day).getTime();
+
+                if (parsed.hasEndDate) {
+                    // 从预处理中获取事件的分配
+                    const trackInfo = currentMonthMultiDayTracksMap[card.id];
+                    if (trackInfo && currentDateTime >= trackInfo.startTime && currentDateTime <= trackInfo.endTime) {
+                        isInRange = true;
+                        dayHighlights.push(trackInfo.colorIndex); // 收集底色
+                        if (currentDateTime === trackInfo.startTime) {
+                            matchesStart = true;
+                        }
                     }
                 } else {
-                    // 常规提醒精确匹配年份
-                    if (parsed.day !== null && parsed.day !== undefined) {
-                        matches = (parsed.year === year && parsed.month === month && parsed.day === day);
+                    // 单天判断
+                    if (isRecurring) {
+                        if (parsed.day !== null && parsed.day !== undefined) {
+                            matchesStart = (parsed.month === month && parsed.day === day);
+                        } else {
+                            matchesStart = (parsed.month === month && day === 1);
+                        }
                     } else {
-                        // 无具体日期则匹配到该月第一天
-                        matches = (parsed.year === year && parsed.month === month && day === 1);
+                        if (parsed.day !== null && parsed.day !== undefined) {
+                            matchesStart = (parsed.year === year && parsed.month === month && parsed.day === day);
+                        } else {
+                            matchesStart = (parsed.year === year && parsed.month === month && day === 1);
+                        }
                     }
+                    if (matchesStart) isInRange = true;
                 }
 
-                if (!isDimmed && matches) {
-                    activeCards.push({
-                        title: card.title,
-                        group: group,
-                        cardId: card.id   // 记录卡片 id，用于双击定位左侧栏
-                    });
+                if (!isDimmed) {
+                    if (isInRange) {
+                        // 只有符合开始日期时才推入 activeCards 以渲染标签
+                        if (!parsed.hasEndDate || matchesStart) {
+                            activeCards.push({
+                                title: card.title,
+                                group: group,
+                                cardId: card.id
+                            });
+                        }
+                    }
                 }
             });
         });
+
+        // 渲染高亮叠色遮罩（仅限非 dimmed 格子）
+        if (!isDimmed && dayHighlights.length > 0) {
+            dayHighlights.forEach(colorIdx => {
+                const hlDiv = document.createElement("div");
+                hlDiv.className = `day-cell-highlight multi-day-highlight-${colorIdx}`;
+                cell.appendChild(hlDiv);
+            });
+        }
 
         // 2. 渲染用户卡片提醒
         activeCards.forEach(card => {
@@ -1533,6 +1676,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const monthVal = parseInt(mobileCardMonth.value);
         const yearVal = mobileCardYear.value ? parseInt(mobileCardYear.value) : null;
 
+        const endDayVal = mobileCardEndDay && mobileCardEndDay.value ? parseInt(mobileCardEndDay.value) : null;
+        const endMonthVal = mobileCardEndMonth && mobileCardEndMonth.value !== "" ? parseInt(mobileCardEndMonth.value) : null;
+        const endYearVal = mobileCardEndYear && mobileCardEndYear.value ? parseInt(mobileCardEndYear.value) : null;
+
+        const isSameDate = (dayVal === endDayVal && monthVal === endMonthVal && yearVal === endYearVal);
+
         // 生成规范的日期字符串
         let newDateStr = "";
         const isBirthday = isBirthdayGroup(activeFolder);
@@ -1562,6 +1711,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     newDateStr = `${monthName}`;
                 }
             }
+        }
+
+        if (!isSameDate && endMonthVal !== null) {
+            let endDateStr = "";
+            const endMonthName = monthNamesAbbr[endMonthVal];
+            if (endDayVal) {
+                if (endYearVal) {
+                    endDateStr = `${endDayVal} ${endMonthName} ${endYearVal}`;
+                } else {
+                    endDateStr = `${endDayVal} ${endMonthName}`;
+                }
+            } else {
+                if (endYearVal) {
+                    endDateStr = `${endMonthName} ${endYearVal}`;
+                } else {
+                    endDateStr = `${endMonthName}`;
+                }
+            }
+            newDateStr = `${newDateStr} ~ ${endDateStr}`;
         }
 
         const newCard = {
