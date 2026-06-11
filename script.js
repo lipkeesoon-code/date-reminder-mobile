@@ -485,6 +485,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const parts = str.split("到");
             startStr = parts[0];
             endStr = parts[1];
+        } else if (str.includes("-")) {
+            const parts = str.split("-");
+            startStr = parts[0];
+            endStr = parts[1];
+        } else if (str.includes("至")) {
+            const parts = str.split("至");
+            startStr = parts[0];
+            endStr = parts[1];
         }
         
         const startParsed = parseSingleDate(startStr, defaultYear);
@@ -2130,12 +2138,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 const backupRegex = /^(.+?)\s*\(([^)]+)\)$/;
                 const backupMatch = cleanLine.match(backupRegex);
 
+                // 新增：识别开头的标准中文日期（包括范围）
+                const cnDateRangeStartRegex = /^((?:\d{4}年\s*)?\d{1,2}月\d{1,2}日(?:[\s\t]*(?:到|-|~|至)[\s\t]*(?:\d{4}年\s*)?\d{1,2}月\d{1,2}日)?)\s+(.+)$/;
+                const cnDateRangeMatch = cleanLine.match(cnDateRangeStartRegex);
+
                 if (backupMatch) {
                     title = backupMatch[1].trim();
                     dateStr = backupMatch[2].trim();
+                } else if (cnDateRangeMatch) {
+                    dateStr = cnDateRangeMatch[1].trim();
+                    title = cnDateRangeMatch[2].trim();
                 } else {
                     // 2. 否则，使用智能多空白符/制表符切分
-                    const parts = cleanLine.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
+                    const parts = cleanLine.split(/\s{3,}|\t+/).map(p => p.trim()).filter(Boolean);
 
                     if (parts.length >= 2) {
                         let maxScore = -999;
