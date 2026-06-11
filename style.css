@@ -106,7 +106,7 @@ body {
 
 /* 状态栏留空（给电话、时间） */
 .status-bar-spacer {
-    height: 20px;
+    height: 0px;
     width: 100%;
     flex-shrink: 0;
 }
