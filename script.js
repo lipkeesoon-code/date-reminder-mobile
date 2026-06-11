@@ -854,13 +854,43 @@ document.addEventListener("DOMContentLoaded", () => {
         dateInput.value = oldDate;
         dateInput.style.width = "100%";
 
+        const actionsRow = document.createElement("div");
+        actionsRow.style.display = "flex";
+        actionsRow.style.gap = "6px";
+        actionsRow.style.marginTop = "6px";
+        actionsRow.style.justifyContent = "flex-end";
+
+        const btnConfirm = document.createElement("button");
+        btnConfirm.textContent = "完成";
+        btnConfirm.className = "cute-btn";
+        btnConfirm.style.backgroundColor = "var(--color-weekday)";
+        btnConfirm.style.color = "#fff";
+        btnConfirm.style.border = "none";
+        btnConfirm.style.padding = "4px 10px";
+
+        const btnCancel = document.createElement("button");
+        btnCancel.textContent = "取消";
+        btnCancel.className = "cute-btn";
+        btnCancel.style.backgroundColor = "#eee";
+        btnCancel.style.color = "#666";
+        btnCancel.style.border = "none";
+        btnCancel.style.padding = "4px 10px";
+
+        actionsRow.appendChild(btnCancel);
+        actionsRow.appendChild(btnConfirm);
+
         titleEl.replaceWith(titleInput);
         dateEl.replaceWith(dateInput);
+        
+        const cardInfo = cardEl.querySelector(".card-info");
+        cardInfo.appendChild(actionsRow);
 
         titleInput.focus();
         titleInput.select();
 
         let finished = false;
+        let isCancelling = false;
+
         const applyEdit = () => {
             if (finished) return;
             finished = true;
@@ -876,24 +906,34 @@ document.addEventListener("DOMContentLoaded", () => {
             renderCalendar(currentYear, currentMonth); // 同步刷新右侧日历
         };
 
-        titleInput.addEventListener("blur", () => {
-            setTimeout(() => {
-                if (document.activeElement !== dateInput) applyEdit();
-            }, 100);
-        });
+        const cancelEdit = () => {
+            if (finished) return;
+            finished = true;
+            renderFolders();
+        };
 
-        dateInput.addEventListener("blur", () => {
+        btnCancel.addEventListener("mousedown", () => { isCancelling = true; });
+        btnCancel.addEventListener("touchstart", () => { isCancelling = true; }, {passive: true});
+        btnCancel.addEventListener("click", cancelEdit);
+
+        btnConfirm.addEventListener("mousedown", () => { isCancelling = false; });
+        btnConfirm.addEventListener("touchstart", () => { isCancelling = false; }, {passive: true});
+        btnConfirm.addEventListener("click", applyEdit);
+
+        const checkBlur = () => {
             setTimeout(() => {
-                if (document.activeElement !== titleInput) applyEdit();
-            }, 100);
-        });
+                if (!isCancelling && document.activeElement !== titleInput && document.activeElement !== dateInput) {
+                    applyEdit();
+                }
+            }, 150);
+        };
+
+        titleInput.addEventListener("blur", checkBlur);
+        dateInput.addEventListener("blur", checkBlur);
 
         const handleKeys = (e) => {
             if (e.key === "Enter") applyEdit();
-            if (e.key === "Escape") {
-                finished = true;
-                renderFolders(); // 撤销修改
-            }
+            if (e.key === "Escape") cancelEdit();
         };
         titleInput.addEventListener("keydown", handleKeys);
         dateInput.addEventListener("keydown", handleKeys);
