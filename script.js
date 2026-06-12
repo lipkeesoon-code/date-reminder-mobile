@@ -1,3 +1,22 @@
+let isCalcSoundOn = true;
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function playCalcBeep() {
+    if (!isCalcSoundOn) return;
+    if (!audioCtx) audioCtx = new AudioContextClass();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // 默认展示的年份与月份（设定为今日日期）
     const todayObj = new Date();
@@ -2711,6 +2730,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".calc-key").forEach(btn => {
         btn.addEventListener("click", () => {
+            playCalcBeep();
             if (btn.id === "btn-calc-clear") {
                 calcExpression = "";
                 updateCalcDisplay();
@@ -2747,7 +2767,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    document.getElementById("btn-calc-sound")?.addEventListener("click", () => {
+        isCalcSoundOn = !isCalcSoundOn;
+        document.getElementById("btn-calc-sound").textContent = isCalcSoundOn ? "🔊" : "🔇";
+        if (isCalcSoundOn) playCalcBeep();
+    });
+
     document.getElementById("btn-calc-backspace")?.addEventListener("click", () => {
+        playCalcBeep();
         if (calcExpression.length > 0) {
             calcExpression = calcExpression.slice(0, -1);
             updateCalcDisplay();

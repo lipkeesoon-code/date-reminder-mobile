@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.cdnfonts.com/css/cooper-black');
+@import url('https://fonts.cdnfonts.com/css/cooper-black');
 /* ==========================================================================
    è®¾è®¡é£Žæ ¼ï¼šç§»åŠ¨ç«¯ + å¯çˆ±æ¸…æ–°ç‰ˆ (é’ˆå¯¹ 390x844 æ‰‹æœºå°ºå¯¸åŠå“åº”å¼å…¨å±è¿›è¡Œè®¾è®¡)
    ========================================================================== */
@@ -1196,6 +1196,20 @@ body {
     line-height: 1.1;
     overflow-y: auto;
     max-height: 180px;
+}
+
+
+.calc-sound-toggle {
+    font-family: 'Outfit', sans-serif;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0 5px;
+    margin-right: auto;
+}
+.calc-sound-toggle:active {
+    transform: scale(0.9);
 }
 
 .calc-result-row {
