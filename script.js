@@ -424,6 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let year = defaultYear;
         let hasYear = false;
         let month = 0;
+        let hasMonth = false;
         let day = null;
 
         const yearMatch = str.match(/\b(19\d{2}|20\d{2}|21\d{2})\b/);
@@ -465,6 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         }
+        hasMonth = foundMonth;
 
         let cleanStr = str;
         if (yearMatch) {
@@ -484,7 +486,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        return { year, month, day, hasYear };
+        return { year, month, day, hasYear, hasMonth };
     };
 
     // 精准解析卡片中的日期格式，支持 "~" 或 "到" 分隔的区间
@@ -525,8 +527,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (endStr) {
             const endParsed = parseSingleDate(endStr, defaultYear);
             result.hasEndDate = true;
-            result.endYear = endParsed.year;
-            result.endMonth = endParsed.month;
+            result.endYear = endParsed.hasYear ? endParsed.year : result.year;
+            result.endMonth = endParsed.hasMonth ? endParsed.month : result.month;
             result.endDay = endParsed.day;
             result.hasEndYear = endParsed.hasYear;
         }
@@ -631,7 +633,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         year: currentYear,
                         month: currentMonth,
                         day: (parsed.day !== null && parsed.day !== undefined) ? parsed.day : null,
-                        isRecurring: isRecur
+                        isRecurring: isRecur,
+                        hasEndDate: parsed.hasEndDate,
+                        endYear: parsed.endYear,
+                        endMonth: parsed.endMonth,
+                        endDay: parsed.endDay
                     };
 
                     // 同步更新顶部选择下拉框
@@ -1249,8 +1255,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 // 生日与节日：跨年重复，只匹配月份和日子
                 isMatch = (highlightedDate.month === month && highlightedDate.day === day);
             } else {
-                // 任务卡片等常规提醒：精确匹配年、月、日
-                isMatch = (highlightedDate.year === year && highlightedDate.month === month && highlightedDate.day === day);
+                // 任务卡片等常规提醒：精确匹配年、月、日，或日期区间
+                if (highlightedDate.hasEndDate && highlightedDate.day && highlightedDate.endDay) {
+                    const currentCellTime = new Date(year, month, day).getTime();
+                    const startTime = new Date(highlightedDate.year, highlightedDate.month, highlightedDate.day).getTime();
+                    const endTime = new Date(highlightedDate.endYear, highlightedDate.endMonth, highlightedDate.endDay).getTime();
+                    isMatch = (currentCellTime >= startTime && currentCellTime <= endTime);
+                } else {
+                    isMatch = (highlightedDate.year === year && highlightedDate.month === month && highlightedDate.day === day);
+                }
             }
             if (isMatch) {
                 cell.classList.add("highlighted-target");
