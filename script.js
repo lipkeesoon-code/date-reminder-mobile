@@ -679,12 +679,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
 
                 // 单击卡片自动跳转日历到对应的年月及日子
-                cardEl.addEventListener("click", () => {
+                cardEl.addEventListener("click", (e) => {
+                    const tag = e.target.tagName.toLowerCase();
+                    if (tag === "input" || tag === "button") return;
                     trackToCalendar(false);
                 });
 
                 // 右键上下文菜单事件 -> 追踪到日历，并在高亮的日期格子上弹出菜单
                 cardEl.addEventListener("contextmenu", (e) => {
+                    const tag = e.target.tagName.toLowerCase();
+                    if (tag === "input" || tag === "button") return;
                     e.preventDefault();
                     e.stopPropagation(); // 阻止事件冒泡到父文件夹
                     if (!isTouchDevice) {
