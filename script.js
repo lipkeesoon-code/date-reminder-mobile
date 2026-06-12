@@ -2259,6 +2259,501 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCalendar(currentYear, currentMonth);
     };
 
+    // ==========================================================================
+    // Notepad 功能模块
+    // ==========================================================================
+    const viewNotepad = document.getElementById("view-notepad");
+    const viewNotepadEditor = document.getElementById("view-notepad-editor");
+    const navBtnNotepad = document.getElementById("nav-btn-notepad");
+    const notepadFoldersContainer = document.getElementById("notepad-folders-container");
+    
+    // Notepad 数据
+    let notepadData = [];
+    try {
+        const storedNotepad = localStorage.getItem("notepad_data");
+        if (storedNotepad) notepadData = JSON.parse(storedNotepad);
+    } catch(e) { console.error("Failed to parse notepad data", e); }
+
+    let selectedNotepadFolderId = null;
+    let currentEditingFileId = null;
+    let currentEditingFolderId = null;
+
+    const saveNotepadData = () => {
+        localStorage.setItem("notepad_data", JSON.stringify(notepadData));
+    };
+
+    const renderNotepadFolders = () => {
+        if (!notepadFoldersContainer) return;
+        notepadFoldersContainer.innerHTML = "";
+        
+        notepadData.forEach(folder => {
+            const folderEl = document.createElement("div");
+            folderEl.className = `notepad-group ${folder.collapsed ? 'collapsed' : ''}`;
+            
+            const titleEl = document.createElement("div");
+            titleEl.className = "notepad-folder-title";
+            
+            const circle = document.createElement("span");
+            circle.className = `notepad-folder-circle ${selectedNotepadFolderId === folder.id ? 'selected' : ''}`;
+            
+            const icon = document.createElement("span");
+            icon.className = "notepad-folder-icon " + (folder.color || "");
+            
+            const nameText = document.createElement("span");
+            nameText.textContent = folder.name;
+            nameText.style.flex = "1";
+            
+            titleEl.appendChild(circle);
+            titleEl.appendChild(icon);
+            titleEl.appendChild(nameText);
+            
+            // 绑定事件
+            titleEl.addEventListener("click", (e) => {
+                if (e.target === circle) {
+                    selectedNotepadFolderId = folder.id;
+                } else {
+                    folder.collapsed = !folder.collapsed;
+                    selectedNotepadFolderId = folder.id;
+                }
+                saveNotepadData();
+                renderNotepadFolders();
+            });
+
+            // 长按事件 (重命名/删除)
+            addDualPressListener(titleEl, null, (e) => {
+                e.stopPropagation();
+                activeRightClickedFolderId = folder.id;
+                contextMenu.dataset.context = "notepad-folder"; 
+                contextMenu.style.display = "block";
+                
+                const touch = (e.touches && e.touches.length > 0) ? e.touches[0] : e;
+                const rect = titleEl.getBoundingClientRect();
+                const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+                const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+                contextMenu.style.left = `${rect.left + rect.width / 2 + scrollX}px`;
+                contextMenu.style.top = `${rect.top + rect.height / 2 + scrollY}px`;
+            }, true);
+            
+            folderEl.appendChild(titleEl);
+            
+            const fileListEl = document.createElement("div");
+            fileListEl.className = "notepad-file-list";
+            
+            folder.files.forEach(file => {
+                const fileEl = document.createElement("div");
+                fileEl.className = "notepad-file-card";
+                fileEl.textContent = file.name;
+                
+                fileEl.addEventListener("click", () => {
+                    openNotepadEditor(folder.id, file.id);
+                });
+
+                // 文件长按菜单
+                addDualPressListener(fileEl, null, (e) => {
+                    e.stopPropagation();
+                    activeRightClickedCardId = file.id;
+                    activeRightClickedCardGroupId = folder.id;
+                    cardContextMenu.dataset.context = "notepad-file";
+                    cardContextMenu.style.display = "block";
+                    
+                    const rect = fileEl.getBoundingClientRect();
+                    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+                    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+                    cardContextMenu.style.left = `${rect.left + rect.width / 2 + scrollX}px`;
+                    cardContextMenu.style.top = `${rect.top + rect.height / 2 + scrollY}px`;
+                }, true);
+
+                fileListEl.appendChild(fileEl);
+            });
+            
+            folderEl.appendChild(fileListEl);
+            notepadFoldersContainer.appendChild(folderEl);
+        });
+    };
+
+    const viewCalculator = document.getElementById("view-calculator");
+    const navBtnCalculator = document.getElementById("nav-btn-calculator");
+
+    // 导航栏切换事件
+    if (navBtnNotepad) {
+        navBtnNotepad.addEventListener("click", () => {
+            viewNotepad.classList.add("active");
+            viewFolders.classList.remove("active");
+            viewCalendar.classList.remove("active");
+            viewNotepadEditor.classList.remove("active");
+            if(viewCalculator) viewCalculator.classList.remove("active");
+            
+            navBtnNotepad.classList.add("active");
+            navBtnList.classList.remove("active");
+            navBtnCalendar.classList.remove("active");
+            if(navBtnCalculator) navBtnCalculator.classList.remove("active");
+            
+            navBtnNotepad.classList.add("clicked");
+            setTimeout(() => navBtnNotepad.classList.remove("clicked"), 300);
+            
+            renderNotepadFolders();
+        });
+    }
+
+    if (navBtnCalculator) {
+        navBtnCalculator.addEventListener("click", () => {
+            if(viewCalculator) viewCalculator.classList.add("active");
+            viewFolders.classList.remove("active");
+            viewCalendar.classList.remove("active");
+            viewNotepad.classList.remove("active");
+            viewNotepadEditor.classList.remove("active");
+            
+            navBtnCalculator.classList.add("active");
+            navBtnList.classList.remove("active");
+            navBtnCalendar.classList.remove("active");
+            if(navBtnNotepad) navBtnNotepad.classList.remove("active");
+            
+            navBtnCalculator.classList.add("clicked");
+            setTimeout(() => navBtnCalculator.classList.remove("clicked"), 300);
+        });
+    }
+
+    // 覆盖原有的导航切换，移除其他视图的 active 状态
+    navBtnList.addEventListener("click", () => {
+        if(viewNotepad) viewNotepad.classList.remove("active");
+        if(viewNotepadEditor) viewNotepadEditor.classList.remove("active");
+        if(viewCalculator) viewCalculator.classList.remove("active");
+        if(navBtnNotepad) navBtnNotepad.classList.remove("active");
+        if(navBtnCalculator) navBtnCalculator.classList.remove("active");
+    });
+    navBtnCalendar.addEventListener("click", () => {
+        if(viewNotepad) viewNotepad.classList.remove("active");
+        if(viewNotepadEditor) viewNotepadEditor.classList.remove("active");
+        if(viewCalculator) viewCalculator.classList.remove("active");
+        if(navBtnNotepad) navBtnNotepad.classList.remove("active");
+        if(navBtnCalculator) navBtnCalculator.classList.remove("active");
+    });
+
+    // 增加 Notepad Folder
+    document.getElementById("btn-notepad-add-folder")?.addEventListener("click", () => {
+        if (notepadFoldersContainer.querySelector(".notepad-input-row")) return;
+        const inputRow = document.createElement("div");
+        inputRow.className = "notepad-input-row";
+        inputRow.innerHTML = `
+            <input type="text" class="notepad-name-input" placeholder="输入文件夹名称..." maxlength="30" autofocus />
+            <button class="new-group-confirm-btn" title="确认">✔</button>
+            <button class="new-group-cancel-btn" title="取消">✖</button>
+        `;
+        notepadFoldersContainer.insertBefore(inputRow, notepadFoldersContainer.firstChild);
+        const nameInput = inputRow.querySelector(".notepad-name-input");
+        nameInput.focus();
+
+        const confirm = () => {
+            const name = nameInput.value.trim();
+            if(name) {
+                const newId = "npf-" + Date.now();
+                notepadData.unshift({ id: newId, name: name, collapsed: false, files: [] });
+                selectedNotepadFolderId = newId;
+                saveNotepadData();
+                renderNotepadFolders();
+            } else {
+                inputRow.remove();
+            }
+        };
+        inputRow.querySelector(".new-group-confirm-btn").addEventListener("click", confirm);
+        inputRow.querySelector(".new-group-cancel-btn").addEventListener("click", () => inputRow.remove());
+        nameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") confirm(); });
+    });
+
+    // 增加 Notepad File
+    document.getElementById("btn-notepad-add-file")?.addEventListener("click", () => {
+        if (!selectedNotepadFolderId) {
+            showToast("请先选择一个文件夹");
+            return;
+        }
+        const folderIndex = notepadData.findIndex(f => f.id === selectedNotepadFolderId);
+        if (folderIndex === -1) return;
+        
+        const folder = notepadData[folderIndex];
+        folder.collapsed = false; // 自动展开
+        
+        renderNotepadFolders(); // 重新渲染确保目标 folder 存在且已展开
+        const folderEls = notepadFoldersContainer.querySelectorAll(".notepad-group");
+        const targetFolderEl = Array.from(folderEls).find(el => {
+           return el.querySelector(".notepad-folder-circle").classList.contains("selected");
+        });
+        
+        if (!targetFolderEl) return;
+        const listEl = targetFolderEl.querySelector(".notepad-file-list");
+        
+        if (listEl.querySelector(".notepad-input-row")) return;
+        const inputRow = document.createElement("div");
+        inputRow.className = "notepad-input-row";
+        inputRow.innerHTML = `
+            <input type="text" class="notepad-name-input" placeholder="输入文件名称..." maxlength="30" autofocus />
+            <button class="new-group-confirm-btn" title="确认">✔</button>
+            <button class="new-group-cancel-btn" title="取消">✖</button>
+        `;
+        listEl.insertBefore(inputRow, listEl.firstChild);
+        const nameInput = inputRow.querySelector(".notepad-name-input");
+        nameInput.focus();
+
+        const confirm = () => {
+            const name = nameInput.value.trim();
+            if(name) {
+                folder.files.unshift({ id: "npfile-" + Date.now(), name: name, content: "" });
+                saveNotepadData();
+                renderNotepadFolders();
+            } else {
+                inputRow.remove();
+            }
+        };
+        inputRow.querySelector(".new-group-confirm-btn").addEventListener("click", confirm);
+        inputRow.querySelector(".new-group-cancel-btn").addEventListener("click", () => inputRow.remove());
+        nameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") confirm(); });
+    });
+
+    // 存档所有 Notepad
+    document.getElementById("btn-notepad-save")?.addEventListener("click", () => {
+        saveNotepadData();
+        let folderCount = notepadData.length;
+        let fileCount = notepadData.reduce((acc, f) => acc + f.files.length, 0);
+        
+        // 生成纯文本内容用于下载
+        let textContent = "========== Notepad 备份 ==========\n";
+        textContent += `导出时间: ${new Date().toLocaleString()}\n\n`;
+        
+        notepadData.forEach(folder => {
+            textContent += `[文件夹] ${folder.name}\n`;
+            textContent += `-----------------------------------\n`;
+            folder.files.forEach(file => {
+                textContent += `【文件】${file.name}\n`;
+                textContent += `${file.content || "(无内容)"}\n`;
+                textContent += `-----------------------------------\n`;
+            });
+            textContent += `\n`;
+        });
+        textContent += "========== 结束 ==========\n";
+        
+        // 触发下载
+        const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const dateStr = new Date().toISOString().split("T")[0];
+        a.download = `Notepad_Backup_${dateStr}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`已存 ${folderCount}个folder + ${fileCount}file 并已下载`);
+    });
+
+    // Notepad Editor 逻辑
+    const openNotepadEditor = (folderId, fileId) => {
+        currentEditingFolderId = folderId;
+        currentEditingFileId = fileId;
+        
+        const folder = notepadData.find(f => f.id === folderId);
+        const file = folder.files.find(f => f.id === fileId);
+        
+        document.getElementById("editor-file-title").textContent = file.name;
+        document.getElementById("editor-textarea").value = file.content || "";
+        
+        viewNotepad.classList.remove("active");
+        viewNotepadEditor.classList.add("active");
+    };
+
+    document.getElementById("btn-editor-home")?.addEventListener("click", () => {
+        // Auto save on leaving
+        if (currentEditingFolderId && currentEditingFileId) {
+            const folder = notepadData.find(f => f.id === currentEditingFolderId);
+            const file = folder?.files.find(f => f.id === currentEditingFileId);
+            if (file) {
+                file.content = document.getElementById("editor-textarea").value;
+                saveNotepadData();
+            }
+        }
+        viewNotepadEditor.classList.remove("active");
+        viewNotepad.classList.add("active");
+        currentEditingFolderId = null;
+        currentEditingFileId = null;
+        renderNotepadFolders();
+    });
+
+    document.getElementById("btn-editor-save")?.addEventListener("click", () => {
+        if (currentEditingFolderId && currentEditingFileId) {
+            const folder = notepadData.find(f => f.id === currentEditingFolderId);
+            const file = folder?.files.find(f => f.id === currentEditingFileId);
+            if (file) {
+                file.content = document.getElementById("editor-textarea").value;
+                saveNotepadData();
+                showToast("内容已保存");
+            }
+        }
+    });
+
+    document.getElementById("btn-editor-undo")?.addEventListener("click", () => {
+        document.execCommand("undo");
+    });
+
+    document.getElementById("btn-editor-redo")?.addEventListener("click", () => {
+        document.execCommand("redo");
+    });
+
+    // 拦截右键菜单事件，如果 dataset 标记为 notepad 专属，则处理后阻止继续
+    menuRename.addEventListener("click", (e) => {
+        if (contextMenu.dataset.context === "notepad-folder") {
+            const folder = notepadData.find(f => f.id === activeRightClickedFolderId);
+            if (folder) {
+                const newName = prompt("请输入新的文件夹名称:", folder.name);
+                if (newName && newName.trim()) {
+                    folder.name = newName.trim();
+                    saveNotepadData();
+                    renderNotepadFolders();
+                }
+            }
+            contextMenu.style.display = "none";
+            contextMenu.dataset.context = "";
+            e.stopImmediatePropagation();
+        }
+    });
+
+    menuDelete.addEventListener("click", (e) => {
+        if (contextMenu.dataset.context === "notepad-folder") {
+            if (confirm("确定要删除此文件夹及其内容吗？")) {
+                notepadData = notepadData.filter(f => f.id !== activeRightClickedFolderId);
+                if (selectedNotepadFolderId === activeRightClickedFolderId) selectedNotepadFolderId = null;
+                saveNotepadData();
+                renderNotepadFolders();
+            }
+            contextMenu.style.display = "none";
+            contextMenu.dataset.context = "";
+            e.stopImmediatePropagation();
+        }
+    });
+
+    cardMenuRename.addEventListener("click", (e) => {
+        if (cardContextMenu.dataset.context === "notepad-file") {
+            const folder = notepadData.find(f => f.id === activeRightClickedCardGroupId);
+            const file = folder?.files.find(f => f.id === activeRightClickedCardId);
+            if (file) {
+                const newName = prompt("请输入新的文件名称:", file.name);
+                if (newName && newName.trim()) {
+                    file.name = newName.trim();
+                    saveNotepadData();
+                    renderNotepadFolders();
+                }
+            }
+            cardContextMenu.style.display = "none";
+            cardContextMenu.dataset.context = "";
+            e.stopImmediatePropagation();
+        }
+    });
+
+    cardMenuDelete.addEventListener("click", (e) => {
+        if (cardContextMenu.dataset.context === "notepad-file") {
+            if (confirm("确定要删除此文件吗？")) {
+                const folder = notepadData.find(f => f.id === activeRightClickedCardGroupId);
+                if (folder) {
+                    folder.files = folder.files.filter(f => f.id !== activeRightClickedCardId);
+                    saveNotepadData();
+                    renderNotepadFolders();
+                }
+            }
+            cardContextMenu.style.display = "none";
+            cardContextMenu.dataset.context = "";
+            e.stopImmediatePropagation();
+        }
+    });
+
+    // ==========================================================================
+    // 计算器逻辑
+    // ==========================================================================
+    const calcExpressionEl = document.getElementById("calc-expression");
+    const calcResultEl = document.getElementById("calc-result");
+    let calcExpression = "";
+    
+    const formatNumber = (numStr) => {
+        if (!numStr) return "";
+        const parts = numStr.split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    };
+
+    const updateCalcDisplay = () => {
+        // Format the expression for display
+        let displayExpr = calcExpression.replace(/\*/g, "x").replace(/\//g, "÷");
+        
+        // Add commas to numbers in expression
+        displayExpr = displayExpr.replace(/\b\d+(\.\d+)?\b/g, match => formatNumber(match));
+        
+        calcExpressionEl.textContent = displayExpr;
+
+        try {
+            if (calcExpression) {
+                let evalStr = calcExpression.replace(/%/g, "/100");
+                evalStr = evalStr.replace(/[\+\-\*\/]$/, ""); // ignore trailing operators for live result
+                if (evalStr) {
+                    let result = new Function('return ' + evalStr)();
+                    if (!isFinite(result)) result = "Error";
+                    else {
+                        result = Math.round(result * 100000000) / 100000000;
+                        result = formatNumber(result.toString());
+                    }
+                    calcResultEl.textContent = result;
+                } else {
+                    calcResultEl.textContent = "0";
+                }
+            } else {
+                calcResultEl.textContent = "0";
+            }
+        } catch (e) {
+            // keep old result if incomplete expression
+        }
+    };
+
+    document.querySelectorAll(".calc-key").forEach(btn => {
+        btn.addEventListener("click", () => {
+            if (btn.id === "btn-calc-clear") {
+                calcExpression = "";
+                updateCalcDisplay();
+                return;
+            }
+            if (btn.id === "btn-calc-equal") {
+                try {
+                    let evalStr = calcExpression.replace(/%/g, "/100");
+                    let result = new Function('return ' + evalStr)();
+                    if (isFinite(result)) {
+                        result = Math.round(result * 100000000) / 100000000;
+                        calcExpression = result.toString();
+                    }
+                } catch(e) {}
+                updateCalcDisplay();
+                return;
+            }
+            
+            const val = btn.dataset.val;
+            if (val) {
+                let mappedVal = val;
+                if (val === "x") mappedVal = "*";
+                if (val === "÷") mappedVal = "/";
+                
+                const lastChar = calcExpression.slice(-1);
+                const isOp = ["+", "-", "*", "/"].includes(mappedVal);
+                if (isOp && ["+", "-", "*", "/"].includes(lastChar)) {
+                    calcExpression = calcExpression.slice(0, -1) + mappedVal;
+                } else {
+                    calcExpression += mappedVal;
+                }
+                updateCalcDisplay();
+            }
+        });
+    });
+
+    document.getElementById("btn-calc-backspace")?.addEventListener("click", () => {
+        if (calcExpression.length > 0) {
+            calcExpression = calcExpression.slice(0, -1);
+            updateCalcDisplay();
+        }
+    });
+
     // 初始化页面加载与首次渲染
     initYearSelect();
     initDaySelect(currentDay);
@@ -2276,6 +2771,13 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".event-tag.expanded").forEach(tag => {
                 tag.classList.remove("expanded");
             });
+        }
+        // 隐藏菜单
+        if (!e.target.closest('.context-menu')) {
+            contextMenu.style.display = "none";
+            cardContextMenu.style.display = "none";
+            contextMenu.dataset.context = "";
+            cardContextMenu.dataset.context = "";
         }
     };
     

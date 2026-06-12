@@ -790,17 +790,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* 排密一点 */
+    gap: 3px; /* 调整间距以容纳7个按钮 */
     height: 100%;
-    padding: 4px 0;
+    padding: 4px 2px;
 }
 
 .nav-btn {
     background: none;
     border: none;
     cursor: pointer;
-    width: 68px; /* 按钮进一步拉大 */
-    height: 68px; /* 按钮进一步拉大 */
+    width: 48px; /* 缩小以适应屏幕宽度 (48*7 + 3*6 = 354px) */
+    height: 48px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -819,8 +819,8 @@ body {
 }
 
 .nav-btn img {
-    width: 64px; /* 默认图标尺寸 */
-    height: 64px;
+    width: 44px; /* 缩小图标 */
+    height: 44px;
     object-fit: contain;
 }
 
@@ -905,4 +905,376 @@ body {
     mix-blend-mode: multiply;
     pointer-events: none;
     z-index: 1;
+}
+
+/* ==========================================================================
+   Notepad 专属视图样式
+   ========================================================================== */
+
+#view-notepad .notepad-border-wrapper {
+    flex: 1;
+    border: 10px solid #8ba38d; /* 绿色边框参考原图 */
+    border-radius: 20px;
+    background-color: #fff6e8; /* 浅米色背景 */
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.notepad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.notepad-title {
+    font-family: 'Cooper Black', serif;
+    font-size: 32px;
+    font-weight: bold;
+    color: #9d78a9;
+    white-space: nowrap;
+}
+
+.notepad-header-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.notepad-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    padding: 0;
+}
+
+.notepad-icon-btn:active {
+    transform: scale(0.9);
+}
+
+.notepad-icon-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.notepad-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.notepad-content::-webkit-scrollbar {
+    width: 4px;
+}
+.notepad-content::-webkit-scrollbar-thumb {
+    background-color: #c4bbae;
+    border-radius: 2px;
+}
+
+.notepad-group {
+    margin-bottom: 12px;
+}
+
+.notepad-folder-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #9d78a9;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    gap: 8px;
+}
+
+.notepad-folder-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #a89498;
+    display: inline-block;
+    cursor: pointer;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+.notepad-folder-circle.selected {
+    border-width: 4px;
+    border-color: #9d78a9;
+}
+
+.notepad-folder-icon {
+    width: 24px;
+    height: 18px;
+    background-color: #e58d83; /* 默认粉红文件夹颜色 */
+    border-radius: 3px;
+    position: relative;
+    display: inline-block;
+    margin-right: 4px;
+}
+.notepad-folder-icon::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 0;
+    width: 10px;
+    height: 6px;
+    background-color: inherit;
+    border-radius: 3px 3px 0 0;
+}
+.notepad-folder-icon.blue {
+    background-color: #728eb0; /* 第二种蓝色文件夹颜色 */
+}
+.notepad-folder-icon.orange {
+    background-color: #d6955a; /* 第三种橙色文件夹颜色 */
+}
+
+.notepad-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 26px; /* 缩进 */
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.notepad-group.collapsed .notepad-file-list {
+    max-height: 0 !important;
+}
+
+.notepad-file-card {
+    background-color: #ffffff;
+    border: 1.5px solid #a891a4;
+    border-radius: 12px;
+    padding: 8px 12px;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.05); /* 模拟纸张阴影 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    color: #6183be;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.notepad-file-card::before {
+    content: '≡'; /* 使用三条线模拟文件图标 */
+    color: #b5ad9e;
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+/* 内置重命名输入框 */
+.notepad-input-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #fff8f0;
+    border: 1.5px solid #9d78a9;
+    border-radius: 10px;
+    padding: 6px 8px;
+    margin-bottom: 10px;
+}
+
+.notepad-name-input {
+    flex: 1;
+    border: 1.5px solid #ded6c8;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+/* ==========================================================================
+   Notepad 编辑器专属视图样式
+   ========================================================================== */
+
+#view-notepad-editor .notepad-editor-border-wrapper {
+    flex: 1;
+    border: 10px solid #8ba38d;
+    border-radius: 20px;
+    background-color: #fff6e8;
+    display: flex;
+    flex-direction: column;
+    padding: 0; /* 编辑器不需要内边距，为了让紫条顶满 */
+    overflow: hidden;
+}
+
+.editor-header {
+    background-color: #9d78a9;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    font-weight: bold;
+    font-size: 18px;
+    font-family: 'Cooper Black', serif;
+}
+
+.editor-header-left {
+    cursor: pointer;
+}
+
+.editor-header-right {
+    display: flex;
+    gap: 15px;
+}
+
+.editor-header-action {
+    cursor: pointer;
+}
+
+.editor-title-bar {
+    font-size: 18px;
+    font-weight: bold;
+    color: #9d78a9;
+    padding: 10px 15px;
+    border-bottom: 2px solid #9d78a9;
+    margin: 0 15px;
+}
+
+.editor-textarea {
+    flex: 1;
+    border: none;
+    background-color: transparent;
+    padding: 15px;
+    font-size: 16px;
+    color: #6183be;
+    font-weight: bold;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    font-family: 'Noto Sans SC', 'Outfit', sans-serif;
+}
+
+/* ==========================================================================
+   计算器功能模块
+   ========================================================================== */
+#view-calculator {
+    padding: 10px 15px;
+    background-color: #fff;
+}
+
+.calc-border-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calc-screen {
+    background-color: #e5e5e5;
+    border: 8px solid #9e9e9e;
+    border-radius: 12px;
+    padding: 15px;
+    flex: 6;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.calc-expression {
+    font-family: 'Rockwell Condensed', 'Outfit', sans-serif;
+    color: #8a98ad;
+    font-size: 36px;
+    text-align: left;
+    word-break: break-all;
+    line-height: 1.1;
+    overflow-y: auto;
+    max-height: 180px;
+}
+
+.calc-result-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.calc-result {
+    font-family: 'Rockwell Condensed', 'Outfit', sans-serif;
+    color: #8a98ad;
+    font-size: 66px;
+    text-align: right;
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calc-backspace {
+    font-family: 'Rockwell Condensed', 'Outfit', sans-serif;
+    color: #8a98ad;
+    background: none;
+    border: none;
+    font-size: 48px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+.calc-backspace:active {
+    transform: scale(0.9);
+}
+
+.calc-keyboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 8px;
+    flex: 4;
+}
+
+.calc-key {
+    border: none;
+    border-radius: 18px;
+    font-family: 'Cooper Black', 'Outfit', sans-serif;
+    font-size: 76px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 0 #ebebeb;
+    transition: transform 0.1s;
+    height: 100%;
+    width: 100%;
+}
+
+.calc-key span {
+    color: #8a98ad;
+    mix-blend-mode: multiply;
+}
+
+.calc-key:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+/* 按排指定颜色 */
+.row-1 { background-color: #f7cdbf; }
+.row-2 { background-color: #f4d787; }
+.row-3 { background-color: #c8db8f; }
+.row-4 { background-color: #84d8d8; }
+.row-5 { background-color: #dfbfe0; }
+
+.calc-equal {
+    grid-column: 4;
+    grid-row: 4 / 6; /* 跨越两行 */
+    background-color: #a3d84e;
+    height: auto; /* 让它填满两行 */
+}
+
+.calc-key[data-val="00"] {
+    font-size: 64px; /* 比 76px 减小约 15% */
 }

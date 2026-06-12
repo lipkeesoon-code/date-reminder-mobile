@@ -166,6 +166,90 @@
                 </div>
             </div>
 
+            <!-- 第三页: Notepad 视图 -->
+            <div id="view-notepad" class="app-view">
+                <div class="status-bar-spacer"></div>
+                <div class="notepad-border-wrapper">
+                    <header class="notepad-header">
+                        <h1 class="notepad-title">Notepad</h1>
+                        <div class="notepad-header-actions">
+                            <button id="btn-notepad-add-folder" class="notepad-icon-btn" title="Add Folder">
+                                <img src="设计风格/add notepad folder .png" alt="Add Folder" />
+                            </button>
+                            <button id="btn-notepad-add-file" class="notepad-icon-btn" title="Add File">
+                                <img src="设计风格/Add File Icon .png" alt="Add File" />
+                            </button>
+                            <button id="btn-notepad-save" class="notepad-icon-btn" title="Save All">
+                                <img src="设计风格/Notepad save  icon .png" alt="Save" />
+                            </button>
+                        </div>
+                    </header>
+                    <div class="notepad-content" id="notepad-folders-container">
+                        <!-- Notepad 文件夹和文件内容 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四页: Notepad 编辑器视图 -->
+            <div id="view-notepad-editor" class="app-view">
+                <div class="status-bar-spacer"></div>
+                <div class="notepad-editor-border-wrapper">
+                    <header class="editor-header">
+                        <div class="editor-header-left" id="btn-editor-home">&lt; Home</div>
+                        <div class="editor-header-right">
+                            <div class="editor-header-action" id="btn-editor-save">Save</div>
+                            <div class="editor-header-action" id="btn-editor-undo">&lt;</div>
+                            <div class="editor-header-action" id="btn-editor-redo">&gt;</div>
+                        </div>
+                    </header>
+                    <div class="editor-title-bar" id="editor-file-title">文件名称</div>
+                    <textarea id="editor-textarea" class="editor-textarea" placeholder="在此输入内容..."></textarea>
+                </div>
+            </div>
+
+            <!-- 第五页: 计算器视图 -->
+            <div id="view-calculator" class="app-view">
+                <div class="status-bar-spacer"></div>
+                <div class="calc-border-wrapper">
+                    <div class="calc-screen">
+                        <div class="calc-expression" id="calc-expression"></div>
+                        <div class="calc-result-row">
+                            <div class="calc-result" id="calc-result">0</div>
+                            <button class="calc-backspace" id="btn-calc-backspace">&lt;</button>
+                        </div>
+                    </div>
+                    <div class="calc-keyboard">
+                        <!-- 第一排 -->
+                        <button class="calc-key calc-op row-1" data-val="÷"><span>÷</span></button>
+                        <button class="calc-key calc-op row-1" data-val="x"><span>x</span></button>
+                        <button class="calc-key calc-op row-1" data-val="-"><span>-</span></button>
+                        <button class="calc-key calc-op row-1" data-val="+"><span>+</span></button>
+                        
+                        <!-- 第二排 -->
+                        <button class="calc-key calc-num row-2" data-val="7"><span>7</span></button>
+                        <button class="calc-key calc-num row-2" data-val="8"><span>8</span></button>
+                        <button class="calc-key calc-num row-2" data-val="9"><span>9</span></button>
+                        <button class="calc-key calc-op row-2" data-val="%"><span>%</span></button>
+                        
+                        <!-- 第三排 -->
+                        <button class="calc-key calc-num row-3" data-val="4"><span>4</span></button>
+                        <button class="calc-key calc-num row-3" data-val="5"><span>5</span></button>
+                        <button class="calc-key calc-num row-3" data-val="6"><span>6</span></button>
+                        <button class="calc-key calc-clear row-3" id="btn-calc-clear"><span>C</span></button>
+                        
+                        <!-- 第四排 (1,2,3) & 第五排 (00,0,.) 混排 -->
+                        <button class="calc-key calc-num row-4" data-val="1"><span>1</span></button>
+                        <button class="calc-key calc-num row-4" data-val="2"><span>2</span></button>
+                        <button class="calc-key calc-num row-4" data-val="3"><span>3</span></button>
+                        <button class="calc-key calc-equal" id="btn-calc-equal"><span>=</span></button>
+
+                        <button class="calc-key calc-num row-5" data-val="00"><span>00</span></button>
+                        <button class="calc-key calc-num row-5" data-val="0"><span>0</span></button>
+                        <button class="calc-key calc-num row-5" data-val="."><span>.</span></button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 自定义右键/长按上下文菜单 (文件夹) -->
             <div id="folder-context-menu" class="context-menu" style="display: none;">
                 <div class="context-menu-item" id="menu-rename">重命名</div>
@@ -180,6 +264,18 @@
 
             <!-- 底部导航工具栏 -->
             <nav class="bottom-nav">
+                <button class="nav-btn" id="nav-btn-calculator" title="计算器">
+                    <img src="设计风格/cauculator icon.png" alt="🖩" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">🖩</span>
+                </button>
+                <button class="nav-btn" id="nav-btn-notepad" title="Notepad">
+                    <img src="设计风格/Notepad icon .png" alt="📝" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">📝</span>
+                </button>
+                <button class="nav-btn" id="btn-save" title="存档 Save">
+                    <img src="设计风格/save.png" alt="💾" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">💾</span>
+                </button>
                 <button class="nav-btn" id="nav-btn-list" title="列表">
                     <img src="设计风格/提醒Folder Icon .png" alt="📂" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📂</span>
@@ -191,10 +287,6 @@
                 <button class="nav-btn" id="btn-bg" title="截图 Save JPG">
                     <img src="设计风格/snapshot.png" alt="📸" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📸</span>
-                </button>
-                <button class="nav-btn" id="btn-save" title="存档 Save">
-                    <img src="设计风格/save.png" alt="💾" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                    <span class="fallback-icon">💾</span>
                 </button>
                 <button class="nav-btn" id="btn-refresh" title="刷新 refresh">
                     <img src="设计风格/refresh.png" alt="🔄" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
