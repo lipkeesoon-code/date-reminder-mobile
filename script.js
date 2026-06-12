@@ -16,7 +16,6 @@ function playCalcBeep() {
     osc.start();
     osc.stop(audioCtx.currentTime + 0.1);
 }
-
 document.addEventListener("DOMContentLoaded", () => {
     // 默认展示的年份与月份（设定为今日日期）
     const todayObj = new Date();

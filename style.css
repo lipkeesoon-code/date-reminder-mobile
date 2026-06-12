@@ -1,18 +1,18 @@
 @import url('https://fonts.cdnfonts.com/css/cooper-black');
 /* ==========================================================================
-   è®¾è®¡é£Žæ ¼ï¼šç§»åŠ¨ç«¯ + å¯çˆ±æ¸…æ–°ç‰ˆ (é’ˆå¯¹ 390x844 æ‰‹æœºå°ºå¯¸åŠå“åº”å¼å…¨å±è¿›è¡Œè®¾è®¡)
+   设计风格：移动端 + 可爱清新版 (针对 390x844 手机尺寸及响应式全屏进行设计)
    ========================================================================== */
 
 :root {
-    /* æ˜ŸæœŸé¢œè‰² */
-    --color-weekday: #609c20;   /* æ˜ŸæœŸä¸€ åˆ° æ˜ŸæœŸäº” Hexç  */
-    --color-saturday: #3c4d7e;  /* æ˜ŸæœŸå…­ Hexç  */
-    --color-sunday: #D91C74;    /* æ˜ŸæœŸæ—¥ Hexç  */
+    /* 星期颜色 */
+    --color-weekday: #609c20;   /* 星期一 到 星期五 Hex码 */
+    --color-saturday: #3c4d7e;  /* 星期六 Hex码 */
+    --color-sunday: #D91C74;    /* 星期日 Hex码 */
 
-    /* å†œåŽ†é¢œè‰² */
+    /* 农历颜色 */
     --color-lunar: #C82F24;
 
-    /* äº”è¡Œé¢œè‰² */
+    /* 五行颜色 */
     --color-fire: #f06596;  /* R240 G101 B150 */
     --color-earth: #a67c51; /* R166 G124 B81 */
     --color-gold: #faaf41;  /* R250 G175 B65 */
@@ -20,14 +20,14 @@
     --color-wood: #6e943d;  /* R110 G148 B61 */
     --color-fire-light: #FF9999; 
 
-    /* UI åŸºç¡€é¢œè‰² */
+    /* UI 基础颜色 */
     --bg-main: #fcfbf7;
     --bg-sidebar: #f2ede4;
     --border-pink: #ffa3a3;
     --text-dark: #333333;
     --text-blue: #4a6892;
 
-    /* æ—¥åŽ†è¾¹çº¿è®¾ç½® */
+    /* 日历边线设置 */
     --calendar-border-color: #567ab1;
     --calendar-border-width: 1.5px;
 }
@@ -52,7 +52,7 @@ body {
 }
 
 /* ==========================================================================
-   æ‰‹æœºæ¡†å¤–å£³æ¨¡æ‹Ÿå™¨ (åœ¨ç”µè„‘ä¸Šæ˜¾ç¤º 390x844px æ‰‹æœºï¼Œåœ¨æ‰‹æœºä¸Šè‡ªåŠ¨å…¨å±)
+   手机框外壳模拟器 (在电脑上显示 390x844px 手机，在手机上自动全屏)
    ========================================================================== */
 .phone-wrapper {
     width: 390px;
@@ -60,7 +60,7 @@ body {
     background-color: var(--bg-main);
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
     border-radius: 40px;
-    border: 12px solid #2e3440; /* æ¨¡æ‹Ÿé«˜æ¡£æ‰‹æœºé»‘è¾¹ */
+    border: 12px solid #2e3440; /* 模拟高档手机黑边 */
     overflow: hidden;
     position: relative;
     display: flex;
@@ -80,18 +80,18 @@ body {
     }
 }
 
-/* æ ¸å¿ƒå®¹å™¨ */
+/* 核心容器 */
 .app-container {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: 1fr 78px; /* å†…å®¹åŒº + åº•éƒ¨å¯¼èˆªæ  */
+    grid-template-rows: 1fr 78px; /* 内容区 + 底部导航栏 */
     background-color: var(--bg-main);
     overflow: hidden;
 }
 
 /* ==========================================================================
-   è§†å›¾ç®¡ç† (æ–‡ä»¶å¤¹åˆ—è¡¨è§†å›¾ & æ—¥åŽ†è§†å›¾)
+   视图管理 (文件夹列表视图 & 日历视图)
    ========================================================================== */
 .app-view {
     display: none;
@@ -105,17 +105,17 @@ body {
     display: flex;
 }
 
-/* çŠ¶æ€æ ç•™ç©ºï¼ˆç»™ç”µè¯ã€æ—¶é—´ï¼‰ */
+/* 状态栏留空（给电话、时间） */
 .status-bar-spacer {
     height: 0px;
     width: 100%;
     flex-shrink: 0;
 }
 
-/* æ¯ä¸€ä¸ªè§†å›¾å†…å®¹åŒºåŸŸï¼ŒåŠ ä¸ŠåŽšåŽšçš„èŠ‚æ°”è¾¹æ¡† */
+/* 每一个视图内容区域，加上厚厚的节气边框 */
 #view-folders, .calendar-border-wrapper {
     flex: 1;
-    border: 10px solid var(--color-wood); /* é»˜è®¤æœ¨è‰²èŠ‚æ°”è¾¹æ¡†ï¼Œå¯é€šè¿‡ JS åŠ¨æ€åˆ‡æ¢ç±»å */
+    border: 10px solid var(--color-wood); /* 默认木色节气边框，可通过 JS 动态切换类名 */
     border-radius: 20px;
     background-color: var(--bg-sidebar);
     flex-direction: column;
@@ -124,11 +124,11 @@ body {
     position: relative;
 }
 
-/* æ ¹æ®ä¸åŒå­£èŠ‚åˆ‡æ¢è¾¹æ¡†ä¸»é¢˜è‰² */
-.theme-wood  { --theme-border-color: #6e943d; --theme-tag-color: #6e943d; }  /* ç«‹æ˜¥-è°·é›¨ */
-.theme-fire  { --theme-border-color: #FF9999; --theme-tag-color: #FF9999; }  /* ç«‹å¤-å¤§æš‘ */
-.theme-gold  { --theme-border-color: #fab041; --theme-tag-color: #fab041; }  /* ç«‹ç§‹-éœœé™ */
-.theme-water { --theme-border-color: #1688b5; --theme-tag-color: #1688b5; }  /* ç«‹å†¬-å¤§å¯’ */
+/* 根据不同季节切换边框主题色 */
+.theme-wood  { --theme-border-color: #6e943d; --theme-tag-color: #6e943d; }  /* 立春-谷雨 */
+.theme-fire  { --theme-border-color: #FF9999; --theme-tag-color: #FF9999; }  /* 立夏-大暑 */
+.theme-gold  { --theme-border-color: #fab041; --theme-tag-color: #fab041; }  /* 立秋-霜降 */
+.theme-water { --theme-border-color: #1688b5; --theme-tag-color: #1688b5; }  /* 立冬-大寒 */
 
 #view-folders {
     border-color: var(--theme-border-color, var(--color-wood));
@@ -145,7 +145,7 @@ body {
 }
 
 /* ==========================================================================
-   ç¬¬ä¸€é¡µ: æ–‡ä»¶å¤¹åˆ—è¡¨å¤´éƒ¨ä¸Žå¡ç‰‡æ·»åŠ é¢æ¿
+   第一页: 文件夹列表头部与卡片添加面板
    ========================================================================== */
 .view-header {
     display: flex;
@@ -158,7 +158,7 @@ body {
 }
 
 .view-title {
-    font-size: 28px; /* å˜å¤§140% (20px * 1.4 = 28px) */
+    font-size: 28px; /* 变大140% (20px * 1.4 = 28px) */
     font-weight: bold;
     color: var(--text-blue);
     white-space: nowrap;
@@ -166,15 +166,15 @@ body {
 
 .header-actions {
     display: flex;
-    gap: 4px; /* æŽ’å¯†ä¸€ç‚¹ */
+    gap: 4px; /* 排密一点 */
 }
 
 .header-icon-btn {
     background: none;
     border: none;
     cursor: pointer;
-    width: 53px; /* å†å¤§ 5% */
-    height: 53px; /* å†å¤§ 5% */
+    width: 53px; /* 再大 5% */
+    height: 53px; /* 再大 5% */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -187,12 +187,12 @@ body {
 }
 
 .header-icon-btn img {
-    width: 49px; /* å†å¤§ 5% */
-    height: 49px; /* å†å¤§ 5% */
+    width: 49px; /* 再大 5% */
+    height: 49px; /* 再大 5% */
     object-fit: contain;
 }
 
-/* æ–°å¢žæé†’å¡ç‰‡é¢æ¿ */
+/* 新增提醒卡片面板 */
 .add-card-panel {
     background-color: #fff8f0;
     border: 2px solid var(--border-pink);
@@ -284,7 +284,7 @@ body {
 
 
 /* ==========================================================================
-   ç¬¬ä¸€é¡µå†…å®¹åŒº: æ–‡ä»¶å¤¹ä¸Žå¡ç‰‡å±•ç¤º (é«˜åº¦é€‚é…æ»šåŠ¨)
+   第一页内容区: 文件夹与卡片展示 (高度适配滚动)
    ========================================================================== */
 .view-content {
     flex: 1;
@@ -323,7 +323,7 @@ body {
     gap: 6px;
 }
 
-/* ç©ºç‚¹åœˆ */
+/* 空点圈 */
 .folder-circle-select {
     width: 16px;
     height: 16px;
@@ -348,7 +348,7 @@ body {
     font-weight: bold;
 }
 
-/* å½“æ–‡ä»¶å¤¹çš„æ—¥æœŸæé†’å…³é—­æ—¶ç½®ç° */
+/* 当文件夹的日期提醒关闭时置灰 */
 .reminder-group.hidden-reminders .card-list {
     opacity: 0.4;
 }
@@ -357,7 +357,7 @@ body {
     opacity: 0.6;
 }
 
-/* éšè—/å¼€å¯æé†’å°å›¾æ ‡ */
+/* 隐藏/开启提醒小图标 */
 .folder-visibility-toggle {
     margin-left: auto;
     font-size: 14px;
@@ -378,7 +378,7 @@ body {
     max-height: 0 !important;
 }
 
-/* æé†’å¡ç‰‡æ ·å¼ */
+/* 提醒卡片样式 */
 .reminder-card {
     background-color: #ffffff;
     border: 1.5px solid #ded6c8;
@@ -393,9 +393,9 @@ body {
     user-select: none;
 }
 
-/* æ¨¡æ‹Ÿçº¸å¼ æ–‡æ¡£å›¾æ ‡ */
+/* 模拟纸张文档图标 */
 .reminder-card::before {
-    content: 'ðŸ“„';
+    content: '📄';
     font-size: 16px;
     flex-shrink: 0;
     opacity: 0.6;
@@ -421,7 +421,7 @@ body {
     line-height: 1.2;
 }
 
-/* åŒå‡»é«˜äº® */
+/* 双击高亮 */
 .reminder-card.sidebar-highlight {
     background-color: #ddbbd9 !important;
     border-color: #c085b8 !important;
@@ -434,7 +434,7 @@ body {
     100% { transform: scale(1); background-color: #ddbbd9; }
 }
 
-/* å†…ç½®é‡å‘½åè¾“å…¥æ¡† */
+/* 内置重命名输入框 */
 .new-group-input-row {
     display: flex;
     align-items: center;
@@ -472,7 +472,7 @@ body {
 .new-group-cancel-btn { background-color: #eee; color: #666; }
 
 /* ==========================================================================
-   ç¬¬äºŒé¡µ: æ—¥åŽ†è§†å›¾æ ·å¼ (æœˆåŽ†é€‚é…çª„å±)
+   第二页: 日历视图样式 (月历适配窄屏)
    ========================================================================== */
 .calendar-header {
     display: flex;
@@ -609,7 +609,7 @@ body {
     color: #D91C74;
 }
 
-/* 7x7æ—¥åŽ†ç½‘æ ¼ */
+/* 7x7日历网格 */
 .calendar-grid-wrapper {
     flex: 1;
     display: flex;
@@ -622,13 +622,13 @@ body {
 .calendar-days-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: 32px repeat(6, 1fr); /* æ˜ŸæœŸæ ‡å¤´å®½ 32pxï¼Œå‰©ä¸‹6åˆ—å¹³åˆ† */
+    grid-template-columns: 32px repeat(6, 1fr); /* 星期标头宽 32px，剩下6列平分 */
     grid-template-rows: repeat(7, 1fr);
     background-color: var(--calendar-border-color);
-    gap: 1px; /* ç”¨ gap ä»£æ›¿ border çº¿æ¡ */
+    gap: 1px; /* 用 gap 代替 border 线条 */
 }
 
-/* æ˜ŸæœŸå¤´éƒ¨ç«–æŽ’ */
+/* 星期头部竖排 */
 .week-row-header {
     display: flex;
     align-items: center;
@@ -653,7 +653,7 @@ body {
     background-color: #ffb4da;
 }
 
-/* æ—¥åŽ†æ ¼å­ */
+/* 日历格子 */
 .day-cell {
     background-color: #ffffff;
     padding: 2px;
@@ -705,7 +705,7 @@ body {
     font-weight: bold;
 }
 
-/* äº‹ä»¶æ ‡ç­¾å®¹å™¨ */
+/* 事件标签容器 */
 .event-tags-container {
     display: flex;
     flex-direction: column;
@@ -725,8 +725,8 @@ body {
     font-size: 12px;
     padding: 1px 2px;
     border-radius: 3px;
-    color: #000 !important;  /* å­—æ°¸è¿œé»‘è‰² */
-    background-color: var(--theme-tag-color, #6e943d); /* éšèŠ‚æ°”ä¸»é¢˜è‰² */
+    color: #000 !important;  /* 字永远黑色 */
+    background-color: var(--theme-tag-color, #6e943d); /* 随节气主题色 */
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -739,7 +739,7 @@ body {
 
 
 
-/* æµ®åŠ¨å®Œæ•´æ–‡å­— tooltipï¼ˆJS åŠ¨æ€æŒ‚åœ¨ body ä¸Šï¼Œä¸å—ä»»ä½•çˆ¶å±‚è£å‰ªï¼‰ */
+/* 浮动完整文字 tooltip（JS 动态挂在 body 上，不受任何父层裁剪） */
 .event-tag-tooltip {
     position: fixed;
     z-index: 99999;
@@ -757,7 +757,7 @@ body {
 }
 
 /* ==========================================================================
-   è‡ªå®šä¹‰å³é”®/é•¿æŒ‰èœå•
+   自定义右键/长按菜单
    ========================================================================== */
 .context-menu {
     position: absolute;
@@ -783,7 +783,7 @@ body {
 }
 
 /* ==========================================================================
-   åº•éƒ¨å¯¼èˆªå·¥å…·æ 
+   底部导航工具栏
    ========================================================================== */
 .bottom-nav {
     background-color: #dbe2ef;
@@ -791,7 +791,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 3px; /* è°ƒæ•´é—´è·ä»¥å®¹çº³7ä¸ªæŒ‰é’® */
+    gap: 3px; /* 调整间距以容纳7个按钮 */
     height: 100%;
     padding: 4px 2px;
 }
@@ -800,7 +800,7 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    width: 48px; /* ç¼©å°ä»¥é€‚åº”å±å¹•å®½åº¦ (48*7 + 3*6 = 354px) */
+    width: 48px; /* 缩小以适应屏幕宽度 (48*7 + 3*6 = 354px) */
     height: 48px;
     border-radius: 12px;
     display: flex;
@@ -820,12 +820,12 @@ body {
 }
 
 .nav-btn img {
-    width: 44px; /* ç¼©å°å›¾æ ‡ */
+    width: 44px; /* 缩小图标 */
     height: 44px;
     object-fit: contain;
 }
 
-/* ä¸“é—¨é’ˆå¯¹æˆªå›¾ç›¸æœº Icon è¿›è¡Œæ‹‰å¤§ */
+/* 专门针对截图相机 Icon 进行拉大 */
 #btn-bg img {
     transform: scale(1.1);
 }
@@ -842,7 +842,7 @@ body {
 }
 
 /* ==========================================================================
-   Toast æç¤ºä¸Žå¾®åŠ¨æ•ˆæžœ
+   Toast 提示与微动效果
    ========================================================================== */
 .toast-container {
     position: absolute;
@@ -880,7 +880,7 @@ body {
     100% { transform: scale(1); }
 }
 
-/* å¤šå¤©äº‹é¡¹é«˜äº®é¢œè‰² */
+/* 多天事项高亮颜色 */
 .multi-day-highlight-1 {
     background-color: #f5f29f !important;
 }
@@ -909,14 +909,14 @@ body {
 }
 
 /* ==========================================================================
-   Notepad ä¸“å±žè§†å›¾æ ·å¼
+   Notepad 专属视图样式
    ========================================================================== */
 
 #view-notepad .notepad-border-wrapper {
     flex: 1;
-    border: 10px solid #8ba38d; /* ç»¿è‰²è¾¹æ¡†å‚è€ƒåŽŸå›¾ */
+    border: 10px solid #8ba38d; /* 绿色边框参考原图 */
     border-radius: 20px;
-    background-color: #fff6e8; /* æµ…ç±³è‰²èƒŒæ™¯ */
+    background-color: #fff6e8; /* 浅米色背景 */
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -1018,7 +1018,7 @@ body {
 .notepad-folder-icon {
     width: 24px;
     height: 18px;
-    background-color: #e58d83; /* é»˜è®¤ç²‰çº¢æ–‡ä»¶å¤¹é¢œè‰² */
+    background-color: #e58d83; /* 默认粉红文件夹颜色 */
     border-radius: 3px;
     position: relative;
     display: inline-block;
@@ -1035,17 +1035,17 @@ body {
     border-radius: 3px 3px 0 0;
 }
 .notepad-folder-icon.blue {
-    background-color: #728eb0; /* ç¬¬äºŒç§è“è‰²æ–‡ä»¶å¤¹é¢œè‰² */
+    background-color: #728eb0; /* 第二种蓝色文件夹颜色 */
 }
 .notepad-folder-icon.orange {
-    background-color: #d6955a; /* ç¬¬ä¸‰ç§æ©™è‰²æ–‡ä»¶å¤¹é¢œè‰² */
+    background-color: #d6955a; /* 第三种橙色文件夹颜色 */
 }
 
 .notepad-file-list {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding-left: 26px; /* ç¼©è¿› */
+    padding-left: 26px; /* 缩进 */
     overflow: hidden;
     transition: max-height 0.3s ease-out;
 }
@@ -1059,7 +1059,7 @@ body {
     border: 1.5px solid #a891a4;
     border-radius: 12px;
     padding: 8px 12px;
-    box-shadow: 2px 2px 0px rgba(0,0,0,0.05); /* æ¨¡æ‹Ÿçº¸å¼ é˜´å½± */
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.05); /* 模拟纸张阴影 */
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1071,13 +1071,13 @@ body {
 }
 
 .notepad-file-card::before {
-    content: 'â‰¡'; /* ä½¿ç”¨ä¸‰æ¡çº¿æ¨¡æ‹Ÿæ–‡ä»¶å›¾æ ‡ */
+    content: '≡'; /* 使用三条线模拟文件图标 */
     color: #b5ad9e;
     font-size: 16px;
     margin-right: 4px;
 }
 
-/* å†…ç½®é‡å‘½åè¾“å…¥æ¡† */
+/* 内置重命名输入框 */
 .notepad-input-row {
     display: flex;
     align-items: center;
@@ -1099,7 +1099,7 @@ body {
 }
 
 /* ==========================================================================
-   Notepad ç¼–è¾‘å™¨ä¸“å±žè§†å›¾æ ·å¼
+   Notepad 编辑器专属视图样式
    ========================================================================== */
 
 #view-notepad-editor .notepad-editor-border-wrapper {
@@ -1109,7 +1109,7 @@ body {
     background-color: #fff6e8;
     display: flex;
     flex-direction: column;
-    padding: 0; /* ç¼–è¾‘å™¨ä¸éœ€è¦å†…è¾¹è·ï¼Œä¸ºäº†è®©ç´«æ¡é¡¶æ»¡ */
+    padding: 0; /* 编辑器不需要内边距，为了让紫条顶满 */
     overflow: hidden;
 }
 
@@ -1162,7 +1162,7 @@ body {
 }
 
 /* ==========================================================================
-   è®¡ç®—å™¨åŠŸèƒ½æ¨¡å—
+   计算器功能模块
    ========================================================================== */
 #view-calculator {
     padding: 10px 15px;
@@ -1196,20 +1196,6 @@ body {
     line-height: 1.1;
     overflow-y: auto;
     max-height: 180px;
-}
-
-
-.calc-sound-toggle {
-    font-family: 'Outfit', sans-serif;
-    background: none;
-    border: none;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0 5px;
-    margin-right: auto;
-}
-.calc-sound-toggle:active {
-    transform: scale(0.9);
 }
 
 .calc-result-row {
@@ -1255,7 +1241,7 @@ body {
     border: none;
     border-radius: 18px;
     font-family: 'Cooper Black', 'Outfit', sans-serif;
-    font-size: 66px;
+    font-size: 60px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1276,7 +1262,7 @@ body {
     box-shadow: 0 0 0 rgba(0,0,0,0);
 }
 
-/* æŒ‰æŽ’æŒ‡å®šé¢œè‰² */
+/* 按排指定颜色 */
 .row-1 { background-color: #f7cdbf; }
 .row-2 { background-color: #f4d787; }
 .row-3 { background-color: #c8db8f; }
@@ -1285,12 +1271,24 @@ body {
 
 .calc-equal {
     grid-column: 4;
-    grid-row: 4 / 6; /* è·¨è¶Šä¸¤è¡Œ */
+    grid-row: 4 / 6; /* 跨越两行 */
     background-color: #a3d84e;
-    height: auto; /* è®©å®ƒå¡«æ»¡ä¸¤è¡Œ */
+    height: auto; /* 让它填满两行 */
 }
 
 .calc-key[data-val="00"] {
-    font-size: 54px; /* æ¯” 76px å‡å°çº¦ 15% */
+    font-size: 50px; /* 比 76px 减小约 15% */
 }
 
+.calc-sound-toggle {
+    font-family: 'Outfit', sans-serif;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0 5px;
+    margin-right: auto;
+}
+.calc-sound-toggle:active {
+    transform: scale(0.9);
+}
