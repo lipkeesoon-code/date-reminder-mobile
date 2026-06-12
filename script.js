@@ -2701,6 +2701,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const calcResultEl = document.getElementById("calc-result");
     let calcExpression = "";
     
+    const parsePercentage = (expr) => {
+        let res = expr;
+        const regex = /(.*?)([\+\-])\s*(\d+(?:\.\d+)?)%/;
+        let match;
+        while ((match = regex.exec(res)) !== null) {
+            let p1 = match[1];
+            let op = match[2];
+            let p2 = match[3];
+            try {
+                if (/[\+\-\*\/]\s*$/.test(p1) || p1.trim() === "") {
+                    res = res.substring(0, match.index) + `${p1}${op}(${p2}/100)` + res.substring(match.index + match[0].length);
+                } else {
+                    let p1EvalStr = p1.replace(/(\d+(?:\.\d+)?)%/g, "($1/100)").replace(/%/g, "/100");
+                    let leftVal = new Function('return ' + p1EvalStr)();
+                    res = res.substring(0, match.index) + `${p1}${op}(${leftVal}*${p2}/100)` + res.substring(match.index + match[0].length);
+                }
+            } catch(e) {
+                res = res.substring(0, match.index) + `${p1}${op}(${p2}/100)` + res.substring(match.index + match[0].length);
+            }
+        }
+        res = res.replace(/(\d+(?:\.\d+)?)%/g, "($1/100)");
+        res = res.replace(/%/g, "/100");
+        return res;
+    };
+
     const formatNumber = (numStr) => {
         if (!numStr) return "";
         const parts = numStr.split(".");
@@ -2719,8 +2744,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             if (calcExpression) {
-                let evalStr = calcExpression.replace(/%/g, "/100");
-                evalStr = evalStr.replace(/[\+\-\*\/]$/, ""); // ignore trailing operators for live result
+                let evalStr = calcExpression.replace(/[\+\-\*\/]$/, ""); // ignore trailing operators for live result
+                evalStr = parsePercentage(evalStr);
                 if (evalStr) {
                     let result = new Function('return ' + evalStr)();
                     if (!isFinite(result)) result = "Error";
@@ -2750,7 +2775,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (btn.id === "btn-calc-equal") {
                 try {
-                    let evalStr = calcExpression.replace(/%/g, "/100");
+                    let evalStr = parsePercentage(calcExpression);
                     let result = new Function('return ' + evalStr)();
                     if (isFinite(result)) {
                         result = Math.round(result * 100000000) / 100000000;
