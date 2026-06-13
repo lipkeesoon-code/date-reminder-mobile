@@ -23,8 +23,14 @@
                 <div class="status-bar-spacer"></div>
 
                 <header class="view-header">
-                    <h1 class="view-title">计划,任务,提醒</h1>
+                    <div class="view-title-row">
+                        <h1 class="view-title">节日,计划,任务提醒</h1>
+                    </div>
                     <div class="header-actions">
+                        <button id="btn-save" class="header-icon-btn" title="存档 Save">
+                            <img src="设计风格/save.png" alt="Save" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                            <span class="fallback-icon">💾</span>
+                        </button>
                         <button id="btn-import" class="header-icon-btn" title="导入数据">
                             <img src="设计风格/import_data.png" alt="Import" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                             <span class="fallback-icon">📥</span>
@@ -150,10 +156,13 @@
                             </div>
                         </div>
 
-                        <div class="search-bar-wrapper">
-                            <input type="text" id="search-input" placeholder="输入 : 任务名称 / 姓名 / 节日">
-                            <button id="btn-save-top" class="cute-btn">存档Save</button>
-                            <button id="btn-refresh-top" class="cute-btn">刷新Refresh</button>
+                        <div class="search-bar-wrapper" data-html2canvas-ignore="true">
+                            <input type="text" id="search-input" placeholder="输入 : 任务名称">
+                            <button id="btn-save-top" class="cute-btn">Save</button>
+                            <button id="btn-refresh-top" class="cute-btn">Refresh</button>
+                            <button id="btn-snapshot-top" class="icon-only-btn" title="截图 Save JPG" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 27px; margin-left: auto;">
+                                <img src="设计风格/snapshot.png" alt="📸" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="height: 100%; object-fit: contain; display: block; transition: transform 0.1s;" onmousedown="this.style.transform='scale(0.8)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'" />
+                            </button>
                         </div>
                     </header>
 
@@ -273,10 +282,6 @@
                     <img src="设计风格/Notepad icon .png" alt="📝" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📝</span>
                 </button>
-                <button class="nav-btn" id="btn-save" title="存档 Save">
-                    <img src="设计风格/save.png" alt="💾" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                    <span class="fallback-icon">💾</span>
-                </button>
                 <button class="nav-btn" id="nav-btn-list" title="列表">
                     <img src="设计风格/提醒Folder Icon .png" alt="📂" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📂</span>
@@ -284,10 +289,6 @@
                 <button class="nav-btn active" id="nav-btn-calendar" title="日历">
                     <img src="设计风格/YueLi Icon.png" alt="📅" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📅</span>
-                </button>
-                <button class="nav-btn" id="btn-bg" title="截图 Save JPG">
-                    <img src="设计风格/snapshot.png" alt="📸" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                    <span class="fallback-icon">📸</span>
                 </button>
                 <button class="nav-btn" id="btn-refresh" title="刷新 refresh">
                     <img src="设计风格/refresh.png" alt="🔄" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />

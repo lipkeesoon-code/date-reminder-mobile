@@ -1896,7 +1896,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 相机按钮点击事件：播放快门音 Canon DSLR Shutter Sound.mp3，截取日历区域，另存为 YYYYMMDD-HHmm.jpg 并下载
-    document.getElementById("btn-bg").addEventListener("click", (e) => {
+    document.getElementById("btn-snapshot-top").addEventListener("click", (e) => {
         // 按钮物理点击微动动画
         const btnBg = e.currentTarget;
         btnBg.classList.add("clicked");
@@ -2748,9 +2748,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             if (calcExpression) {
-                let evalStr = calcExpression.replace(/[\+\-\*\/]$/, ""); // ignore trailing operators for live result
-                evalStr = parsePercentage(evalStr);
-                if (evalStr) {
+                // 如果包含运算符（说明在连续计算中），则不在下方实时显示总数
+                // 判断条件：包含运算符，且不仅仅是开头的负号
+                let isCalculating = /[\+\-\*\/]/.test(calcExpression) && !(calcExpression.startsWith('-') && !/[\+\-\*\/]/.test(calcExpression.substring(1)));
+                
+                if (isCalculating) {
+                    calcResultEl.textContent = ""; // 不显示实时总数
+                } else {
+                    let evalStr = parsePercentage(calcExpression);
                     let result = new Function('return ' + evalStr)();
                     if (!isFinite(result)) result = "Error";
                     else {
@@ -2758,14 +2763,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         result = formatNumber(result.toString());
                     }
                     calcResultEl.textContent = result;
-                } else {
-                    calcResultEl.textContent = "0";
                 }
             } else {
                 calcResultEl.textContent = "0";
             }
         } catch (e) {
             // keep old result if incomplete expression
+            calcResultEl.textContent = "";
         }
     };
 
