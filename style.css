@@ -671,7 +671,7 @@ body {
 }
 
 .day-cell.today {
-    background-color: #e4e4ff;
+    background-color: #d4d4fc;
 }
 
 .day-cell.highlighted-target {
@@ -702,8 +702,13 @@ body {
     color: var(--color-lunar);
 }
 .lunar-date.is-month-start {
-    font-size: 13px;
+    font-size: 9.75px;
     font-weight: bold;
+    background-color: red;
+    color: #ffffff;
+    padding: 2px 4px;
+    border-radius: 3px;
+    line-height: 1.1;
 }
 
 /* 事件标签容器 */

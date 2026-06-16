@@ -545,12 +545,18 @@ document.addEventListener("DOMContentLoaded", () => {
             // 在初一时显示月份（例如“正月”、“五月”等）
             if (lDay === "初一") {
                 const mName = lunar.getMonthInChinese();
-                // 农历11月和12月统一加上“月”，符合“五月..以此类推”的加粗大字月头显示要求
+                // 农历11月和12月由于字数较多，省略“月”字以保持两字对齐
                 if (mName === "冬" || mName === "十一") {
-                    return { text: "十一月", isMonthStart: true };
+                    return { text: "十一", isMonthStart: true };
                 }
                 if (mName === "腊" || mName === "十二") {
-                    return { text: "十二月", isMonthStart: true };
+                    return { text: "十二", isMonthStart: true };
+                }
+                if (mName === "闰冬" || mName === "闰十一") {
+                    return { text: "闰十一", isMonthStart: true };
+                }
+                if (mName === "闰腊" || mName === "闰十二") {
+                    return { text: "闰十二", isMonthStart: true };
                 }
                 return { text: mName + "月", isMonthStart: true };
             }
@@ -1550,6 +1556,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 lMonth = "十一月";
             } else if (lMonth === "腊" || lMonth === "十二") {
                 lMonth = "十二月";
+            } else if (lMonth === "闰冬" || lMonth === "闰十一") {
+                lMonth = "闰十一月";
+            } else if (lMonth === "闰腊" || lMonth === "闰十二") {
+                lMonth = "闰十二月";
             } else if (!lMonth.endsWith("月")) {
                 lMonth = lMonth + "月";
             }
