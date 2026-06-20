@@ -1562,6 +1562,28 @@ document.addEventListener("DOMContentLoaded", () => {
             tagsContainer.appendChild(tag);
         });
 
+        const solarDayObj = Solar.fromYmd(year, month + 1, day);
+        const lunarObj = solarDayObj.getLunar();
+        const jieqi = lunarObj.getJieQi();
+        if (jieqi && !isDimmed) {
+            const jieqiWatermark = document.createElement("div");
+            jieqiWatermark.className = "jieqi-watermark";
+            jieqiWatermark.textContent = jieqi;
+            
+            const preciseTheme = getPreciseJieQiColor(solarDayObj);
+            if (preciseTheme === "wood") {
+                jieqiWatermark.style.color = "#6e943d"; 
+            } else if (preciseTheme === "fire") {
+                jieqiWatermark.style.color = "#FF9999"; 
+            } else if (preciseTheme === "gold") {
+                jieqiWatermark.style.color = "#fab041"; 
+            } else if (preciseTheme === "water") {
+                jieqiWatermark.style.color = "#1688b5"; 
+            }
+            
+            cell.appendChild(jieqiWatermark);
+        }
+
         cell.appendChild(tagsContainer);
         calendarDays.appendChild(cell);
     };

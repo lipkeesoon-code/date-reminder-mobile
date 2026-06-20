@@ -714,6 +714,20 @@ body {
     line-height: 1.1;
 }
 
+/* 节气水印 */
+.jieqi-watermark {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 13.2px;
+    font-weight: bold;
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+    letter-spacing: 0px;
+}
+
 /* 事件标签容器 */
 .event-tags-container {
     display: flex;
