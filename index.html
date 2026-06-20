@@ -74,7 +74,7 @@
                                     <option value="11">Dec 十二</option>
                                 </select>
                                 <select id="mobile-card-year" class="mobile-date-select">
-                                    <!-- 动态生成 2026 - 2126 -->
+                                    <!-- 动态生成 1926 - 2126 -->
                                 </select>
                             </div>
                         </div>
@@ -99,7 +99,7 @@
                                     <option value="11">Dec 十二</option>
                                 </select>
                                 <select id="mobile-card-end-year" class="mobile-date-select">
-                                    <!-- 动态生成 2026 - 2126 -->
+                                    <!-- 动态生成 1926 - 2126 -->
                                 </select>
                             </div>
                         </div>
@@ -223,7 +223,10 @@
                     <div class="calc-screen">
                         <div class="calc-expression" id="calc-expression"></div>
                         <div class="calc-result-row">
-                            <button class="calc-sound-toggle" id="btn-calc-sound" title="开关声音">🔊</button>
+                            <div class="calc-sound-container" style="margin-right: auto; display: flex; align-items: center; gap: 5px;">
+                                <button class="calc-sound-toggle" id="btn-calc-sound" title="开关声音" style="margin-right: 0;">🔊</button>
+                                <input type="range" id="calc-volume-slider" class="calc-volume-slider" min="0" max="1" step="0.01" value="0.1" title="调整音量">
+                            </div>
                             <div class="calc-result" id="calc-result">0</div>
                             <button class="calc-backspace" id="btn-calc-backspace">&lt;</button>
                         </div>

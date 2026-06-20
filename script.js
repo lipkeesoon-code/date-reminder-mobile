@@ -1,4 +1,5 @@
 let isCalcSoundOn = true;
+let calcVolume = 0.1;
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 let audioCtx;
 function playCalcBeep() {
@@ -9,8 +10,8 @@ function playCalcBeep() {
     const gainNode = audioCtx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(calcVolume, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(Math.max(0.0001, calcVolume * 0.1), audioCtx.currentTime + 0.1);
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
     osc.start();
@@ -134,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // 年份：无年 和 2026-2126
         mobileCardYear.innerHTML = '<option value="">无年</option>';
         if (mobileCardEndYear) mobileCardEndYear.innerHTML = '<option value="">无年</option>';
-        for (let y = 2026; y <= 2126; y++) {
+        for (let y = 1926; y <= 2126; y++) {
             const opt = document.createElement("option");
             opt.value = y;
             opt.textContent = y;
@@ -1626,7 +1627,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 动态初始化三个西历下拉选择框
     const initYearSelect = () => {
         selectYear.innerHTML = '<option value="">无年</option>';
-        for (let y = 2026; y <= 2126; y++) {
+        for (let y = 1926; y <= 2126; y++) {
             const opt = document.createElement("option");
             opt.value = y;
             opt.textContent = y;
@@ -2877,6 +2878,21 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("btn-calc-sound").textContent = isCalcSoundOn ? "🔊" : "🔇";
         if (isCalcSoundOn) playCalcBeep();
     });
+
+    const calcVolumeSlider = document.getElementById("calc-volume-slider");
+    if (calcVolumeSlider) {
+        calcVolumeSlider.addEventListener("input", (e) => {
+            calcVolume = parseFloat(e.target.value);
+            if (!isCalcSoundOn && calcVolume > 0) {
+                isCalcSoundOn = true;
+                document.getElementById("btn-calc-sound").textContent = "🔊";
+            } else if (isCalcSoundOn && calcVolume === 0) {
+                isCalcSoundOn = false;
+                document.getElementById("btn-calc-sound").textContent = "🔇";
+            }
+            if (isCalcSoundOn) playCalcBeep();
+        });
+    }
 
     document.getElementById("btn-calc-backspace")?.addEventListener("click", () => {
         playCalcBeep();
