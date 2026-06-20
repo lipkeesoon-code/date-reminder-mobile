@@ -536,7 +536,10 @@ body {
 }
 
 #select-year { width: 52px; }
-#select-month { width: 70px; }
+#select-month { 
+    width: 70px; 
+    border-color: var(--theme-border-color, #7a8ad0);
+}
 #select-day { width: 42px; }
 
 .search-bar-wrapper {
