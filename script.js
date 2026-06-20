@@ -1067,6 +1067,53 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // 根据具体每一天精准计算所在节气的颜色（精确到天，不随月份一刀切）
+    const getPreciseJieQiColor = (solar) => {
+        try {
+            const lunar = solar.getLunar();
+            const jqTable = lunar.getJieQiTable(); 
+            
+            const liChun = jqTable["立春"];
+            const liXia = jqTable["立夏"];
+            const liQiu = jqTable["立秋"];
+            const liDong = jqTable["立冬"];
+            
+            if (liChun && liXia && liQiu && liDong) {
+                const currentDate = new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay()).getTime();
+                const dLiChun = new Date(liChun.getYear(), liChun.getMonth() - 1, liChun.getDay()).getTime();
+                const dLiXia = new Date(liXia.getYear(), liXia.getMonth() - 1, liXia.getDay()).getTime();
+                const dLiQiu = new Date(liQiu.getYear(), liQiu.getMonth() - 1, liQiu.getDay()).getTime();
+                const dLiDong = new Date(liDong.getYear(), liDong.getMonth() - 1, liDong.getDay()).getTime();
+                
+                if (currentDate >= dLiChun && currentDate < dLiXia) {
+                    return "wood";
+                } else if (currentDate >= dLiXia && currentDate < dLiQiu) {
+                    return "fire";
+                } else if (currentDate >= dLiQiu && currentDate < dLiDong) {
+                    return "gold";
+                } else {
+                    return "water";
+                }
+            }
+        } catch (e) {
+            console.error("JieQi table error:", e);
+        }
+        
+        // 兜底方案
+        const m = solar.getMonth(); 
+        const d = solar.getDay();
+        const val = m * 100 + d;
+        if (val >= 204 && val < 505) {
+            return "wood"; 
+        } else if (val >= 505 && val < 807) {
+            return "fire"; 
+        } else if (val >= 807 && val < 1107) {
+            return "gold"; 
+        } else {
+            return "water"; 
+        }
+    };
+
     let currentMonthMultiDayTracksMap = {};
 
     // 渲染右侧日历网格
@@ -1344,7 +1391,20 @@ document.addEventListener("DOMContentLoaded", () => {
         activeCards.forEach(card => {
             const tag = document.createElement("span");
             tag.className = "event-tag";
-            // 颜色由 CSS --theme-tag-color 随节气自动控制，不再单独赋色
+            
+            // 获取该天精确的节气颜色 (不受月份的一刀切影响)
+            const solarDay = Solar.fromYmd(year, month + 1, day);
+            const preciseTheme = getPreciseJieQiColor(solarDay);
+            if (preciseTheme === "wood") {
+                tag.style.backgroundColor = "#6e943d";
+            } else if (preciseTheme === "fire") {
+                tag.style.backgroundColor = "#FF9999";
+            } else if (preciseTheme === "gold") {
+                tag.style.backgroundColor = "#fab041";
+            } else if (preciseTheme === "water") {
+                tag.style.backgroundColor = "#1688b5";
+            }
+
             tag.textContent = card.title;
             tag.title = card.title;
 
