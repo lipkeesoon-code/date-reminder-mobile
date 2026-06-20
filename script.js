@@ -1052,50 +1052,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 动态计算节气主题色 (双重保险：优先通过 jqTable 精准对比，报错时则通过公历日期进行高准确度切割估算)
+    // 根据月份判断节气主题色 (不显示标签，暗地里计算)
     const getJieQiColorTheme = (solar) => {
-        try {
-            const lunar = solar.getLunar();
-            const jqTable = lunar.getJieQiTable(); 
-            
-            const liChun = jqTable["立春"];
-            const liXia = jqTable["立夏"];
-            const liQiu = jqTable["立秋"];
-            const liDong = jqTable["立冬"];
-            
-            if (liChun && liXia && liQiu && liDong) {
-                const currentDate = new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay());
-                const dLiChun = new Date(liChun.getYear(), liChun.getMonth() - 1, liChun.getDay());
-                const dLiXia = new Date(liXia.getYear(), liXia.getMonth() - 1, liXia.getDay());
-                const dLiQiu = new Date(liQiu.getYear(), liQiu.getMonth() - 1, liQiu.getDay());
-                const dLiDong = new Date(liDong.getYear(), liDong.getMonth() - 1, liDong.getDay());
-                
-                if (currentDate >= dLiChun && currentDate < dLiXia) {
-                    return "wood";
-                } else if (currentDate >= dLiXia && currentDate < dLiQiu) {
-                    return "fire";
-                } else if (currentDate >= dLiQiu && currentDate < dLiDong) {
-                    return "gold";
-                } else {
-                    return "water";
-                }
-            }
-        } catch (e) {
-            console.error("JieQi table error, fallback to static date calculation:", e);
-        }
-        
-        // 兜底方案：使用极精准的公历日期切分 (MMDD 形式)
+        // solar.getMonth() 返回 1-12，对应 1月到12月
         const m = solar.getMonth(); 
-        const d = solar.getDay();
-        const val = m * 100 + d;
-        if (val >= 204 && val < 505) {
-            return "wood"; // 2月4日 - 5月5日
-        } else if (val >= 505 && val < 807) {
-            return "fire"; // 5月5日 - 8月7日
-        } else if (val >= 807 && val < 1107) {
-            return "gold"; // 8月7日 - 11月7日
+        if (m === 2 || m === 3 || m === 4) {
+            return "wood";  // 春季：2月(立春/雨水), 3月(惊蛰/春分), 4月(清明/谷雨)
+        } else if (m === 5 || m === 6 || m === 7) {
+            return "fire";  // 夏季：5月(立夏/小满), 6月(芒种/夏至), 7月(小暑/大暑)
+        } else if (m === 8 || m === 9 || m === 10) {
+            return "gold";  // 秋季：8月(立秋/处暑), 9月(白露/秋分), 10月(寒露/霜降)
         } else {
-            return "water"; // 11月7日 - 2月4日
+            return "water"; // 冬季：11月(立冬/小雪), 12月(大雪/冬至), 1月(小寒/大寒)
         }
     };
 

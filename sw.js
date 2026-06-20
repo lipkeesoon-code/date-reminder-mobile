@@ -1,4 +1,4 @@
-const CACHE_NAME = 'date-reminder-v1';
+const CACHE_NAME = 'date-reminder-v2';
 
 // 激活时跳过等待，确保能立即接管页面
 self.addEventListener('install', (event) => {
