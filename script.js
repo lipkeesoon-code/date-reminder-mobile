@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // 默认展示的年份与月份（设定为今日日期）
     const todayObj = new Date();
     let currentYear = todayObj.getFullYear();
-    // 限制在 2026 至 2126 年的范围内
-    if (currentYear < 2026) currentYear = 2026;
+    // 限制在 1926 至 2126 年的范围内
+    if (currentYear < 1926) currentYear = 1926;
     if (currentYear > 2126) currentYear = 2126;
     let currentMonth = todayObj.getMonth();
     let currentDay = todayObj.getDate();
@@ -1673,7 +1673,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (currentMonth < 0) {
                 currentMonth = 11;
                 currentYear--;
-                if (currentYear < 2026) currentYear = 2026;
+                if (currentYear < 1926) currentYear = 1926;
             }
             selectYear.value = currentYear;
             selectMonth.value = currentMonth;
@@ -1915,7 +1915,7 @@ document.addEventListener("DOMContentLoaded", () => {
         highlightedDate = null; // 刷新时，清除双击定位的高亮底色
         const today = new Date();
         currentYear = today.getFullYear();
-        if (currentYear < 2026) currentYear = 2026;
+        if (currentYear < 1926) currentYear = 1926;
         if (currentYear > 2126) currentYear = 2126;
         currentMonth = today.getMonth();
         currentDay = today.getDate();
