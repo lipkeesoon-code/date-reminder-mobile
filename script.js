@@ -1703,6 +1703,47 @@ document.addEventListener("DOMContentLoaded", () => {
         updateLunarHeader(currentYear, currentMonth, currentDay);
     });
 
+    // 监听日历网格容器的左右滑动手势翻月
+    const calendarGridWrapper = document.querySelector(".calendar-grid-wrapper");
+    if (calendarGridWrapper) {
+        let startX = 0;
+        let startY = 0;
+        let endX = 0;
+        let endY = 0;
+
+        calendarGridWrapper.addEventListener("touchstart", (e) => {
+            if (e.touches && e.touches.length > 0) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        calendarGridWrapper.addEventListener("touchend", (e) => {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                endX = e.changedTouches[0].clientX;
+                endY = e.changedTouches[0].clientY;
+
+                const deltaX = endX - startX;
+                const deltaY = endY - startY;
+
+                // 当水平位移差值绝对值大于 50px 且垂直位移差值绝对值较小（如小于 30px，避免误触滚动）时
+                if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 30) {
+                    if (deltaX < -50) {
+                        // 向左滑，执行跳转下个月（触发 Next 逻辑）
+                        if (btnMonthNext) {
+                            btnMonthNext.click();
+                        }
+                    } else if (deltaX > 50) {
+                        // 向右滑，执行跳转上个月（触发 Prev 逻辑）
+                        if (btnMonthPrev) {
+                            btnMonthPrev.click();
+                        }
+                    }
+                }
+            }
+        }, { passive: true });
+    }
+
 
     // 存档保存新增项目功能
     const saveNewReminder = () => {
