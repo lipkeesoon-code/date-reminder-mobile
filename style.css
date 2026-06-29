@@ -674,7 +674,7 @@ body {
 }
 
 .day-cell.today {
-    background-color: #d4d4fc;
+    background-color: #ffffff;
 }
 
 .day-cell.highlighted-target {
@@ -736,7 +736,7 @@ body {
     overflow-y: auto;
     flex: 1;
     position: relative;
-    z-index: 2;
+    z-index: 20;
 }
 
 
@@ -1319,3 +1319,19 @@ body {
 .calc-volume-slider { width: 60px; height: 4px; -webkit-appearance: none; background: #d1d5db; border-radius: 2px; outline: none; }
 .calc-volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #8a98ad; cursor: pointer; }
 .calc-volume-slider::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #8a98ad; cursor: pointer; border: none; }
+
+/* Metal Slug 吉祥物 - 显示在今日格子 */
+.today-mascot {
+    position: absolute;
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 80%;
+    object-fit: contain;
+    object-position: center bottom;
+    pointer-events: none;
+    z-index: 10;
+    display: block;
+}
+
