@@ -2953,6 +2953,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 初始化页面加载与首次渲染
     initYearSelect();
+    if (selectMonth) {
+        selectMonth.value = currentMonth;
+    }
     initDaySelect(currentDay);
     renderFolders();
     renderCalendar(currentYear, currentMonth);
