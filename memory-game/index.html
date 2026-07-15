@@ -13,22 +13,40 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100%;
+            height: 100vh;
             height: 100dvh;
             overflow: hidden;
         }
 
         .app-container {
             width: 100vw;
+            height: 100%;
+            height: 100vh;
             height: 100dvh;
             max-width: 390px;
             max-height: 844px;
             background-color: #ffffff;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: 1fr auto;
             box-sizing: border-box;
             position: relative;
             box-shadow: 0 0 20px rgba(0,0,0,0.15);
             overflow: hidden;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                background-color: #ffffff;
+            }
+            .app-container {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                max-width: none;
+                max-height: none;
+                box-shadow: none;
+            }
         }
 
         /* 顶部带有紫色边框的主内容区，占据除底部icon外的所有剩余空间 */
@@ -38,9 +56,9 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            flex: 1;
             min-height: 0; /* 允许子元素正确缩放 */
             box-sizing: border-box;
+            overflow: hidden;
         }
 
         /* 横向滑动容器 */
@@ -253,8 +271,6 @@
             align-items: center;
             gap: 3px;
             padding: 5px 0 calc(5px + env(safe-area-inset-bottom, 5px)) 0;
-            margin-top: auto;
-            flex-shrink: 0;
             z-index: 100;
         }
 
