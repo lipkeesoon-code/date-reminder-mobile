@@ -244,6 +244,17 @@
             height: 14px;
             cursor: pointer;
         }
+        
+        .page-switcher {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .page-switcher input[type="radio"] {
+            width: 12px;
+            height: 12px;
+            margin: 0 1px;
+        }
 
         /* 底部 Icon 区域 - 去除白框，直接放图 */
         .footer-area {
@@ -337,7 +348,7 @@
                 <div class="control-col">
                     <label><input type="radio" name="range" value="all" checked> 00-99 全</label>
                     <label><input type="radio" name="range" value="upper"> 00-50 上</label>
-                    <label><input type="radio" name="range" value="mid"> 30-70 中</label>
+                    <label><input type="radio" name="range" value="mid"> 30-65 中</label>
                     <label><input type="radio" name="range" value="lower"> 50-00 下</label>
                 </div>
                 <div class="control-col">
@@ -346,14 +357,19 @@
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="count" value="20"> 20张</label>
-                    <label><input type="radio" name="count" value="40"> 40张</label>
-                    <label><input type="radio" name="count" value="80"> 80张</label>
+                    <label><input type="radio" name="count" value="35"> 35张</label>
+                    <label><input type="radio" name="count" value="70"> 70张</label>
                     <label><input type="radio" name="count" value="120" checked> 120张</label>
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="display" value="number"> 只发号</label>
                     <label><input type="radio" name="display" value="image"> 只发图</label>
                     <label><input type="radio" name="display" value="both" checked> 发号+发图</label>
+                    <label class="page-switcher">页面 
+                        <input type="radio" name="page" value="0" checked> 
+                        <input type="radio" name="page" value="1"> 
+                        <input type="radio" name="page" value="2">
+                    </label>
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="action" value="open"> 全开</label>
@@ -1155,7 +1171,7 @@
                     inRange = true;
                 } else if (rangeOpt === 'upper' && num <= 50) {
                     inRange = true;
-                } else if (rangeOpt === 'mid' && num >= 30 && num <= 70) {
+                } else if (rangeOpt === 'mid' && num >= 30 && num <= 65) {
                     inRange = true;
                 } else if (rangeOpt === 'lower' && (num >= 50 || num === 0)) {
                     inRange = true;
@@ -1370,12 +1386,45 @@
                 gridSlides.appendChild(pageGrid);
             }
             
+            // 动态更新“页面”单选按钮
+            let pageSwitcher = document.querySelector('.page-switcher');
+            if (pageSwitcher) {
+                let html = '页面 ';
+                for (let i = 0; i < pages; i++) {
+                    html += `<input type="radio" name="page" value="${i}" ${i === 0 ? 'checked' : ''}> `;
+                }
+                pageSwitcher.innerHTML = html;
+                
+                // 给新的单选框绑定点击滚动事件
+                pageSwitcher.querySelectorAll('input[name="page"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        let pageIndex = parseInt(e.target.value);
+                        let wrapperWidth = sliderWrapper.clientWidth;
+                        sliderWrapper.scrollTo({
+                            left: pageIndex * wrapperWidth,
+                            behavior: 'smooth'
+                        });
+                    });
+                });
+            }
+            
             if (resetScroll) {
                 sliderWrapper.scrollLeft = 0;
             } else {
                 sliderWrapper.scrollLeft = currentScroll;
             }
         }
+        
+        // 监听滑动事件，自动切换“页面”按钮的选中状态
+        sliderWrapper.addEventListener('scroll', () => {
+            let wrapperWidth = sliderWrapper.clientWidth;
+            if (wrapperWidth === 0) return;
+            let currentPage = Math.round(sliderWrapper.scrollLeft / wrapperWidth);
+            let pageRadios = document.querySelectorAll('input[name="page"]');
+            if (pageRadios[currentPage]) {
+                pageRadios[currentPage].checked = true;
+            }
+        });
 
         // 监听单选框点击事件（操作按钮）
         const actionRadios = document.querySelectorAll('input[name="action"]');
