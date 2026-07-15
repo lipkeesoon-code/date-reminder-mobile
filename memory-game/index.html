@@ -1316,7 +1316,12 @@
                             cardName.style.fontSize = '11px';
                             cardName.style.letterSpacing = 'normal';
                         }
-                        cardNum.textContent = card.number;
+                        // 00-xx 那组照旧显示两位数（01/02...），0001-0099 普通单词组去掉前导零（1/2/3...）
+                        if (card.file && card.file.startsWith('00-')) {
+                            cardNum.textContent = card.number; // 照旧：01, 02, 03...
+                        } else {
+                            cardNum.textContent = parseInt(card.number, 10).toString(); // 去前导零：1, 2, 3...
+                        }
                         
                         const img = document.createElement('img');
                         
