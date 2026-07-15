@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game - Method of Loci</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f5; /* 略深一点的灰色背景，突出手机模拟效果 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 390px;
+            max-height: 844px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        /* 顶部带有紫色边框的主内容区，占据除底部icon外的所有剩余空间 */
+        .main-content {
+            padding: 10px;
+            background-color: #b592b3; /* 紫色外框背景色 */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-height: 0; /* 允许子元素正确缩放 */
+            box-sizing: border-box;
+        }
+
+        /* 横向滑动容器 */
+        .grid-slider-wrapper {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* 隐藏 Firefox 滚动条 */
+            -ms-overflow-style: none; /* 隐藏 IE 滚动条 */
+        }
+        .grid-slider-wrapper::-webkit-scrollbar {
+            display: none; /* 隐藏 Chrome/Safari 滚动条 */
+        }
+        
+        .grid-slides {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 格子区域，自适应剩余高度，每一页默认8行5列（40格） */
+        .grid-container {
+            background-color: #ffffff;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 每一行5个格子 */
+            grid-template-rows: repeat(var(--grid-rows, 8), 1fr); /* 动态分配行高 */
+            border-left: 1px solid #dcdcdc;
+            border-top: 1px solid #dcdcdc;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            box-sizing: border-box;
+        }
+
+        /* 指示点容器 */
+        .dots-container {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 2px;
+            height: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        
+        .dot.active {
+            background-color: #ffffff;
+            transform: scale(1.2);
+        }
+
+        .cell {
+            border-right: 1px solid #dcdcdc;
+            border-bottom: 1px solid #dcdcdc;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            background-color: #ffffff;
+        }
+
+        /* 浮水印数字 (10, 20, 30, 40) - 动态生成在第 10, 20, 30, 40 格子的背景 */
+        .cell.has-bg-num::before {
+            content: attr(data-bg-num);
+            position: absolute;
+            font-size: 45px; /* 字体放大 40% (原 32px) */
+            color: rgba(220, 220, 225, 0.7);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: calc(100% - 20px); /* 仅在上方图区域居中 */
+            top: 0;
+            left: 0;
+        }
+
+        .card-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            min-height: 0;
+        }
+
+        .card-content img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        /* 卡片底部名称和数字 label */
+        .card-label {
+            height: 20px; /* 增加一点高度容纳文字 */
+            border-top: 1px solid #dcdcdc; /* 改为和外框一样的边线 */
+            display: flex; /* 始终显示，画出所有格子的框架 */
+            background-color: #ffffff; /* 白底 */
+            z-index: 2;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .card-name {
+            flex: 1; /* 左侧占据大部分空间 */
+            border-right: 1px solid #dcdcdc; /* 中间的垂直分割线 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #384259; /* 深蓝色 */
+            font-weight: bold;
+            white-space: nowrap; /* 不换行 */
+            overflow: hidden;    /* 溢出隐藏 */
+        }
+
+        .card-num {
+            width: 35%; /* 右侧占据空间 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #539845; /* 绿色 */
+            font-weight: bold;
+        }
+
+        /* 关闭状态时的遮挡色块 */
+        .card-label.is-closed .card-name, 
+        .card-label.is-closed .card-num {
+            background-color: #939ebc;
+            color: transparent;
+        }
+
+        /* 底部控制区 - 白底，紫色字 */
+        .controls-container {
+            background-color: #ffffff; /* 恢复白底 */
+            padding: 6px 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #9e779a; /* 与外框颜色呼应的紫色字 */
+            font-weight: 500;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            border-radius: 2px; /* 稍微给一点圆角 */
+        }
+
+        .control-col {
+            display: flex;
+            flex-direction: column;
+            gap: 0; /* 减小上下间距 */
+        }
+
+        .control-col label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            padding: 0; /* 去除上下内边距 */
+            line-height: 1.2; /* 缩小行高 */
+        }
+
+        .control-col input[type="radio"] {
+            margin: 0;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        /* 底部 Icon 区域 - 去除白框，直接放图 */
+        .footer-area {
+            height: 75px;
+            padding: 8px 10px;
+            background-color: #e5e9f0;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        .app-logo-img {
+            height: 58px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        /* 底部导航工具栏模拟 */
+        .bottom-nav {
+            background-color: #dbe2ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            padding: 5px 0 10px 0;
+            margin-top: auto;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            padding: 0;
+            outline: none;
+            opacity: 0.85; 
+        }
+        
+        .nav-btn.active {
+            opacity: 1;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.9);
+        }
+
+        .nav-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="main-content">
+            <!-- 横向滑动容器 -->
+            <div class="grid-slider-wrapper" id="sliderWrapper">
+                <div class="grid-slides" id="gridSlides">
+                    <!-- 动态生成一页或多页格子 -->
+                </div>
+            </div>
+
+            <!-- 控制按钮区域 -->
+            <div class="controls-container">
+                <div class="control-col">
+                    <label><input type="radio" name="range" value="all" checked> 00-99 全</label>
+                    <label><input type="radio" name="range" value="upper"> 00-50 上</label>
+                    <label><input type="radio" name="range" value="mid"> 30-70 中</label>
+                    <label><input type="radio" name="range" value="lower"> 50-00 下</label>
+                </div>
+                <div class="control-col">
+                    <label><input type="radio" name="repeat" value="no-repeat" checked> 不重复</label>
+                    <label><input type="radio" name="repeat" value="repeat"> 有重复</label>
+                </div>
+                <div class="control-col">
+                    <label><input type="radio" name="count" value="20"> 20张</label>
+                    <label><input type="radio" name="count" value="40"> 40张</label>
+                    <label><input type="radio" name="count" value="80"> 80张</label>
+                    <label><input type="radio" name="count" value="120" checked> 120张</label>
+                </div>
+                <div class="control-col">
+                    <label><input type="radio" name="display" value="number"> 只发号</label>
+                    <label><input type="radio" name="display" value="image"> 只发图</label>
+                    <label><input type="radio" name="display" value="both" checked> 发号+发图</label>
+                </div>
+                <div class="control-col">
+                    <label><input type="radio" name="action" value="open"> 全开</label>
+                    <label><input type="radio" name="action" value="close"> 全关</label>
+                    <label><input type="radio" name="action" value="learn"> 重新学习</label>
+                    <label><input type="radio" name="action" value="shuffle"> 重新洗牌</label>
+                </div>
+            </div>
+        </div>
+        <nav class="bottom-nav">
+            <button class="nav-btn active" id="nav-btn-memory-game" title="记忆宫殿">
+                <img src="Memory Games Icon .png" alt="🧠" />
+            </button>
+            <button class="nav-btn" id="nav-btn-calculator" title="计算器" onclick="window.location.href='../index.html'">
+                <img src="../设计风格/cauculator icon.png" alt="🖩" />
+            </button>
+            <button class="nav-btn" id="nav-btn-notepad" title="Notepad" onclick="window.location.href='../index.html'">
+                <img src="../设计风格/Notepad icon .png" alt="📝" />
+            </button>
+            <button class="nav-btn" id="nav-btn-list" title="列表" onclick="window.location.href='../index.html'">
+                <img src="../设计风格/提醒Folder Icon .png" alt="📂" />
+            </button>
+            <button class="nav-btn" id="nav-btn-calendar" title="日历" onclick="window.location.href='../index.html'">
+                <img src="../设计风格/YueLi Icon.png" alt="📅" />
+            </button>
+            <button class="nav-btn" id="btn-refresh" title="刷新 refresh" onclick="window.location.reload()">
+                <img src="../设计风格/refresh.png" alt="🔄" />
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        // 00-99 记忆编码表
+                const MEMORY_CODES = {
+    "00": [
+        {
+            "file": "00-00 麦玲玲 .jpg",
+            "name": "麦玲玲"
+        }
+    ],
+    "01": [
+        {
+            "file": "00-01灵异 .jpg",
+            "name": "灵异"
+        },
+        {
+            "file": "0001 衣 .jpg",
+            "name": "衣"
+        }
+    ],
+    "02": [
+        {
+            "file": "00-02 铃儿马小玲 .jpg",
+            "name": "铃儿马小玲"
+        },
+        {
+            "file": "0002 鹅 .jpg",
+            "name": "鹅"
+        }
+    ],
+    "03": [
+        {
+            "file": "00-03 灵山 .jpg",
+            "name": "灵山"
+        },
+        {
+            "file": "0003 伞兵 .jpg",
+            "name": "伞兵"
+        },
+        {
+            "file": "0003 鬼伞.jpg",
+            "name": "鬼伞"
+        }
+    ],
+    "04": [
+        {
+            "file": "00-04 零食 .jpg",
+            "name": "零食"
+        },
+        {
+            "file": "0004 尸 .jpg",
+            "name": "尸"
+        }
+    ],
+    "05": [
+        {
+            "file": "00-05 令狐冲 .jpg",
+            "name": "令狐冲"
+        },
+        {
+            "file": "00-05 灵屋 .jpg",
+            "name": "灵屋"
+        },
+        {
+            "file": "0005 舞 .jpg",
+            "name": "舞"
+        }
+    ],
+    "06": [
+        {
+            "file": "00-06 灵鹿Kancil .jpg",
+            "name": "灵鹿Kancil"
+        },
+        {
+            "file": "0006 牛 .jpg",
+            "name": "牛"
+        }
+    ],
+    "07": [
+        {
+            "file": "00-07 零七 .jpg",
+            "name": "零七"
+        },
+        {
+            "file": "0007 妻 .jpg",
+            "name": "妻"
+        },
+        {
+            "file": "0007 漆 .jpg",
+            "name": "漆"
+        }
+    ],
+    "08": [
+        {
+            "file": "00-08 零发.jpg",
+            "name": "零发"
+        },
+        {
+            "file": "0008 趴 .jpg",
+            "name": "趴"
+        }
+    ],
+    "09": [
+        {
+            "file": "00-09灵鹫宫  .jpg",
+            "name": "灵鹫宫"
+        },
+        {
+            "file": "0009 酒 .jpg",
+            "name": "酒"
+        }
+    ],
+    "10": [
+        {
+            "file": "0010 石 .jpg",
+            "name": "石"
+        }
+    ],
+    "11": [
+        {
+            "file": "0011 雨衣.jpg",
+            "name": "雨衣"
+        }
+    ],
+    "12": [
+        {
+            "file": "0012 婴儿 .jpg",
+            "name": "婴儿"
+        }
+    ],
+    "13": [
+        {
+            "file": "0013 医生 .jpg",
+            "name": "医生"
+        }
+    ],
+    "14": [
+        {
+            "file": "0014 鱼翅 .jpg",
+            "name": "鱼翅"
+        },
+        {
+            "file": "0014 鱼翅.jpg",
+            "name": "鱼翅"
+        }
+    ],
+    "15": [
+        {
+            "file": "0015 鹦鹉 .jpg",
+            "name": "鹦鹉"
+        }
+    ],
+    "16": [
+        {
+            "file": "0016 衣钮 .jpg",
+            "name": "衣钮"
+        }
+    ],
+    "17": [
+        {
+            "file": "0017 玉器 .jpg",
+            "name": "玉器"
+        }
+    ],
+    "18": [
+        {
+            "file": "0018 一巴 .jpg",
+            "name": "一巴"
+        }
+    ],
+    "19": [
+        {
+            "file": "0019 一脚 .jpg",
+            "name": "一脚"
+        }
+    ],
+    "20": [
+        {
+            "file": "0020 恶灵 .jpg",
+            "name": "恶灵"
+        }
+    ],
+    "21": [
+        {
+            "file": "0021 鳄鱼 .jpg",
+            "name": "鳄鱼"
+        }
+    ],
+    "22": [
+        {
+            "file": "0022 鹅儿 .jpg",
+            "name": "鹅儿"
+        }
+    ],
+    "23": [
+        {
+            "file": "0023 和尚 .jpg",
+            "name": "和尚"
+        }
+    ],
+    "24": [
+        {
+            "file": "0024 恶狮 .jpg",
+            "name": "恶狮"
+        }
+    ],
+    "25": [
+        {
+            "file": "0025 二胡 .jpg",
+            "name": "二胡"
+        }
+    ],
+    "26": [
+        {
+            "file": "0026 河流 .jpg",
+            "name": "河流"
+        }
+    ],
+    "27": [
+        {
+            "file": "0027 恶妻 .jpg",
+            "name": "恶妻"
+        }
+    ],
+    "28": [
+        {
+            "file": "0028 恶霸 .jpg",
+            "name": "恶霸"
+        }
+    ],
+    "29": [
+        {
+            "file": "0029 恶狗  .jpg",
+            "name": "恶狗"
+        },
+        {
+            "file": "0029 恶狗 .jpg",
+            "name": "恶狗"
+        }
+    ],
+    "30": [
+        {
+            "file": "0030 山林 .jpg",
+            "name": "山林"
+        }
+    ],
+    "31": [
+        {
+            "file": "0031 山医 .jpg",
+            "name": "山医"
+        }
+    ],
+    "32": [
+        {
+            "file": "0032 沙河 .jpg",
+            "name": "沙河"
+        }
+    ],
+    "33": [
+        {
+            "file": "0033闪闪 .jpg",
+            "name": "闪闪"
+        }
+    ],
+    "34": [
+        {
+            "file": "0034 丧尸 .jpg",
+            "name": "丧尸"
+        }
+    ],
+    "35": [
+        {
+            "file": "0035 山屋 .jpg",
+            "name": "山屋"
+        }
+    ],
+    "36": [
+        {
+            "file": "0036 山路 .jpg",
+            "name": "山路"
+        }
+    ],
+    "37": [
+        {
+            "file": "0037 山鸡 .jpg",
+            "name": "山鸡"
+        }
+    ],
+    "38": [
+        {
+            "file": "0038 三八 .jpg",
+            "name": "三八"
+        }
+    ],
+    "39": [
+        {
+            "file": "0039 三角 共济会 .jpg",
+            "name": "三角 共济会"
+        },
+        {
+            "file": "0039 山猪 .JPG",
+            "name": "山猪"
+        }
+    ],
+    "40": [
+        {
+            "file": "0040 司令 .jpg",
+            "name": "司令"
+        }
+    ],
+    "41": [
+        {
+            "file": "0041 丝衣 .jpg",
+            "name": "丝衣"
+        },
+        {
+            "file": "0041 司义 .jpg",
+            "name": "司义"
+        },
+        {
+            "file": "0041 时宜 .jpg",
+            "name": "时宜"
+        }
+    ],
+    "42": [
+        {
+            "file": "0042 死鹅 .jpg",
+            "name": "死鹅"
+        }
+    ],
+    "43": [
+        {
+            "file": "0043 死伤 .JPG",
+            "name": "死伤"
+        }
+    ],
+    "44": [
+        {
+            "file": "0044 石狮 .jpg",
+            "name": "石狮"
+        }
+    ],
+    "45": [
+        {
+            "file": "0045 失误 .jpg",
+            "name": "失误"
+        }
+    ],
+    "46": [
+        {
+            "file": "0046 死牛 .jpg",
+            "name": "死牛"
+        }
+    ],
+    "47": [
+        {
+            "file": "0047 死鸡 .jpg",
+            "name": "死鸡"
+        }
+    ],
+    "48": [
+        {
+            "file": "0048 死吧 .jpg",
+            "name": "死吧"
+        },
+        {
+            "file": "0048 石斑 .jpg",
+            "name": "石斑"
+        }
+    ],
+    "49": [
+        {
+            "file": "0049 死屎狗 .jpg",
+            "name": "死屎狗"
+        }
+    ],
+    "50": [
+        {
+            "file": "0050 武林 .jpg",
+            "name": "武林"
+        }
+    ],
+    "51": [
+        {
+            "file": "0051 劳动节 .JPG",
+            "name": "劳动节"
+        }
+    ],
+    "52": [
+        {
+            "file": "0052 虎儿 .jpg",
+            "name": "虎儿"
+        }
+    ],
+    "53": [
+        {
+            "file": "0053 武僧 .jpg",
+            "name": "武僧"
+        }
+    ],
+    "54": [
+        {
+            "file": "0054 武士 .jpg",
+            "name": "武士"
+        },
+        {
+            "file": "0054 舞狮 .jpg",
+            "name": "舞狮"
+        }
+    ],
+    "55": [
+        {
+            "file": "0055 呜呜 .jpg",
+            "name": "呜呜"
+        }
+    ],
+    "56": [
+        {
+            "file": "0056 蜗牛 .jpg",
+            "name": "蜗牛"
+        }
+    ],
+    "57": [
+        {
+            "file": "0057 武器 .jpg",
+            "name": "武器"
+        }
+    ],
+    "58": [
+        {
+            "file": "0058 Ubah .jpg",
+            "name": "Ubah"
+        },
+        {
+            "file": "0058 舞吧 .jpg",
+            "name": "舞吧"
+        }
+    ],
+    "59": [
+        {
+            "file": "0059 五脚 .jpg",
+            "name": "五脚"
+        },
+        {
+            "file": "0059 五角大楼 .jpg",
+            "name": "五角大楼"
+        }
+    ],
+    "60": [
+        {
+            "file": "0060 榴莲 .jpg",
+            "name": "榴莲"
+        }
+    ],
+    "61": [
+        {
+            "file": "0061 金缕衣  .jpg",
+            "name": "金缕衣"
+        }
+    ],
+    "62": [
+        {
+            "file": "0062 牛耳 .jpg",
+            "name": "牛耳"
+        }
+    ],
+    "63": [
+        {
+            "file": "0063 流沙包 .jpg",
+            "name": "流沙包"
+        }
+    ],
+    "64": [
+        {
+            "file": "0064 牛屎 .jpg",
+            "name": "牛屎"
+        }
+    ],
+    "65": [
+        {
+            "file": "0065 尿壶 .jpg",
+            "name": "尿壶"
+        }
+    ],
+    "66": [
+        {
+            "file": "0066 溜溜 .jpg",
+            "name": "溜溜"
+        }
+    ],
+    "67": [
+        {
+            "file": "0067 油漆 .jpg",
+            "name": "油漆"
+        }
+    ],
+    "68": [
+        {
+            "file": "0068 留疤 .jpg",
+            "name": "留疤"
+        },
+        {
+            "file": "0068 路霸 .jpg",
+            "name": "路霸"
+        }
+    ],
+    "69": [
+        {
+            "file": "0069 69 .jpg",
+            "name": "69"
+        }
+    ],
+    "70": [
+        {
+            "file": "0070 麒麟.jpg",
+            "name": "麒麟"
+        }
+    ],
+    "71": [
+        {
+            "file": "0071  奇异果 .jpg",
+            "name": "奇异果"
+        },
+        {
+            "file": "0071 奇异 .jpg",
+            "name": "奇异"
+        }
+    ],
+    "72": [
+        {
+            "file": "0072 企鹅 .jpg",
+            "name": "企鹅"
+        }
+    ],
+    "73": [
+        {
+            "file": "0073 旗山 .jpg",
+            "name": "旗山"
+        }
+    ],
+    "74": [
+        {
+            "file": "0074 骑士 .jpg",
+            "name": "骑士"
+        }
+    ],
+    "75": [
+        {
+            "file": "0075 骑虎 .jpg",
+            "name": "骑虎"
+        }
+    ],
+    "76": [
+        {
+            "file": "0076 骑牛 .jpg",
+            "name": "骑牛"
+        }
+    ],
+    "77": [
+        {
+            "file": "0077 七夕 .jpg",
+            "name": "七夕"
+        }
+    ],
+    "78": [
+        {
+            "file": "0078 奇葩.jpg",
+            "name": "奇葩"
+        }
+    ],
+    "79": [
+        {
+            "file": "0079 气球 .jpg",
+            "name": "气球"
+        }
+    ],
+    "80": [
+        {
+            "file": "0080 巴黎 .jpg",
+            "name": "巴黎"
+        }
+    ],
+    "81": [
+        {
+            "file": "0081 白蚁 .jpg",
+            "name": "白蚁"
+        }
+    ],
+    "82": [
+        {
+            "file": "0082 拔河 .jpg",
+            "name": "拔河"
+        }
+    ],
+    "83": [
+        {
+            "file": "0083 爬山 .jpg",
+            "name": "爬山"
+        }
+    ],
+    "84": [
+        {
+            "file": "0084 巴士 .JPG",
+            "name": "巴士"
+        }
+    ],
+    "85": [
+        {
+            "file": "0085 白虎 .jpg",
+            "name": "白虎"
+        }
+    ],
+    "86": [
+        {
+            "file": "0086 AE86 .jpg",
+            "name": "AE86"
+        }
+    ],
+    "87": [
+        {
+            "file": "0087 笨7 .jpg",
+            "name": "笨7"
+        }
+    ],
+    "88": [
+        {
+            "file": "0088 爸爸 .jpg",
+            "name": "爸爸"
+        }
+    ],
+    "89": [
+        {
+            "file": "0089 牌九 .jpg",
+            "name": "牌九"
+        }
+    ],
+    "90": [
+        {
+            "file": "0090 旧铃 .jpg",
+            "name": "旧铃"
+        }
+    ],
+    "91": [
+        {
+            "file": "0091 911 .jpg",
+            "name": "911"
+        }
+    ],
+    "92": [
+        {
+            "file": "0092 球儿 .jpg",
+            "name": "球儿"
+        }
+    ],
+    "93": [
+        {
+            "file": "0093 球生 .jpg",
+            "name": "球生"
+        }
+    ],
+    "94": [
+        {
+            "file": "0094 酒师 .jpg",
+            "name": "酒师"
+        }
+    ],
+    "95": [
+        {
+            "file": "0095 九五 .jpg",
+            "name": "九五"
+        }
+    ],
+    "96": [
+        {
+            "file": "0096 酒楼 .JPG",
+            "name": "酒楼"
+        }
+    ],
+    "97": [
+        {
+            "file": "0097 酒器 .jpg",
+            "name": "酒器"
+        }
+    ],
+    "98": [
+        {
+            "file": "0098 酒吧 .jpg",
+            "name": "酒吧"
+        }
+    ],
+    "99": [
+        {
+            "file": "0099 奶奶  .jpg",
+            "name": "奶奶"
+        },
+        {
+            "file": "0099 奶奶 .jpg",
+            "name": "奶奶"
+        }
+    ]
+};
+
+        const CARD_BACKS = [
+            'A .jpg', 'B .jpg', 'C.jpg', 'D.jpg', 
+            'E .jpg', 'F .jpg', 'G.jpg', 'H .jpg'
+        ];
+
+        const sliderWrapper = document.getElementById('sliderWrapper');
+        const gridSlides = document.getElementById('gridSlides');
+
+        let currentCards = [];
+        let isAllHidden = false; // 用于“全关”模式
+
+        // 提取 109 个独立的卡牌身份（每个身份如果有多张图，随机抽一张）
+        function getUniquePegs() {
+            let pegs = [];
+            
+            // 1. 获取 00-00 到 00-09 的 10 张牌
+            for (let i = 0; i <= 9; i++) {
+                let numStr = i.toString().padStart(2, '0');
+                const variants = MEMORY_CODES[numStr];
+                if (variants) {
+                    let dashVariants = variants.filter(v => v.file.startsWith('00-'));
+                    if (dashVariants.length > 0) {
+                        let randomVariant = dashVariants[Math.floor(Math.random() * dashVariants.length)];
+                        pegs.push({ number: numStr, ...randomVariant });
+                    }
+                }
+            }
+            
+            // 2. 获取 0001 到 0099 的 99 张牌
+            for (let i = 1; i <= 99; i++) {
+                let numStr = i.toString().padStart(2, '0');
+                const variants = MEMORY_CODES[numStr];
+                if (variants) {
+                    let normalVariants = variants.filter(v => !v.file.startsWith('00-'));
+                    if (normalVariants.length > 0) {
+                        let randomVariant = normalVariants[Math.floor(Math.random() * normalVariants.length)];
+                        pegs.push({ number: numStr, ...randomVariant });
+                    }
+                }
+            }
+            
+            return pegs;
+        }
+
+        // 发牌逻辑
+        function dealCards() {
+            const rangeOpt = document.querySelector('input[name="range"]:checked').value;
+            const repeatOpt = document.querySelector('input[name="repeat"]:checked').value;
+            const countOpt = parseInt(document.querySelector('input[name="count"]:checked').value);
+            
+            // 获取所有 109 张卡牌（已随机剔除多余变种）
+            let allPegs = getUniquePegs();
+            
+            // 确定可用卡片池
+            let pool = [];
+            allPegs.forEach(peg => {
+                let num = parseInt(peg.number);
+                let inRange = false;
+                
+                if (rangeOpt === 'all') {
+                    inRange = true;
+                } else if (rangeOpt === 'upper' && num <= 50) {
+                    inRange = true;
+                } else if (rangeOpt === 'mid' && num >= 30 && num <= 70) {
+                    inRange = true;
+                } else if (rangeOpt === 'lower' && (num >= 50 || num === 0)) {
+                    inRange = true;
+                }
+                
+                if (inRange) {
+                    pool.push(peg);
+                }
+            });
+            
+            let result = [];
+            if (repeatOpt === 'no-repeat') {
+                // 不重复：打乱卡片池
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                let takeCount = Math.min(countOpt, pool.length);
+                for(let i = 0; i < takeCount; i++) {
+                    result.push({ ...pool[i] }); // 浅拷贝，避免引用污染
+                }
+            } else {
+                // 有重复：随机抽取卡片，放回
+                for(let i = 0; i < countOpt; i++) {
+                    let randomCard = pool[Math.floor(Math.random() * pool.length)];
+                    result.push({ ...randomCard }); // 浅拷贝，避免引用污染
+                }
+            }
+            
+            // 为每组10张卡片随机挑选统一的牌背，并初始化关闭状态（确保相邻的两组牌背不重复）
+            let currentCardBack;
+            let lastCardBack = null;
+            for (let i = 0; i < result.length; i++) {
+                if (i % 10 === 0) {
+                    let availableBacks = CARD_BACKS.filter(b => b !== lastCardBack);
+                    currentCardBack = availableBacks[Math.floor(Math.random() * availableBacks.length)];
+                    lastCardBack = currentCardBack;
+                }
+                result[i].isClosed = false;
+                result[i].cardBack = currentCardBack;
+            }
+            currentCards = result;
+            renderGrid(true);
+        }
+
+        // 重新学习逻辑（按顺序展示所有 109 张牌）
+        function learnCards() {
+            // getUniquePegs 刚好是先输出 00-00 到 00-09，再输出 0001 到 0099，完全符合 109 张的顺序要求！
+            let pegs = getUniquePegs();
+            
+            // 为每组10张卡片随机挑选统一的牌背，并初始化关闭状态（确保相邻的两组牌背不重复）
+            let currentCardBack;
+            let lastCardBack = null;
+            for (let i = 0; i < pegs.length; i++) {
+                if (i % 10 === 0) {
+                    let availableBacks = CARD_BACKS.filter(b => b !== lastCardBack);
+                    currentCardBack = availableBacks[Math.floor(Math.random() * availableBacks.length)];
+                    lastCardBack = currentCardBack;
+                }
+                pegs[i].isClosed = false;
+                pegs[i].cardBack = currentCardBack;
+            }
+            currentCards = pegs;
+            
+            // 自动切换对应的 UI 选项
+            document.querySelector('input[name="range"][value="all"]').checked = true;
+            document.querySelector('input[name="repeat"][value="no-repeat"]').checked = true;
+            document.querySelector('input[name="count"][value="120"]').checked = true;
+            document.querySelector('input[name="display"][value="both"]').checked = true;
+            renderGrid(true);
+        }
+
+        // 渲染格子的核心函数（支持多页横向滑动）
+        function renderGrid(resetScroll = false) {
+            let currentScroll = sliderWrapper.scrollLeft;
+
+            // 如果目前没有发牌，就用选中的 count 作为格子总数占位
+            let count = currentCards.length;
+            if (count === 0) count = parseInt(document.querySelector('input[name="count"]:checked').value);
+            
+            gridSlides.innerHTML = '';
+            
+            let cellsPerPage = 40;
+            let rowsPerPage = 8;
+            let pages = Math.ceil(Math.max(count, 40) / 40);
+            
+            const displayOpt = document.querySelector('input[name="display"]:checked').value;
+            
+            for (let p = 0; p < pages; p++) {
+                const pageGrid = document.createElement('div');
+                pageGrid.className = 'grid-container';
+                pageGrid.style.setProperty('--grid-rows', rowsPerPage);
+                
+                const startCell = p * cellsPerPage + 1;
+                const endCell = (p + 1) * cellsPerPage;
+                
+                for (let i = startCell; i <= endCell; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    // 水印设置：每页的格子如果是 10 的倍数，显示为其绝对编号 (10, 20, ..., 50, 60...)
+                    if (i % 10 === 0) {
+                        cell.classList.add('has-bg-num');
+                        cell.setAttribute('data-bg-num', i);
+                    }
+                    
+                    const cardContent = document.createElement('div');
+                    cardContent.className = 'card-content';
+                    
+                    const cardLabel = document.createElement('div');
+                    cardLabel.className = 'card-label';
+                    
+                    const cardName = document.createElement('span');
+                    cardName.className = 'card-name';
+                    
+                    const cardNum = document.createElement('span');
+                    cardNum.className = 'card-num';
+                    
+                    // 如果当前格子有对应的卡片数据
+                    if (i <= currentCards.length && currentCards[i-1]) {
+                        const card = currentCards[i-1];
+                        
+                        cardName.textContent = card.name;
+                        
+                        // 动态缩小长提示词的字体，避免撑破格子
+                        if (card.name.length >= 6) {
+                            cardName.style.fontSize = '8px';
+                            cardName.style.letterSpacing = '-0.5px';
+                        } else if (card.name.length >= 4) {
+                            cardName.style.fontSize = '9.5px';
+                            cardName.style.letterSpacing = '-0.3px';
+                        } else {
+                            cardName.style.fontSize = '11px';
+                            cardName.style.letterSpacing = 'normal';
+                        }
+                        cardNum.textContent = card.number;
+                        
+                        const img = document.createElement('img');
+                        
+                        // 根据显示模式分发逻辑
+                        if (displayOpt === 'both') {
+                            // 【发号+发图】模式：使用全新的牌背与色块遮挡逻辑
+                            if (card.isClosed) {
+                                img.src = card.cardBack; 
+                                cardLabel.classList.add('is-closed');
+                                cardContent.style.visibility = 'visible';
+                                cardName.style.visibility = 'visible';
+                                cardNum.style.visibility = 'visible';
+                            } else {
+                                img.src = card.file; 
+                                cardLabel.classList.remove('is-closed');
+                                cardContent.style.visibility = 'visible';
+                                cardName.style.visibility = 'visible';
+                                cardNum.style.visibility = 'visible';
+                            }
+                        } else {
+                            // 【只发号】或【只发图】模式：恢复以前的逻辑（点击完全揭晓，全关则完全空白）
+                            img.src = card.file;
+                            cardLabel.classList.remove('is-closed');
+                            
+                            if (card.isRevealed) {
+                                // 点击揭晓后：完全显示
+                                cardContent.style.visibility = 'visible';
+                                cardName.style.visibility = 'visible';
+                                cardNum.style.visibility = 'visible';
+                            } else if (card.isClosed) {
+                                // 全关状态：完全隐藏成空白格子
+                                cardContent.style.visibility = 'hidden';
+                                cardName.style.visibility = 'hidden';
+                                cardNum.style.visibility = 'hidden';
+                            } else {
+                                // 默认状态：根据选项显示特定内容
+                                if (displayOpt === 'number') {
+                                    cardContent.style.visibility = 'hidden';
+                                    cardName.style.visibility = 'hidden';
+                                    cardNum.style.visibility = 'visible';
+                                } else if (displayOpt === 'image') {
+                                    cardContent.style.visibility = 'visible';
+                                    cardName.style.visibility = 'hidden';
+                                    cardNum.style.visibility = 'hidden';
+                                }
+                            }
+                        }
+                        
+                        cardContent.appendChild(img);
+                        
+                        // 点击卡牌的互动逻辑
+                        cell.style.cursor = 'pointer';
+                        cell.addEventListener('click', () => {
+                            if (displayOpt === 'both') {
+                                card.isClosed = !card.isClosed;
+                            } else {
+                                // 在只发图/只发号模式下，点击用于“揭晓/隐藏”全貌
+                                card.isRevealed = !card.isRevealed;
+                            }
+                            renderGrid();
+                        });
+
+                    } else {
+                        // 空格子
+                        cardName.textContent = '';
+                        cardNum.textContent = '';
+                    }
+                    
+                    cardLabel.appendChild(cardName);
+                    cardLabel.appendChild(cardNum);
+                    cell.appendChild(cardContent);
+                    cell.appendChild(cardLabel);
+                    pageGrid.appendChild(cell);
+                }
+                
+                gridSlides.appendChild(pageGrid);
+            }
+            
+            if (resetScroll) {
+                sliderWrapper.scrollLeft = 0;
+            } else {
+                sliderWrapper.scrollLeft = currentScroll;
+            }
+        }
+
+        // 监听单选框点击事件（操作按钮）
+        const actionRadios = document.querySelectorAll('input[name="action"]');
+        actionRadios.forEach(radio => {
+            radio.addEventListener('click', (e) => {
+                const action = e.target.value;
+                if (action === 'shuffle') {
+                    dealCards();
+                } else if (action === 'learn') {
+                    learnCards();
+                } else if (action === 'close') {
+                    currentCards.forEach(c => c.isClosed = true);
+                    renderGrid();
+                } else if (action === 'open') {
+                    currentCards.forEach(c => c.isClosed = false);
+                    renderGrid();
+                }
+                // 操作完后取消选中，使其表现得像普通按钮
+                setTimeout(() => { e.target.checked = false; }, 150);
+            });
+        });
+
+        // 监听其他设置项变化（例如改变“只发号”模式后实时刷新界面）
+        const optionRadios = document.querySelectorAll('input[name="display"], input[name="count"], input[name="range"], input[name="repeat"]');
+        optionRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                renderGrid(); 
+            });
+        });
+
+        // 初始化渲染空格子
+        renderGrid();
+    </script>
+</body>
+</html>
