@@ -5,41 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Memory Game - Method of Loci</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
             margin: 0;
             padding: 0;
-            background-color: #f0f0f5; /* 略深一点的灰色背景，突出手机模拟效果 */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            background-color: #f0f0f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         .app-container {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             max-width: 390px;
             max-height: 844px;
+            margin: 0 auto;
             background-color: #ffffff;
-            display: grid;
-            grid-template-rows: 1fr 78px;
-            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
             position: relative;
             box-shadow: 0 0 20px rgba(0,0,0,0.15);
         }
 
         @media (max-width: 480px) {
-            body {
+            html, body {
                 background-color: #ffffff;
             }
             .app-container {
-                width: 100vw;
-                height: 100vh;
-                border: none;
-                border-radius: 0;
                 max-width: none;
                 max-height: none;
                 box-shadow: none;
@@ -48,13 +44,13 @@
 
         /* 顶部带有紫色边框的主内容区，占据除底部icon外的所有剩余空间 */
         .main-content {
+            flex: 1;
             padding: 10px;
             background-color: #b592b3; /* 紫色外框背景色 */
             display: flex;
             flex-direction: column;
             gap: 8px;
             min-height: 0;
-            box-sizing: border-box;
             overflow: hidden; /* 让内容区自己管理溢出，不影响 nav */
         }
 
@@ -268,10 +264,11 @@
             justify-content: space-evenly;
             align-items: center;
             gap: 0;
-            padding: 4px 2px;
-            z-index: 100;
-            height: 100%;
+            height: 68px;
             flex-shrink: 0;
+            padding: 4px 2px;
+            padding-bottom: max(4px, env(safe-area-inset-bottom));
+            z-index: 100;
         }
 
         .nav-btn {
