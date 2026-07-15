@@ -247,10 +247,16 @@
         
         .page-switcher {
             display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 4px;
+        }
+        .page-dots {
+            display: flex;
             align-items: center;
             gap: 4px;
         }
-        .page-switcher input[type="radio"] {
+        .page-dots input[type="radio"] {
             width: 12px;
             height: 12px;
             margin: 0 1px;
@@ -354,6 +360,14 @@
                 <div class="control-col">
                     <label><input type="radio" name="repeat" value="no-repeat" checked> 不重复</label>
                     <label><input type="radio" name="repeat" value="repeat"> 有重复</label>
+                    <div class="page-switcher">
+                        <label>页面</label>
+                        <div class="page-dots">
+                            <input type="radio" name="page" value="0" checked> 
+                            <input type="radio" name="page" value="1"> 
+                            <input type="radio" name="page" value="2">
+                        </div>
+                    </div>
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="count" value="20"> 20张</label>
@@ -365,11 +379,6 @@
                     <label><input type="radio" name="display" value="number"> 只发号</label>
                     <label><input type="radio" name="display" value="image"> 只发图</label>
                     <label><input type="radio" name="display" value="both" checked> 发号+发图</label>
-                    <label class="page-switcher">页面 
-                        <input type="radio" name="page" value="0" checked> 
-                        <input type="radio" name="page" value="1"> 
-                        <input type="radio" name="page" value="2">
-                    </label>
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="action" value="open"> 全开</label>
@@ -1387,16 +1396,16 @@
             }
             
             // 动态更新“页面”单选按钮
-            let pageSwitcher = document.querySelector('.page-switcher');
-            if (pageSwitcher) {
-                let html = '页面 ';
+            let pageDots = document.querySelector('.page-dots');
+            if (pageDots) {
+                let html = '';
                 for (let i = 0; i < pages; i++) {
                     html += `<input type="radio" name="page" value="${i}" ${i === 0 ? 'checked' : ''}> `;
                 }
-                pageSwitcher.innerHTML = html;
+                pageDots.innerHTML = html;
                 
                 // 给新的单选框绑定点击滚动事件
-                pageSwitcher.querySelectorAll('input[name="page"]').forEach(radio => {
+                pageDots.querySelectorAll('input[name="page"]').forEach(radio => {
                     radio.addEventListener('change', (e) => {
                         let pageIndex = parseInt(e.target.value);
                         let wrapperWidth = sliderWrapper.clientWidth;
