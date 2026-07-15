@@ -353,9 +353,9 @@
             <div class="controls-container">
                 <div class="control-col">
                     <label><input type="radio" name="range" value="all" checked> 00-99 全</label>
-                    <label><input type="radio" name="range" value="upper"> 00-50 上</label>
-                    <label><input type="radio" name="range" value="mid"> 30-65 中</label>
-                    <label><input type="radio" name="range" value="lower"> 50-00 下</label>
+                    <label><input type="radio" name="range" value="upper"> 00-30 上</label>
+                    <label><input type="radio" name="range" value="mid"> 30-70 中</label>
+                    <label><input type="radio" name="range" value="lower"> 60-00 下</label>
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="repeat" value="no-repeat" checked> 不重复</label>
@@ -371,8 +371,8 @@
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="count" value="20"> 20张</label>
-                    <label><input type="radio" name="count" value="35"> 35张</label>
-                    <label><input type="radio" name="count" value="70"> 70张</label>
+                    <label><input type="radio" name="count" value="40"> 40张</label>
+                    <label><input type="radio" name="count" value="80"> 80张</label>
                     <label><input type="radio" name="count" value="120" checked> 120张</label>
                 </div>
                 <div class="control-col">
@@ -1178,11 +1178,11 @@
                 
                 if (rangeOpt === 'all') {
                     inRange = true;
-                } else if (rangeOpt === 'upper' && num <= 50) {
+                } else if (rangeOpt === 'upper' && num <= 30) {
                     inRange = true;
-                } else if (rangeOpt === 'mid' && num >= 30 && num <= 65) {
+                } else if (rangeOpt === 'mid' && num >= 30 && num <= 70) {
                     inRange = true;
-                } else if (rangeOpt === 'lower' && (num >= 50 || num === 0)) {
+                } else if (rangeOpt === 'lower' && (num >= 60 || num === 0)) {
                     inRange = true;
                 }
                 
