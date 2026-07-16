@@ -149,6 +149,12 @@
             top: 0;
             left: 0;
         }
+        
+        /* 100和110是三位数，为了防止撞box（溢出边缘），字体改小一点 */
+        .cell.has-bg-num[data-bg-num="100"]::before,
+        .cell.has-bg-num[data-bg-num="110"]::before {
+            font-size: 32px;
+        }
 
         .card-content {
             flex: 1;
@@ -221,6 +227,37 @@
             box-sizing: border-box;
             border-radius: 2px; /* 稍微给一点圆角 */
         }
+
+        /* ===== 记录忘记号码 Box ===== */
+        .record-section {
+            background-color: #ffffff;
+            border-radius: 4px;
+            padding: 6px 8px 4px 8px;
+            box-sizing: border-box;
+            width: 100%;
+            overflow-y: auto;
+        }
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .record-btn {
+            font-size: 13px;
+            color: #9e779a;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            padding: 1px 4px;
+        }
+        .record-btn:active { opacity: 0.6; }
+        .record-list { min-height: 30px; font-size: 11px; }
+        .record-columns-wrapper { display: flex; gap: 4px; }
+        .record-column { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+        .record-entry { display: flex; justify-content: flex-start; align-items: center; gap: 6px; padding: 1px 2px; border-bottom: 1px solid #f0eff5; }
+        .record-entry-num { color: #539845; font-weight: bold; font-size: 13px; min-width: 18px; text-align: left; }
+        .record-entry-result { color: #b592b3; font-size: 13px; letter-spacing: -1px; }
 
         .control-col {
             display: flex;
@@ -373,7 +410,7 @@
                     <label><input type="radio" name="count" value="20"> 20张</label>
                     <label><input type="radio" name="count" value="40"> 40张</label>
                     <label><input type="radio" name="count" value="80"> 80张</label>
-                    <label><input type="radio" name="count" value="120" checked> 120张</label>
+                    <label><input type="radio" name="count" value="110" checked> 110张</label>
                 </div>
                 <div class="control-col">
                     <label><input type="radio" name="display" value="number"> 只发号</label>
@@ -1210,6 +1247,27 @@
                 }
             }
             
+            if (includeForgotEnabled) {
+                const forgottenCards = allPegs.filter(peg => {
+                    const numText = peg.file && peg.file.startsWith('00-') ? peg.number : parseInt(peg.number, 10).toString();
+                    return forgotHistory[numText] > 0;
+                });
+                forgottenCards.forEach(fc => {
+                    if (repeatOpt === 'no-repeat') {
+                        if (!result.some(r => r.file === fc.file)) {
+                            result.push({ ...fc });
+                        }
+                    } else {
+                        result.push({ ...fc });
+                    }
+                });
+                // 重新洗牌
+                for (let i = result.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [result[i], result[j]] = [result[j], result[i]];
+                }
+            }
+
             // 为每组10张卡片随机挑选统一的牌背，并初始化关闭状态（确保相邻的两组牌背不重复）
             let currentCardBack;
             let lastCardBack = null;
@@ -1231,6 +1289,27 @@
             // getUniquePegs 刚好是先输出 00-00 到 00-09，再输出 0001 到 0099，完全符合 109 张的顺序要求！
             let pegs = getUniquePegs();
             
+            if (includeForgotEnabled) {
+                const forgottenCards = allPegs.filter(peg => {
+                    const numText = peg.file && peg.file.startsWith('00-') ? peg.number : parseInt(peg.number, 10).toString();
+                    return forgotHistory[numText] > 0;
+                });
+                forgottenCards.forEach(fc => {
+                    if (repeatOpt === 'no-repeat') {
+                        if (!result.some(r => r.file === fc.file)) {
+                            result.push({ ...fc });
+                        }
+                    } else {
+                        result.push({ ...fc });
+                    }
+                });
+                // 重新洗牌
+                for (let i = result.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [result[i], result[j]] = [result[j], result[i]];
+                }
+            }
+
             // 为每组10张卡片随机挑选统一的牌背，并初始化关闭状态（确保相邻的两组牌背不重复）
             let currentCardBack;
             let lastCardBack = null;
@@ -1248,64 +1327,139 @@
             // 自动切换对应的 UI 选项
             document.querySelector('input[name="range"][value="all"]').checked = true;
             document.querySelector('input[name="repeat"][value="no-repeat"]').checked = true;
-            document.querySelector('input[name="count"][value="120"]').checked = true;
+            document.querySelector('input[name="count"][value="110"]').checked = true;
             document.querySelector('input[name="display"][value="both"]').checked = true;
             renderGrid(true);
         }
 
-        // 渲染格子的核心函数（支持多页横向滑动）
+        // ===== 记录忘记号码（从PC版移植）=====
+        let forgotHistory = {};
+        let includeForgotEnabled = false;
+        try {
+            const stored = localStorage.getItem('mgMobileForgotHistory');
+            if (stored) forgotHistory = JSON.parse(stored);
+        } catch(e) {}
+
+        function getZhengStrokes(count) {
+            if (count <= 0) return '';
+            let result = '正'.repeat(Math.floor(count / 5));
+            const rem = count % 5;
+            if (rem === 1) result += '一';
+            else if (rem === 2) result += '丅';
+            else if (rem === 3) result += '下';
+            else if (rem === 4) result += '止';
+            return result;
+        }
+
+        function renderRecordList() {
+            const list = document.getElementById('recordList');
+            if (!list) return;
+            list.innerHTML = '';
+            const sorted = Object.entries(forgotHistory)
+                .filter(([,c]) => c > 0)
+                .sort((a, b) => {
+                    const aIs0 = a[0].startsWith('0');
+                    const bIs0 = b[0].startsWith('0');
+                    if (aIs0 && !bIs0) return -1;
+                    if (!aIs0 && bIs0) return 1;
+                    return parseInt(a[0],10) - parseInt(b[0],10);
+                });
+            if (sorted.length === 0) return;
+            const numCols = 5;
+            const cols = [[], [], [], [], []];
+            const perCol = Math.ceil(sorted.length / numCols);
+            sorted.forEach((entry, idx) => {
+                const ci = Math.min(Math.floor(idx / perCol), numCols - 1);
+                cols[ci].push(entry);
+            });
+            const wrapper = document.createElement('div');
+            wrapper.className = 'record-columns-wrapper';
+            cols.forEach(colItems => {
+                const col = document.createElement('div');
+                col.className = 'record-column';
+                colItems.forEach(([num, cnt]) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'record-entry';
+                    const numSpan = document.createElement('span');
+                    numSpan.className = 'record-entry-num';
+                    numSpan.textContent = num;
+                    const resSpan = document.createElement('span');
+                    resSpan.className = 'record-entry-result';
+                    resSpan.textContent = getZhengStrokes(cnt);
+                    entry.appendChild(numSpan);
+                    entry.appendChild(resSpan);
+                    col.appendChild(entry);
+                });
+                wrapper.appendChild(col);
+            });
+            list.appendChild(wrapper);
+        }
+
+        // 渲染格子：固定3页 40+40+30=110格，第3页下方显示记录Box
         function renderGrid(resetScroll = false) {
             let currentScroll = sliderWrapper.scrollLeft;
 
-            // 如果目前没有发牌，就用选中的 count 作为格子总数占位
-            let count = currentCards.length;
-            if (count === 0) count = parseInt(document.querySelector('input[name="count"]:checked').value);
-            
-            gridSlides.innerHTML = '';
-            
-            let cellsPerPage = 40;
-            let rowsPerPage = 8;
-            let pages = Math.ceil(Math.max(count, 40) / 40);
-            
+            const TOTAL_PAGES = 3;
+            const PAGE_CELLS = [40, 40, 30];
+            const PAGE_ROWS  = [8,  8,  6];
+
             const displayOpt = document.querySelector('input[name="display"]:checked').value;
-            
-            for (let p = 0; p < pages; p++) {
+
+            gridSlides.innerHTML = '';
+
+            let absoluteCell = 0;
+
+            for (let p = 0; p < TOTAL_PAGES; p++) {
+                const cellsThisPage = PAGE_CELLS[p];
+                const rowsThisPage  = PAGE_ROWS[p];
+
+                const pageWrapper = document.createElement('div');
+                if (p === 2) {
+                    // Page 3: use position:relative so children can use absolute positioning
+                    pageWrapper.style.cssText = 'position:relative;width:100%;height:100%;flex-shrink:0;scroll-snap-align:start;box-sizing:border-box;';
+                } else {
+                    pageWrapper.style.cssText = 'display:flex;flex-direction:column;width:100%;height:100%;flex-shrink:0;scroll-snap-align:start;box-sizing:border-box;';
+                }
+
                 const pageGrid = document.createElement('div');
                 pageGrid.className = 'grid-container';
-                pageGrid.style.setProperty('--grid-rows', rowsPerPage);
-                
-                const startCell = p * cellsPerPage + 1;
-                const endCell = (p + 1) * cellsPerPage;
-                
-                for (let i = startCell; i <= endCell; i++) {
+                pageGrid.style.setProperty('--grid-rows', rowsThisPage);
+
+                if (p === 2) {
+                    pageGrid.style.position = 'absolute';
+                    pageGrid.style.top = '0';
+                    pageGrid.style.left = '0';
+                    pageGrid.style.right = '0';
+                    pageGrid.style.height = '75%';
+                    pageGrid.style.overflow = 'hidden';
+                } else {
+                    pageGrid.style.flex = '1 1 0';
+                }
+
+                for (let j = 0; j < cellsThisPage; j++) {
+                    absoluteCell++;
+                    const i = absoluteCell;
+
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    
-                    // 水印设置：每页的格子如果是 10 的倍数，显示为其绝对编号 (10, 20, ..., 50, 60...)
+
                     if (i % 10 === 0) {
                         cell.classList.add('has-bg-num');
                         cell.setAttribute('data-bg-num', i);
                     }
-                    
+
                     const cardContent = document.createElement('div');
                     cardContent.className = 'card-content';
-                    
                     const cardLabel = document.createElement('div');
                     cardLabel.className = 'card-label';
-                    
                     const cardName = document.createElement('span');
                     cardName.className = 'card-name';
-                    
                     const cardNum = document.createElement('span');
                     cardNum.className = 'card-num';
-                    
-                    // 如果当前格子有对应的卡片数据
+
                     if (i <= currentCards.length && currentCards[i-1]) {
                         const card = currentCards[i-1];
-                        
                         cardName.textContent = card.name;
-                        
-                        // 动态缩小长提示词的字体，避免撑破格子
                         if (card.name.length >= 6) {
                             cardName.style.fontSize = '8px';
                             cardName.style.letterSpacing = '-0.5px';
@@ -1316,48 +1470,35 @@
                             cardName.style.fontSize = '11px';
                             cardName.style.letterSpacing = 'normal';
                         }
-                        // 00-xx 那组照旧显示两位数（01/02...），0001-0099 普通单词组去掉前导零（1/2/3...）
                         if (card.file && card.file.startsWith('00-')) {
-                            cardNum.textContent = card.number; // 照旧：01, 02, 03...
+                            cardNum.textContent = card.number;
                         } else {
-                            cardNum.textContent = parseInt(card.number, 10).toString(); // 去前导零：1, 2, 3...
+                            cardNum.textContent = parseInt(card.number, 10).toString();
                         }
-                        
                         const img = document.createElement('img');
-                        
-                        // 根据显示模式分发逻辑
                         if (displayOpt === 'both') {
-                            // 【发号+发图】模式：使用全新的牌背与色块遮挡逻辑
                             if (card.isClosed) {
-                                img.src = card.cardBack; 
+                                img.src = card.cardBack;
                                 cardLabel.classList.add('is-closed');
-                                cardContent.style.visibility = 'visible';
-                                cardName.style.visibility = 'visible';
-                                cardNum.style.visibility = 'visible';
                             } else {
-                                img.src = card.file; 
+                                img.src = card.file;
                                 cardLabel.classList.remove('is-closed');
-                                cardContent.style.visibility = 'visible';
-                                cardName.style.visibility = 'visible';
-                                cardNum.style.visibility = 'visible';
                             }
+                            cardContent.style.visibility = 'visible';
+                            cardName.style.visibility = 'visible';
+                            cardNum.style.visibility = 'visible';
                         } else {
-                            // 【只发号】或【只发图】模式：恢复以前的逻辑（点击完全揭晓，全关则完全空白）
                             img.src = card.file;
                             cardLabel.classList.remove('is-closed');
-                            
                             if (card.isRevealed) {
-                                // 点击揭晓后：完全显示
                                 cardContent.style.visibility = 'visible';
                                 cardName.style.visibility = 'visible';
                                 cardNum.style.visibility = 'visible';
                             } else if (card.isClosed) {
-                                // 全关状态：完全隐藏成空白格子
                                 cardContent.style.visibility = 'hidden';
                                 cardName.style.visibility = 'hidden';
                                 cardNum.style.visibility = 'hidden';
                             } else {
-                                // 默认状态：根据选项显示特定内容
                                 if (displayOpt === 'number') {
                                     cardContent.style.visibility = 'hidden';
                                     cardName.style.visibility = 'hidden';
@@ -1369,67 +1510,136 @@
                                 }
                             }
                         }
-                        
                         cardContent.appendChild(img);
-                        
-                        // 点击卡牌的互动逻辑
                         cell.style.cursor = 'pointer';
                         cell.addEventListener('click', () => {
                             if (displayOpt === 'both') {
                                 card.isClosed = !card.isClosed;
                             } else {
-                                // 在只发图/只发号模式下，点击用于“揭晓/隐藏”全貌
                                 card.isRevealed = !card.isRevealed;
                             }
                             renderGrid();
                         });
-
                     } else {
-                        // 空格子
                         cardName.textContent = '';
                         cardNum.textContent = '';
                     }
-                    
+
                     cardLabel.appendChild(cardName);
                     cardLabel.appendChild(cardNum);
                     cell.appendChild(cardContent);
                     cell.appendChild(cardLabel);
                     pageGrid.appendChild(cell);
                 }
-                
-                gridSlides.appendChild(pageGrid);
+
+                pageWrapper.appendChild(pageGrid);
+
+                if (p === 2) {
+                    const recordSection = document.createElement('div');
+                    recordSection.className = 'record-section';
+                    recordSection.style.position = 'absolute';
+                    recordSection.style.bottom = '0';
+                    recordSection.style.left = '0';
+                    recordSection.style.right = '0';
+                    recordSection.style.height = '25%';
+                    recordSection.style.overflow = 'auto';
+                    recordSection.innerHTML =
+                        '<div class="record-header">' +
+                            '<span class="record-btn" id="btnRecord"><input type="radio" style="pointer-events:none; margin:0 4px 0 0; vertical-align:middle;"><span>记录</span></span>' +
+                            '<label class="record-btn" style="display:flex;align-items:center;margin:0;"><input type="checkbox" id="cbIncludeForgot" ' + (includeForgotEnabled ? 'checked' : '') + ' style="margin:0 4px 0 0;">添加记录</label>' +
+                            '<span class="record-btn" id="btnClearRecord"><input type="radio" style="pointer-events:none; margin:0 4px 0 0; vertical-align:middle;"><span>清空记录</span></span>' +
+                        '</div>' +
+                        '<div class="record-list" id="recordList"></div>';
+                    pageWrapper.appendChild(recordSection);
+                }
+
+                gridSlides.appendChild(pageWrapper);
             }
-            
-            // 动态更新“页面”单选按钮
+
+            const btnRecord = document.getElementById('btnRecord');
+            const btnClearRecord = document.getElementById('btnClearRecord');
+            if (btnRecord) {
+                btnRecord.addEventListener('click', () => {
+                    if (currentCards.length === 0) return;
+                    const dOpt = document.querySelector('input[name="display"]:checked').value;
+                    currentCards.forEach(c => {
+                        const forgotten = (dOpt === 'both') ? c.isClosed : !c.isRevealed;
+                        if (forgotten) {
+                            const numText = (c.file && c.file.startsWith('00-'))
+                                ? c.number
+                                : parseInt(c.number, 10).toString();
+                            forgotHistory[numText] = (forgotHistory[numText] || 0) + 1;
+                        }
+                    });
+                    localStorage.setItem('mgMobileForgotHistory', JSON.stringify(forgotHistory));
+                    renderRecordList();
+                    
+                    // 增加记录成功的视觉 Effect
+                    const textSpan = btnRecord.querySelector('span');
+                    if (textSpan) {
+                        const originalText = textSpan.textContent;
+                        textSpan.textContent = '已记录';
+                        btnRecord.style.color = '#539845'; // 绿色
+                        setTimeout(() => {
+                            textSpan.textContent = originalText;
+                            btnRecord.style.color = ''; // 恢复默认
+                        }, 1000);
+                    }
+                });
+            }
+            const cbIncludeForgot = document.getElementById('cbIncludeForgot');
+            if (cbIncludeForgot) {
+                cbIncludeForgot.addEventListener('change', (e) => {
+                    includeForgotEnabled = e.target.checked;
+                });
+            }
+
+            if (btnClearRecord) {
+                btnClearRecord.addEventListener('click', () => {
+                    forgotHistory = {};
+                    localStorage.removeItem('mgMobileForgotHistory');
+                    renderRecordList();
+
+                    // 增加清空成功的视觉 Effect
+                    const textSpan = btnClearRecord.querySelector('span');
+                    if (textSpan) {
+                        const originalText = textSpan.textContent;
+                        textSpan.textContent = '已清空';
+                        btnClearRecord.style.color = '#539845'; // 绿色
+                        setTimeout(() => {
+                            textSpan.textContent = originalText;
+                            btnClearRecord.style.color = ''; // 恢复默认
+                        }, 1000);
+                    }
+                });
+            }
+
             let pageDots = document.querySelector('.page-dots');
             if (pageDots) {
                 let html = '';
-                for (let i = 0; i < pages; i++) {
-                    html += `<input type="radio" name="page" value="${i}" ${i === 0 ? 'checked' : ''}> `;
+                for (let i = 0; i < TOTAL_PAGES; i++) {
+                    html += '<input type="radio" name="page" value="' + i + '"' + (i === 0 ? ' checked' : '') + '> ';
                 }
                 pageDots.innerHTML = html;
-                
-                // 给新的单选框绑定点击滚动事件
                 pageDots.querySelectorAll('input[name="page"]').forEach(radio => {
                     radio.addEventListener('change', (e) => {
                         let pageIndex = parseInt(e.target.value);
                         let wrapperWidth = sliderWrapper.clientWidth;
-                        sliderWrapper.scrollTo({
-                            left: pageIndex * wrapperWidth,
-                            behavior: 'smooth'
-                        });
+                        sliderWrapper.scrollTo({ left: pageIndex * wrapperWidth, behavior: 'smooth' });
                     });
                 });
             }
-            
+
+            renderRecordList();
+
             if (resetScroll) {
                 sliderWrapper.scrollLeft = 0;
             } else {
                 sliderWrapper.scrollLeft = currentScroll;
             }
         }
-        
-        // 监听滑动事件，自动切换“页面”按钮的选中状态
+
+                // 监听滑动事件，自动切换“页面”按钮的选中状态
         sliderWrapper.addEventListener('scroll', () => {
             let wrapperWidth = sliderWrapper.clientWidth;
             if (wrapperWidth === 0) return;
