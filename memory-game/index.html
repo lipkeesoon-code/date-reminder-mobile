@@ -1329,6 +1329,7 @@
             document.querySelector('input[name="repeat"][value="no-repeat"]').checked = true;
             document.querySelector('input[name="count"][value="110"]').checked = true;
             document.querySelector('input[name="display"][value="both"]').checked = true;
+            if (typeof saveSettings === 'function') saveSettings();
             renderGrid(true);
         }
 
@@ -1591,6 +1592,7 @@
             if (cbIncludeForgot) {
                 cbIncludeForgot.addEventListener('change', (e) => {
                     includeForgotEnabled = e.target.checked;
+                    if (typeof saveSettings === 'function') saveSettings();
                 });
             }
 
@@ -1675,11 +1677,52 @@
         const optionRadios = document.querySelectorAll('input[name="display"], input[name="count"], input[name="range"], input[name="repeat"]');
         optionRadios.forEach(radio => {
             radio.addEventListener('change', () => {
+                saveSettings();
                 renderGrid(); 
             });
         });
 
+        function saveSettings() {
+            const settings = {
+                range: document.querySelector('input[name="range"]:checked').value,
+                repeat: document.querySelector('input[name="repeat"]:checked').value,
+                count: document.querySelector('input[name="count"]:checked').value,
+                display: document.querySelector('input[name="display"]:checked').value,
+                includeForgot: includeForgotEnabled
+            };
+            localStorage.setItem('mgMobileSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            try {
+                const stored = localStorage.getItem('mgMobileSettings');
+                if (stored) {
+                    const settings = JSON.parse(stored);
+                    if (settings.range) {
+                        const r = document.querySelector('input[name="range"][value="' + settings.range + '"]');
+                        if (r) r.checked = true;
+                    }
+                    if (settings.repeat) {
+                        const r = document.querySelector('input[name="repeat"][value="' + settings.repeat + '"]');
+                        if (r) r.checked = true;
+                    }
+                    if (settings.count) {
+                        const r = document.querySelector('input[name="count"][value="' + settings.count + '"]');
+                        if (r) r.checked = true;
+                    }
+                    if (settings.display) {
+                        const r = document.querySelector('input[name="display"][value="' + settings.display + '"]');
+                        if (r) r.checked = true;
+                    }
+                    if (settings.includeForgot !== undefined) {
+                        includeForgotEnabled = settings.includeForgot;
+                    }
+                }
+            } catch (e) {}
+        }
+
         // 初始化渲染空格子
+        loadSettings();
         renderGrid();
     </script>
 </body>
