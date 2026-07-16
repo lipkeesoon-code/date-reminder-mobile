@@ -1198,6 +1198,34 @@
             return pegs;
         }
 
+        // 为卡牌组分配牌背：先用完不同的8个（80张），然后再洗牌重复
+        function assignCardBacks(cards) {
+            let shuffledBacks = [];
+            function getNextCardBack(index) {
+                if (index % 8 === 0) {
+                    let temp = [...CARD_BACKS];
+                    for (let j = temp.length - 1; j > 0; j--) {
+                        const k = Math.floor(Math.random() * (j + 1));
+                        [temp[j], temp[k]] = [temp[k], temp[j]];
+                    }
+                    if (shuffledBacks.length > 0 && temp[0] === shuffledBacks[shuffledBacks.length - 1]) {
+                        temp.push(temp.shift());
+                    }
+                    shuffledBacks = shuffledBacks.concat(temp);
+                }
+                return shuffledBacks[index];
+            }
+            
+            let currentCardBack;
+            for (let i = 0; i < cards.length; i++) {
+                if (i % 10 === 0) {
+                    currentCardBack = getNextCardBack(Math.floor(i / 10));
+                }
+                cards[i].isClosed = false;
+                cards[i].cardBack = currentCardBack;
+            }
+        }
+
         // 发牌逻辑
         function dealCards() {
             const rangeOpt = document.querySelector('input[name="range"]:checked').value;
@@ -1268,18 +1296,8 @@
                 }
             }
 
-            // 为每组10张卡片随机挑选统一的牌背，并初始化关闭状态（确保相邻的两组牌背不重复）
-            let currentCardBack;
-            let lastCardBack = null;
-            for (let i = 0; i < result.length; i++) {
-                if (i % 10 === 0) {
-                    let availableBacks = CARD_BACKS.filter(b => b !== lastCardBack);
-                    currentCardBack = availableBacks[Math.floor(Math.random() * availableBacks.length)];
-                    lastCardBack = currentCardBack;
-                }
-                result[i].isClosed = false;
-                result[i].cardBack = currentCardBack;
-            }
+            // 分配牌背并初始化关闭状态
+            assignCardBacks(result);
             currentCards = result;
             renderGrid(true);
         }
@@ -1310,18 +1328,8 @@
                 }
             }
 
-            // 为每组10张卡片随机挑选统一的牌背，并初始化关闭状态（确保相邻的两组牌背不重复）
-            let currentCardBack;
-            let lastCardBack = null;
-            for (let i = 0; i < pegs.length; i++) {
-                if (i % 10 === 0) {
-                    let availableBacks = CARD_BACKS.filter(b => b !== lastCardBack);
-                    currentCardBack = availableBacks[Math.floor(Math.random() * availableBacks.length)];
-                    lastCardBack = currentCardBack;
-                }
-                pegs[i].isClosed = false;
-                pegs[i].cardBack = currentCardBack;
-            }
+            // 分配牌背并初始化关闭状态
+            assignCardBacks(pegs);
             currentCards = pegs;
             
             // 自动切换对应的 UI 选项
