@@ -484,10 +484,6 @@
     ],
     "03": [
         {
-            "file": "00-03 灵山 .jpg",
-            "name": "灵山"
-        },
-        {
             "file": "00-03 零零三 .jpg",
             "name": "零零三"
         },
@@ -696,10 +692,6 @@
     ],
     "31": [
         {
-            "file": "0031 山医 .jpg",
-            "name": "山医"
-        },
-        {
             "file": "0031 三一学院 .jpg",
             "name": "三一学院"
         }
@@ -748,17 +740,13 @@
     ],
     "39": [
         {
-            "file": "0039 山猪 .JPG",
-            "name": "山猪"
+            "file": "0039 李三脚 .jpg",
+            "name": "李三脚"
         }
     ],
     "40": [
         {
-            "file": "0040 司令 .jpg",
-            "name": "司令"
-        },
-        {
-            "file": "0040 石林.jpg",
+            "file": "0040 石林  .jpg",
             "name": "石林"
         }
     ],
@@ -866,8 +854,12 @@
     ],
     "56": [
         {
-            "file": "0056 蜗牛 .jpg",
-            "name": "蜗牛"
+            "file": "0056 葫芦 .jpg",
+            "name": "葫芦"
+        },
+        {
+            "file": "0056 俘虏 .jpg",
+            "name": "俘虏"
         }
     ],
     "57": [
@@ -880,10 +872,6 @@
         {
             "file": "0058 Ubah .jpg",
             "name": "Ubah"
-        },
-        {
-            "file": "0058 舞吧 .jpg",
-            "name": "舞吧"
         }
     ],
     "59": [
@@ -983,6 +971,10 @@
         }
     ],
     "73": [
+        {
+            "file": "0073 七伤 .jpg",
+            "name": "七伤"
+        },
         {
             "file": "0073 旗山 .jpg",
             "name": "旗山"
@@ -1261,6 +1253,19 @@
             });
             
             let result = [];
+            // 辅助函数：每次获取卡片时重新随机变体
+            function getRandomVariantForPeg(peg) {
+                let numStr = peg.number;
+                const variants = MEMORY_CODES[numStr];
+                if (!variants) return { ...peg };
+                let isDash = peg.file && peg.file.startsWith('00-');
+                let possibleVariants = variants.filter(v => (v.file && v.file.startsWith('00-')) === isDash);
+                if (possibleVariants.length > 0) {
+                    return { number: numStr, ...possibleVariants[Math.floor(Math.random() * possibleVariants.length)] };
+                }
+                return { ...peg };
+            }
+
             if (repeatOpt === 'no-repeat') {
                 // 不重复：打乱卡片池
                 for (let i = pool.length - 1; i > 0; i--) {
@@ -1269,13 +1274,13 @@
                 }
                 let takeCount = Math.min(countOpt, pool.length);
                 for(let i = 0; i < takeCount; i++) {
-                    result.push({ ...pool[i] }); // 浅拷贝，避免引用污染
+                    result.push(getRandomVariantForPeg(pool[i]));
                 }
             } else {
                 // 有重复：随机抽取卡片，放回
                 for(let i = 0; i < countOpt; i++) {
                     let randomCard = pool[Math.floor(Math.random() * pool.length)];
-                    result.push({ ...randomCard }); // 浅拷贝，避免引用污染
+                    result.push(getRandomVariantForPeg(randomCard));
                 }
             }
             
@@ -1651,6 +1656,11 @@
             } else {
                 sliderWrapper.scrollLeft = currentScroll;
             }
+            
+            // 每次渲染（包括翻牌）后，将当前卡片状态保存到 sessionStorage，用于切换场景时恢复
+            if (currentCards && currentCards.length > 0) {
+                sessionStorage.setItem('mgMobileCards', JSON.stringify(currentCards));
+            }
         }
 
                 // 监听滑动事件，自动切换“页面”按钮的选中状态
@@ -1733,8 +1743,19 @@
             } catch (e) {}
         }
 
+        // 恢复之前在 sessionStorage 里的卡片状态（切换场景时保留）
+        function loadSessionState() {
+            try {
+                const storedCards = sessionStorage.getItem('mgMobileCards');
+                if (storedCards) {
+                    currentCards = JSON.parse(storedCards);
+                }
+            } catch(e) {}
+        }
+
         // 初始化渲染空格子
         loadSettings();
+        loadSessionState();
         renderGrid();
     </script>
 </body>
