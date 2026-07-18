@@ -658,8 +658,8 @@
     ],
     "26": [
         {
-            "file": "0026 河流 .jpg",
-            "name": "河流"
+            "file": "0026 恶瘤 .JPG",
+            "name": "恶瘤"
         }
     ],
     "27": [
@@ -702,8 +702,8 @@
             "name": "扇耳"
         },
         {
-            "file": "0032 沙河 .jpg",
-            "name": "沙河"
+            "file": "0032 山鹅  .jpg",
+            "name": "山鹅"
         }
     ],
     "33": [
@@ -1231,26 +1231,33 @@
             // 获取所有 109 张卡牌（已随机剔除多余变种）
             let allPegs = getUniquePegs();
             
-            // 确定可用卡片池
             let pool = [];
-            allPegs.forEach(peg => {
-                let num = parseInt(peg.number);
-                let inRange = false;
-                
-                if (rangeOpt === 'all') {
-                    inRange = true;
-                } else if (rangeOpt === 'upper' && num <= 30) {
-                    inRange = true;
-                } else if (rangeOpt === 'mid' && num >= 30 && num <= 69) {
-                    inRange = true;
-                } else if (rangeOpt === 'lower' && num >= 60) {
-                    inRange = true;
-                }
-                
-                if (inRange) {
-                    pool.push(peg);
-                }
-            });
+            
+            if (onlyForgotEnabled) {
+                pool = allPegs.filter(peg => {
+                    const numText = peg.file && peg.file.startsWith('00-') ? peg.number : parseInt(peg.number, 10).toString();
+                    return forgotHistory[numText] > 0;
+                });
+            } else {
+                allPegs.forEach(peg => {
+                    let num = parseInt(peg.number);
+                    let inRange = false;
+                    
+                    if (rangeOpt === 'all') {
+                        inRange = true;
+                    } else if (rangeOpt === 'upper' && num <= 30) {
+                        inRange = true;
+                    } else if (rangeOpt === 'mid' && num >= 30 && num <= 69) {
+                        inRange = true;
+                    } else if (rangeOpt === 'lower' && num >= 60) {
+                        inRange = true;
+                    }
+                    
+                    if (inRange) {
+                        pool.push(peg);
+                    }
+                });
+            }
             
             let result = [];
             // 辅助函数：每次获取卡片时重新随机变体
@@ -1284,7 +1291,7 @@
                 }
             }
             
-            if (includeForgotEnabled) {
+            if (includeForgotEnabled && !onlyForgotEnabled) {
                 const forgottenCards = allPegs.filter(peg => {
                     const numText = peg.file && peg.file.startsWith('00-') ? peg.number : parseInt(peg.number, 10).toString();
                     return forgotHistory[numText] > 0;
@@ -1353,6 +1360,7 @@
         // ===== 记录忘记号码（从PC版移植）=====
         let forgotHistory = {};
         let includeForgotEnabled = false;
+        let onlyForgotEnabled = false;
         try {
             const stored = localStorage.getItem('mgMobileForgotHistory');
             if (stored) forgotHistory = JSON.parse(stored);
@@ -1565,6 +1573,7 @@
                         '<div class="record-header">' +
                             '<span class="record-btn" id="btnRecord"><input type="radio" style="pointer-events:none; margin:0 4px 0 0; vertical-align:middle;"><span>记录</span></span>' +
                             '<label class="record-btn" style="display:flex;align-items:center;margin:0;"><input type="checkbox" id="cbIncludeForgot" ' + (includeForgotEnabled ? 'checked' : '') + ' style="margin:0 4px 0 0;">添加记录</label>' +
+                            '<label class="record-btn" style="display:flex;align-items:center;margin:0;"><input type="checkbox" id="cbOnlyForgot" ' + (onlyForgotEnabled ? 'checked' : '') + ' style="margin:0 4px 0 0;">只发记录</label>' +
                             '<span class="record-btn" id="btnClearRecord"><input type="radio" style="pointer-events:none; margin:0 4px 0 0; vertical-align:middle;"><span>清空记录</span></span>' +
                         '</div>' +
                         '<div class="record-list" id="recordList"></div>';
@@ -1609,6 +1618,24 @@
             if (cbIncludeForgot) {
                 cbIncludeForgot.addEventListener('change', (e) => {
                     includeForgotEnabled = e.target.checked;
+                    if (includeForgotEnabled) {
+                        onlyForgotEnabled = false;
+                        const cbOnlyForgot = document.getElementById('cbOnlyForgot');
+                        if (cbOnlyForgot) cbOnlyForgot.checked = false;
+                    }
+                    if (typeof saveSettings === 'function') saveSettings();
+                });
+            }
+
+            const cbOnlyForgot = document.getElementById('cbOnlyForgot');
+            if (cbOnlyForgot) {
+                cbOnlyForgot.addEventListener('change', (e) => {
+                    onlyForgotEnabled = e.target.checked;
+                    if (onlyForgotEnabled) {
+                        includeForgotEnabled = false;
+                        const cbIncForgot = document.getElementById('cbIncludeForgot');
+                        if (cbIncForgot) cbIncForgot.checked = false;
+                    }
                     if (typeof saveSettings === 'function') saveSettings();
                 });
             }
@@ -1710,7 +1737,8 @@
                 repeat: document.querySelector('input[name="repeat"]:checked').value,
                 count: document.querySelector('input[name="count"]:checked').value,
                 display: document.querySelector('input[name="display"]:checked').value,
-                includeForgot: includeForgotEnabled
+                includeForgot: includeForgotEnabled,
+                onlyForgot: onlyForgotEnabled
             };
             localStorage.setItem('mgMobileSettings', JSON.stringify(settings));
         }
@@ -1738,6 +1766,9 @@
                     }
                     if (settings.includeForgot !== undefined) {
                         includeForgotEnabled = settings.includeForgot;
+                    }
+                    if (settings.onlyForgot !== undefined) {
+                        onlyForgotEnabled = settings.onlyForgot;
                     }
                 }
             } catch (e) {}
