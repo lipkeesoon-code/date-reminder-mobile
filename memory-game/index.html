@@ -612,6 +612,10 @@
         {
             "file": "0018 一巴 .jpg",
             "name": "一巴"
+        },
+        {
+            "file": "0018 Iba Iba .jpg",
+            "name": "Iba Iba"
         }
     ],
     "19": [
@@ -660,6 +664,10 @@
         {
             "file": "0026 恶瘤 .JPG",
             "name": "恶瘤"
+        },
+        {
+            "file": "0026 河流 .jpg",
+            "name": "河流"
         }
     ],
     "27": [
@@ -675,6 +683,10 @@
         }
     ],
     "29": [
+        {
+            "file": "0029 二舅 .jpg",
+            "name": "二舅"
+        },
         {
             "file": "0029 恶脚 .jpg",
             "name": "恶脚"
@@ -724,6 +736,10 @@
         {
             "file": "0036 山路 .jpg",
             "name": "山路"
+        },
+        {
+            "file": "0036 山鹿  .jpg",
+            "name": "山鹿"
         }
     ],
     "37": [
@@ -740,13 +756,25 @@
     ],
     "39": [
         {
+            "file": "0039 山猪 .JPG",
+            "name": "山猪"
+        },
+        {
             "file": "0039 李三脚 .jpg",
             "name": "李三脚"
         }
     ],
     "40": [
         {
+            "file": "0040 司令 .jpg",
+            "name": "司令"
+        },
+        {
             "file": "0040 石林  .jpg",
+            "name": "石林"
+        },
+        {
+            "file": "0040 石林.jpg",
             "name": "石林"
         }
     ],
@@ -946,6 +974,10 @@
     ],
     "70": [
         {
+            "file": "0070 其林.jpg",
+            "name": "其林"
+        },
+        {
             "file": "0070 麒麟.jpg",
             "name": "麒麟"
         }
@@ -1092,16 +1124,28 @@
         {
             "file": "0092 球儿 .jpg",
             "name": "球儿"
+        },
+        {
+            "file": "0092 球儿童 .jpg",
+            "name": "球儿童"
+        },
+        {
+            "file": "0092 酒儿 .jpg",
+            "name": "酒儿"
         }
     ],
     "93": [
         {
-            "file": "0093 球生 .jpg",
-            "name": "球生"
+            "file": "0093 球伤 .jpg",
+            "name": "球伤"
         },
         {
             "file": "0093 救伤 .jpg",
-            "name": "救伤"
+            "name": "球伤"
+        },
+        {
+            "file": "0093 球生 .jpg",
+            "name": "球生"
         }
     ],
     "94": [
@@ -1482,10 +1526,12 @@
                     if (i <= currentCards.length && currentCards[i-1]) {
                         const card = currentCards[i-1];
                         cardName.textContent = card.name;
-                        if (card.name.length >= 6) {
+                        let isAscii = /^[\x00-\x7F]*$/.test(card.name);
+                        let effectiveLength = isAscii ? card.name.length / 2.2 : card.name.length;
+                        if (effectiveLength >= 6) {
                             cardName.style.fontSize = '8px';
                             cardName.style.letterSpacing = '-0.5px';
-                        } else if (card.name.length >= 4) {
+                        } else if (effectiveLength >= 4) {
                             cardName.style.fontSize = '9.5px';
                             cardName.style.letterSpacing = '-0.3px';
                         } else {
