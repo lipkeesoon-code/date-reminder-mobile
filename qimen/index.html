@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title> 奇門遁甲 (Qi Men Dun Jia) </title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Outfit:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1688B5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="奇門遁甲">
+    <link rel="apple-touch-icon" href="img/App Icon .png">
+    <style>
+        /* Essential base fix for mobile view before CSS loads completely */
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            overscroll-behavior: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #phone-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="phone-container">
+
+        <!-- View 2: Input Panel (新建出生資料) -->
+        <section id="view-input" class="app-view">
+            <header class="view-header">
+                <h2>新建出生資料</h2>
+            </header>
+            <div class="view-content scroll-y">
+                <div id="input-panel-mobile" class="mobile-panel">
+                    <div class="panel-card">
+                        <label class="card-label">西曆 (公曆)</label>
+                        <div class="date-row">
+                            <select id="greg-year"></select>
+                            <select id="greg-month"></select>
+                            <select id="greg-day"></select>
+                        </div>
+                        <div class="time-row mt-10" style="display: flex; gap: 5px;">
+                            <select id="greg-time" style="flex: 1;"></select>
+                            <select id="juOverride" style="flex: 1;">
+                                <option value="auto">拆补起局</option>
+                                <option value="yang1">阳一局</option>
+                                <option value="yang2">阳二局</option>
+                                <option value="yang3">阳三局</option>
+                                <option value="yang4">阳四局</option>
+                                <option value="yang5">阳五局</option>
+                                <option value="yang6">阳六局</option>
+                                <option value="yang7">阳七局</option>
+                                <option value="yang8">阳八局</option>
+                                <option value="yang9">阳九局</option>
+                                <option value="yin1">阴一局</option>
+                                <option value="yin2">阴二局</option>
+                                <option value="yin3">阴三局</option>
+                                <option value="yin4">阴四局</option>
+                                <option value="yin5">阴五局</option>
+                                <option value="yin6">阴六局</option>
+                                <option value="yin7">阴七局</option>
+                                <option value="yin8">阴八局</option>
+                                <option value="yin9">阴九局</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="panel-card mt-15">
+                        <label class="card-label">农曆</label>
+                        <div class="lunar-info" id="lunar-date-display">
+                            <!-- Computed -->
+                        </div>
+                    </div>
+
+                    <!-- Task: BaZi Reverse Search -->
+                    <div class="panel-card mt-15 compact-card">
+                        <label class="card-label" style="color: #1688b5; font-weight: 700;">四柱输入 (1906-2026)</label>
+                        <div class="bazi-input-grid">
+                            <div class="bazi-input-col">
+                                <div class="bazi-mini-label">時柱</div>
+                                <select id="rev-h-stem" class="bazi-select"></select>
+                                <select id="rev-h-branch" class="bazi-select"></select>
+                            </div>
+                            <div class="bazi-input-col">
+                                <div class="bazi-mini-label">日柱</div>
+                                <select id="rev-d-stem" class="bazi-select"></select>
+                                <select id="rev-d-branch" class="bazi-select"></select>
+                            </div>
+                            <div class="bazi-input-col">
+                                <div class="bazi-mini-label">月柱</div>
+                                <select id="rev-m-stem" class="bazi-select"></select>
+                                <select id="rev-m-branch" class="bazi-select"></select>
+                            </div>
+                            <div class="bazi-input-col">
+                                <div class="bazi-mini-label">年柱</div>
+                                <select id="rev-y-stem" class="bazi-select"></select>
+                                <select id="rev-y-branch" class="bazi-select"></select>
+                            </div>
+                        </div>
+                        <div id="rev-results-title" class="card-label mt-10" style="display:none; color: #297EAE; font-weight: 700;">西曆選擇</div>
+                        <div id="bazi-rev-results" class="results-stack"></div>
+                    </div>
+
+                    <div class="panel-card mt-15">
+                        <div class="input-group">
+                            <span>姓名:</span>
+                            <input type="text" id="user-name" value="未知">
+                        </div>
+                        <div class="input-group mt-10">
+                            <span>性别:</span>
+                            <div class="radio-pill">
+                                <label><input type="radio" name="gender" value="M" checked> <span
+                                        class="gender-label-m">男</span></label>
+                                <label><input type="radio" name="gender" value="F"> <span
+                                        class="gender-label-f">女</span></label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-stack mt-20">
+                        <button id="btn-save-chart" class="primary-gradient-btn">存档 + 排盤</button>
+                        <button id="btn-new-chart" class="secondary-btn">设置新命盘</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 3: Sidebar/Records (客户資料) -->
+        <section id="view-records" class="app-view">
+            <header class="view-header">
+                <div class="header-left">
+                    <h2>奇門遁甲排盤資料</h2>
+                </div>
+                <div class="header-right" style="display:flex; gap:10px;">
+                    <button id="import-btn" class="icon-text-btn">Import 命盘数据</button>
+                    <button id="add-group-btn" class="icon-text-btn">+ 新群组</button>
+                    <input type="file" id="import-file-input" accept=".txt" style="display:none;">
+                </div>
+            </header>
+            <div class="view-content scroll-y">
+                <!-- Search Bar Removed as requested -->
+                <div id="group-list" class="group-list-mobile">
+                    <!-- Dynamic List -->
+                </div>
+            </div>
+        </section>
+
+        <!-- View 4: MainBoard (奇門遁甲預測主盘面) -->
+        <section id="view-main" class="app-view active">
+            <div class="view-content scroll-y" style="padding: 4px;">
+                <div class="qimen-board-wrapper" id="qimen-board-print">
+                    
+                    <!-- 1. 顶部 Header -->
+                    <div class="qimen-header-bar">
+                        <div class="qimen-header-title">奇門遁甲預測</div>
+                        <div class="qimen-header-actions">
+                            <button type="button" class="qimen-header-action-btn" id="btn-yongshen">
+                                <img src="img/资料.png" alt="">
+                            </button>
+                            <button class="qimen-header-action-btn" id="snapshot-btn">
+                                <img src="img/snapshot.png" alt="截图">
+                            </button>
+                        </div>
+                        <button id="qm-btn-kaipan" class="qimen-kaipan-btn">起盤</button>
+                    </div>
+
+                    <!-- 2. 四柱与西曆/格局栏 -->
+                    <div id="qimen-capture-area" style="background: white; padding-bottom: 5px; position: relative;">
+                    
+                    <!-- 用神资料遮罩 -->
+                    <div id="yongshen-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10; overflow-y: auto;">
+                        <img src="img/YongShenZhiLiao.jpg" style="width: 100%; height: auto; display: block;" alt="用神资料">
+                    </div>
+
+                    <div class="qimen-info-banner">
+                        <div class="qimen-pillars-box">
+                            <div class="qimen-pillars-labels">
+                                <span>時</span><span>日</span><span>月</span><span>年</span>
+                            </div>
+                            <div class="qimen-pillars-grid">
+                                <!-- 時柱 -->
+                                <div class="qimen-pillar-col">
+                                    <div id="qm-h-stem" class="qimen-stem color-wood">甲</div>
+                                    <div id="qm-h-branch" class="qimen-branch color-earth">申</div>
+                                    <span id="qm-h-cang" class="qimen-canggan">庚</span>
+                                </div>
+                                <!-- 日柱 -->
+                                <div class="qimen-pillar-col">
+                                    <div id="qm-d-stem" class="qimen-stem color-metal">庚</div>
+                                    <div id="qm-d-branch" class="qimen-branch color-earth">戌</div>
+                                    <span id="qm-d-cang" class="qimen-canggan">辛</span>
+                                </div>
+                                <!-- 月柱 -->
+                                <div class="qimen-pillar-col">
+                                    <div id="qm-m-stem" class="qimen-stem color-wood">甲</div>
+                                    <div id="qm-m-branch" class="qimen-branch color-earth">戌</div>
+                                    <span id="qm-m-cang" class="qimen-canggan">己</span>
+                                </div>
+                                <!-- 年柱 -->
+                                <div class="qimen-pillar-col">
+                                    <div id="qm-y-stem" class="qimen-stem color-wood">甲</div>
+                                    <div id="qm-y-branch" class="qimen-branch color-earth">辰</div>
+                                    <span id="qm-y-cang" class="qimen-canggan">壬</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="qimen-meta-box">
+                            <div class="qimen-meta-row">
+                                <span class="qimen-meta-label">西曆</span>
+                                <div class="qimen-date-selects">
+                                    <select id="qm-select-year" class="qimen-box-select"></select>
+                                    <select id="qm-select-month" class="qimen-box-select"></select>
+                                    <select id="qm-select-day" class="qimen-box-select"></select>
+                                </div>
+                            </div>
+                            <div class="qimen-meta-row" style="align-items: center;">
+                                <span class="qimen-meta-label">時间</span>
+                                <select id="qm-select-time" class="qimen-box-select wide"></select>
+                                <button type="button" id="btn-quick-now" style="background: transparent; border: none; padding: 0 0 0 4px; cursor: pointer; display: flex; align-items: center; margin: 0; height: 100%;">
+                                    <img src="img/refresh.png" alt="刷新" style="height: 24px; width: auto; object-fit: contain;">
+                                </button>
+                            </div>
+                            <div class="qimen-meta-row">
+                                <span class="qimen-meta-label">格局</span>
+                                <span id="qm-geju-text" class="qimen-meta-val">八門伏吟，九星伏吟</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 3. 上部方位提示条 -->
+                    <div class="qimen-dir-bar">
+                        <span>辰巳 東南</span>
+                        <span>午南</span>
+                        <span>未申 西南</span>
+                    </div>
+
+                    <!-- 4. 包含左右方位 (卯東 / 酉西) 的奇門九宫格 3x3 -->
+                    <div class="qimen-grid-wrapper-with-side">
+                        <div class="qimen-side-bar left">卯東</div>
+                        <div class="qimen-grid-container" id="qimen-grid-matrix">
+                            <!-- 由 JS 渲染9宫格内容 -->
+                        </div>
+                        <div class="qimen-side-bar right">酉西</div>
+                    </div>
+
+                    <!-- 5. 下部方位提示条 -->
+                    <div class="qimen-dir-bar">
+                        <span>寅丑 東北</span>
+                        <span>子北</span>
+                        <span>亥戌 西北</span>
+                    </div>
+
+                    <!-- 6. 底部記事本 -->
+                    <div class="qimen-notes-section">
+                        <textarea id="qimen-notes-input" class="qimen-notes-textarea" rows="1" placeholder="备注">寅 空 马</textarea>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部导航工具栏 -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" id="nav-btn-qimen" title="奇门遁甲">
+                <img src="../设计风格/QiMen Icon 02 .png" alt="☯" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                <span class="fallback-icon" style="display:none; font-size: 24px;">☯</span>
+            </button>
+            <button class="nav-btn" id="nav-btn-memory-game" title="记忆宫殿" onclick="window.location.href='../memory-game/index.html?v=6'">
+                <img src="../设计风格/Memory Games Icon .png" alt="🧠" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                <span class="fallback-icon" style="display:none;">🧠</span>
+            </button>
+            <button class="nav-btn" id="nav-btn-calculator" title="计算器" onclick="window.location.href='../index.html?v=2'">
+                <img src="../设计风格/cauculator icon.png" alt="🖩" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                <span class="fallback-icon" style="display:none;">🖩</span>
+            </button>
+            <button class="nav-btn" id="nav-btn-notepad" title="Notepad" onclick="window.location.href='../index.html?v=2'">
+                <img src="../设计风格/Notepad icon .png" alt="📝" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                <span class="fallback-icon" style="display:none;">📝</span>
+            </button>
+            <button class="nav-btn" id="nav-btn-list" title="列表" onclick="window.location.href='../index.html?v=2'">
+                <img src="../设计风格/提醒Folder Icon .png" alt="📂" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                <span class="fallback-icon" style="display:none;">📂</span>
+            </button>
+            <button class="nav-btn" id="nav-btn-calendar" title="日历" onclick="window.location.href='../index.html?v=2'">
+                <img src="../设计风格/YueLi Icon.png" alt="📅" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                <span class="fallback-icon" style="display:none;">📅</span>
+            </button>
+            <button class="nav-btn" id="btn-refresh" title="刷新 refresh" onclick="window.location.reload()">
+                <img src="../设计风格/refresh.png" alt="🔄" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                <span class="fallback-icon" style="display:none;">🔄</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Hidden Utils -->
+    <div id="context-menu" class="context-menu" style="display: none;">
+        <ul>
+            <li id="menu-rename">重命名</li>
+            <li id="menu-delete" class="danger">刪除</li>
+        </ul>
+    </div>
+
+    <!-- 宫位点击弹窗Modal -->
+    <div id="qimen-modal-mask" class="qimen-modal-mask" style="display: none;">
+        <div class="qimen-modal-card">
+            <div class="qimen-modal-header">
+                <div id="qimen-modal-title" class="qimen-modal-title">宫位詳解</div>
+                <div id="qimen-modal-close" class="qimen-modal-close">&times;</div>
+            </div>
+            <div id="qimen-modal-body" class="qimen-modal-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/lunar_6tail.js"></script>
+    <script src="js/lunar.js"></script>
+    <script src="js/li_chun_data.js"></script>
+    <script src="js/bazi_utils.js?v=8"></script>
+    <script src="js/qimen_engine.js?v=8"></script>
+    <script src="js/logo-b64.js"></script>
+    <script src="js/app.js?v=8"></script>
+    <script src="js/cursor.js"></script>
+    <!-- Custom Touch Cursor -->
+    <div id="custom-cursor"></div>
+</body>
+
+</html>

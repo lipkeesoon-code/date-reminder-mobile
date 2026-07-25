@@ -1,0 +1,30 @@
+
+    <html>
+    <head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <script src="js/bazi_utils.js"></script>
+    <script src="js/qimen_engine.js"></script>
+    <script>
+    window.onload = function() {
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+        var f = fso.CreateTextFile("error_log.txt", true);
+        try {
+            var data = QimenEngine.buildChart({year: 2026, month: 7, day: 22, hour: 0});
+            f.WriteLine("SUCCESS");
+        } catch(e) {
+            f.WriteLine("ERROR: " + e.message);
+        }
+        f.Close();
+        window.close();
+    };
+    window.onerror = function(msg, url, line, col, error) {
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+        var f = fso.CreateTextFile("error_log.txt", true);
+        f.WriteLine("GLOBAL ERROR: " + msg + " at " + line + ":" + col);
+        f.Close();
+    };
+    </script>
+    </head>
+    <body>Running...</body>
+    </html>
+    

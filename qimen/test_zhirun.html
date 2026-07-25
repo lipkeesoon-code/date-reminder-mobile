@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="js/lunar_6tail.js"></script>
+</head>
+<body>
+    <script>
+        const JIE_QI_LIST = ["冬至", "小寒", "大寒", "立春", "雨水", "惊蛰", "春分", "清明", "谷雨", "立夏", "小满", "芒种", "夏至", "小暑", "大暑", "立秋", "处暑", "白露", "秋分", "寒露", "霜降", "立冬", "小雪", "大雪"];
+        
+        let anchorDate = new Date(Date.UTC(2023, 11, 17));
+        let currentDate = new Date(anchorDate.getTime());
+        let jqIndex = 0;
+        let jqMap = [];
+        
+        for (let i = 0; i < 60; i++) {
+            let jqName = JIE_QI_LIST[jqIndex];
+            let isRun = false;
+            
+            if (jqName === "芒种" || jqName === "大雪") {
+                let nextJqName = jqName === "芒种" ? "夏至" : "冬至";
+                let checkYear = currentDate.getUTCFullYear();
+                if (jqName === "大雪" && currentDate.getUTCMonth() === 11) checkYear = currentDate.getUTCFullYear();
+                let nextAstroDate = (nextJqName === "夏至") ? new Date(Date.UTC(checkYear, 5, 21)) : new Date(Date.UTC(checkYear, 11, 21));
+                let nextProjectedDate = new Date(currentDate.getTime() + 15 * 86400000);
+                let chaoShen = (nextAstroDate.getTime() - nextProjectedDate.getTime()) / 86400000;
+                if (chaoShen >= 9) isRun = true;
+            }
+            
+            jqMap.push({ name: jqName, startDate: new Date(currentDate.getTime()), endDate: new Date(currentDate.getTime() + 14 * 86400000) });
+            currentDate = new Date(currentDate.getTime() + 15 * 86400000);
+            
+            if (isRun) {
+                jqMap.push({ name: jqName + " (闰)", startDate: new Date(currentDate.getTime()), endDate: new Date(currentDate.getTime() + 14 * 86400000) });
+                currentDate = new Date(currentDate.getTime() + 15 * 86400000);
+                i++;
+            }
+            jqIndex = (jqIndex + 1) % 24;
+        }
+        
+        let out = "";
+        jqMap.forEach(q => { out += q.name + ": " + q.startDate.toISOString().split('T')[0] + " to " + q.endDate.toISOString().split('T')[0] + "<br>"; });
+        document.body.innerHTML = out;
+        console.log(out);
+    </script>
+</body>
+</html>

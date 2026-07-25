@@ -826,9 +826,9 @@ html, body {
     background: none;
     border: none;
     cursor: pointer;
-    width: 58px; /* 变大20% */
-    max-width: 16vw; /* 确保6个按钮不会撑爆屏幕 (16 * 6 = 96%) */
-    height: 58px;
+    width: 50px; /* Scaled down for 7 buttons */
+    max-width: 14vw; /* 14 * 7 = 98% */
+    height: 50px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -847,15 +847,26 @@ html, body {
 }
 
 .nav-btn img {
-    width: 53px; /* 变大20% */
+    width: 45px; /* Scaled down */
     max-width: 100%;
-    height: 53px;
+    height: 45px;
     object-fit: contain;
 }
 
 /* 专门针对截图相机 Icon 进行拉大 */
 #btn-bg img {
     transform: scale(1.1);
+}
+
+/* 调整放大奇门遁甲按钮，使其和其它按钮一样大小 */
+#nav-btn-qimen img {
+    transform: scale(1.05);
+}
+
+/* 去除奇门按钮激活时的蓝色背景，避免“蓝框包裹”的错觉 */
+#nav-btn-qimen.active {
+    background-color: transparent;
+    box-shadow: none;
 }
 
 .nav-icon {
