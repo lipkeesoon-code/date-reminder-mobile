@@ -159,8 +159,10 @@
                         <div class="search-bar-wrapper" data-html2canvas-ignore="true">
                             <input type="text" id="search-input" placeholder="输入 : 任务名称">
                             <button id="btn-save-top" class="cute-btn">Save</button>
-                            <button id="btn-refresh-top" class="cute-btn">Refresh</button>
-                            <button id="btn-snapshot-top" class="icon-only-btn" title="截图 Save JPG" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 27px; margin-left: auto;">
+                            <button id="btn-refresh" class="icon-only-btn" title="刷新 refresh" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 27px; margin-left: auto; margin-right: 8px;">
+                                <img src="设计风格/refresh.png" alt="🔄" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="height: 100%; object-fit: contain; display: block; transition: transform 0.1s;" onmousedown="this.style.transform='scale(0.8)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'" />
+                            </button>
+                            <button id="btn-snapshot-top" class="icon-only-btn" title="截图 Save JPG" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 27px;">
                                 <img src="设计风格/snapshot.png" alt="📸" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="height: 100%; object-fit: contain; display: block; transition: transform 0.1s;" onmousedown="this.style.transform='scale(0.8)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'" />
                             </button>
                         </div>
@@ -300,10 +302,6 @@
                 <button class="nav-btn active" id="nav-btn-calendar" title="日历">
                     <img src="设计风格/YueLi Icon.png" alt="📅" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                     <span class="fallback-icon">📅</span>
-                </button>
-                <button class="nav-btn" id="btn-refresh" title="刷新 refresh">
-                    <img src="设计风格/refresh.png" alt="🔄" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                    <span class="fallback-icon">🔄</span>
                 </button>
             </nav>
 

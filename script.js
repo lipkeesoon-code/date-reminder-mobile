@@ -1949,9 +1949,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("btn-refresh")) {
         document.getElementById("btn-refresh").addEventListener("click", resetToToday);
     }
-    if (document.getElementById("btn-refresh-top")) {
-        document.getElementById("btn-refresh-top").addEventListener("click", resetToToday);
-    }
 
     // 将数据整理并格式化，导出为漂亮的 .txt 文件自动拉起浏览器下载
     const exportDataToTxt = () => {
