@@ -1,4 +1,4 @@
-/* ZiWi Mobile - Premium Design System */
+﻿/* ZiWi Mobile - Premium Design System */
 :root {
     --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --accent-color: #ff9a9e;
@@ -89,7 +89,7 @@ html {
 
 
 /* ==========================================================================
-   奇门遁甲 (Qi Men Dun Jia) 阳盘忠实还原排盘样式 (Matching Reference Design)
+   å¥‡é—¨éç”² (Qi Men Dun Jia) é˜³ç›˜å¿ å®žè¿˜åŽŸæŽ’ç›˜æ ·å¼ (Matching Reference Design)
    ========================================================================== */
 
 .qimen-board-wrapper {
@@ -104,7 +104,7 @@ html {
     box-sizing: border-box;
 }
 
-/* 1. 顶部 Header (紫色背景) */
+/* 1. é¡¶éƒ¨ Header (ç´«è‰²èƒŒæ™¯) */
 .qimen-header-bar {
     background: #8c74a5;
     color: #ffffff;
@@ -115,7 +115,7 @@ html {
 }
 
 .qimen-header-title {
-    font-size: 26px;
+    font-size: 34px;
     font-weight: 800;
     letter-spacing: 2px;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
@@ -174,7 +174,7 @@ html {
     background-color: #f2e9ee;
 }
 
-/* 2. 四柱与公历格局栏 */
+/* 2. å››æŸ±ä¸Žå…¬åŽ†æ ¼å±€æ  */
 .qimen-info-banner {
     display: flex;
     background: #ffffff;
@@ -246,7 +246,7 @@ html {
     font-size: 38px;
     font-weight: 900;
     line-height: 1.1;
-    font-family: '楷体', 'KaiTi', serif;
+    font-family: 'æ¥·ä½“', 'KaiTi', serif;
 }
 
 .qimen-canggan {
@@ -272,7 +272,7 @@ html {
     right: -6px;
 }
 
-/* 右侧西历时间与格局 */
+/* å³ä¾§è¥¿åŽ†æ—¶é—´ä¸Žæ ¼å±€ */
 .qimen-meta-box {
     width: 220px; /* Widened to give date selects more room */
     background: #ffffff;
@@ -310,7 +310,7 @@ html {
     word-break: break-all;
 }
 
-/* 方位提示行 */
+/* æ–¹ä½æç¤ºè¡Œ */
 .qimen-dir-bar {
     background: #5b6f93;
     color: #ffffff;
@@ -321,7 +321,7 @@ html {
     padding: 3px 10px;
 }
 
-/* 包含左右侧栏 (卯东 / 酉西) 的包围盒 */
+/* åŒ…å«å·¦å³ä¾§æ  (å¯ä¸œ / é…‰è¥¿) çš„åŒ…å›´ç›’ */
 .qimen-grid-wrapper-with-side {
     display: flex;
     align-items: stretch;
@@ -350,7 +350,7 @@ html {
 .qimen-side-bar.right {
 }
 
-/* 3. 九宫格大盘 (3x3 Matrix) */
+/* 3. ä¹å®«æ ¼å¤§ç›˜ (3x3 Matrix) */
 .qimen-grid-container {
     flex: 1;
     display: grid;
@@ -393,7 +393,7 @@ html {
     background-color: #f9fbfd;
 }
 
-/* 宫名与方位 */
+/* å®«åä¸Žæ–¹ä½ */
 .qimen-cell-top {
     display: flex;
     justify-content: space-between;
@@ -440,12 +440,12 @@ html {
     border-color: #1688b5;
 }
 
-/* 天盘干居中 */
+/* å¤©ç›˜å¹²å±…ä¸­ */
 .qimen-tstem-row {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 26px;
+    font-size: 34px;
     font-weight: 900;
     margin-top: -5px;
     position: relative;
@@ -497,7 +497,7 @@ html {
     margin-right: 28px;
 }
 
-/* 中央方框与八门 */
+/* ä¸­å¤®æ–¹æ¡†ä¸Žå…«é—¨ */
 .qimen-door-box-wrap {
     display: flex;
     justify-content: center;
@@ -513,7 +513,7 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 26px;
+    font-size: 34px;
     font-weight: 900;
     box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
     box-sizing: border-box;
@@ -531,7 +531,7 @@ html {
     line-height: 1;
 }
 
-/* 地盘干居中 */
+/* åœ°ç›˜å¹²å±…ä¸­ */
 .qimen-dstem-row {
     text-align: center;
     margin-bottom: 2px;
@@ -540,7 +540,7 @@ html {
 .qimen-dstem-wrap {
     display: inline-block;
     position: relative;
-    font-size: 26px;
+    font-size: 34px;
     font-weight: 900;
 }
 
@@ -572,7 +572,7 @@ html {
     display: none;
 }
 
-/* 左右侧九星与八神 */
+/* å·¦å³ä¾§ä¹æ˜Ÿä¸Žå…«ç¥ž */
 .qimen-star-left {
     position: absolute;
     left: 5px;
@@ -622,7 +622,7 @@ html {
     line-height: 1.1;
 }
 
-/* 洛书数/紫白右下 */
+/* æ´›ä¹¦æ•°/ç´«ç™½å³ä¸‹ */
 .qimen-num-bottomright {
     position: absolute;
     right: 9px;
@@ -632,7 +632,7 @@ html {
     color: #111111;
 }
 
-/* 门宫战格小字 (灰色竖排) */
+/* é—¨å®«æˆ˜æ ¼å°å­— (ç°è‰²ç«–æŽ’) */
 .qimen-zhan-text {
     position: absolute;
     right: 22px;
@@ -644,7 +644,7 @@ html {
     letter-spacing: 1px;
 }
 
-/* 宫位四周吉凶角标 */
+/* å®«ä½å››å‘¨å‰å‡¶è§’æ ‡ */
 .qimen-badge-stack {
     position: absolute;
     left: 2px;
@@ -664,14 +664,14 @@ html {
     letter-spacing: 1px;
 }
 
-/* 五行色彩类 */
+/* äº”è¡Œè‰²å½©ç±» */
 .color-wood { color: #1ca950 !important; }
 .color-fire { color: #e74c3c !important; }
 .color-earth { color: #b69073 !important; }
 .color-metal { color: #f09e3a !important; }
 .color-water { color: #1688b5 !important; }
 
-/* 4. 底部记事本 */
+/* 4. åº•éƒ¨è®°äº‹æœ¬ */
 .qimen-notes-section {
     margin-top: 10px;
     border: 2px solid #555555;
@@ -693,7 +693,7 @@ html {
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 8px;
-    font-size: 26px;
+    font-size: 34px;
     font-family: inherit;
     font-weight: bold;
     color: #8c74a5;
@@ -713,7 +713,7 @@ html {
     font-weight: bold;
 }
 
-/* 宫位点击弹窗详解 */
+/* å®«ä½ç‚¹å‡»å¼¹çª—è¯¦è§£ */
 .qimen-modal-mask {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -749,7 +749,7 @@ html {
 }
 
 .qimen-modal-close {
-    font-size: 20px;
+    font-size: 24px;
     cursor: pointer;
     color: #888;
 }
@@ -1837,7 +1837,7 @@ html {
     width: 100%;
     text-align: center;
     min-height: 1.4rem;
-    /* 确保两个汉字都完整显示 (2 × 0.6rem + padding) */
+    /* ç¡®ä¿ä¸¤ä¸ªæ±‰å­—éƒ½å®Œæ•´æ˜¾ç¤º (2 Ã— 0.6rem + padding) */
 }
 
 .solar-name-box.active-solar-fire {
@@ -2526,7 +2526,7 @@ input {
 }
 
 .chart-center-text {
-    font-size: 20px;
+    font-size: 24px;
     /* Scaled down */
     font-weight: 800;
     text-anchor: middle;
@@ -2817,7 +2817,7 @@ input {
 }
 .fallback-icon {
     display: none;
-    font-size: 20px;
+    font-size: 24px;
 }
 /* ????????,????????,??????? */
 #nav-btn-qimen img {
@@ -2831,7 +2831,7 @@ input {
 #nav-btn-qimen img {
     transform: scale(1.15) !important;
 }
-/* ??????????????,??�????�??? */
+/* ??????????????,??“????”??? */
 #nav-btn-qimen.active {
     background-color: transparent !important;
     box-shadow: none !important;
@@ -2849,7 +2849,7 @@ input {
 /* Responsive adjustments for narrow screens (like Galaxy S21, iPhone SE) */
 @media screen and (max-width: 400px) {
     .qimen-header-title {
-        font-size: 20px;
+        font-size: 24px;
         letter-spacing: 0px;
     }
     .qimen-kaipan-btn {
@@ -2868,3 +2868,4 @@ input {
         padding: 8px 6px;
     }
 }
+
