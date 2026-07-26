@@ -2845,3 +2845,26 @@ input {
     transform: scale(1.05) !important;
 }
 
+
+/* Responsive adjustments for narrow screens (like Galaxy S21, iPhone SE) */
+@media screen and (max-width: 400px) {
+    .qimen-header-title {
+        font-size: 20px;
+        letter-spacing: 0px;
+    }
+    .qimen-kaipan-btn {
+        font-size: 16px;
+        padding: 4px 10px;
+    }
+    .qimen-header-action-btn img {
+        width: 30px;
+        height: 30px;
+    }
+    .qimen-header-actions {
+        gap: 4px;
+        margin-right: 4px;
+    }
+    .qimen-header-bar {
+        padding: 8px 6px;
+    }
+}
