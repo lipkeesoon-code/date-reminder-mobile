@@ -123,10 +123,10 @@ html {
 
 .qimen-header-actions {
     display: flex;
-    gap: 22px;
+    gap: 26px;
     align-items: center;
     margin-left: auto;
-    margin-right: 22px;
+    margin-right: 26px;
 }
 
 .qimen-header-action-btn {
@@ -183,7 +183,7 @@ html {
 
 .qimen-date-selects {
     display: flex;
-    gap: 22px;
+    gap: 26px;
     flex: 1;
     overflow: hidden;
 }
@@ -773,7 +773,7 @@ html {
     /* Support small screens */
     flex-shrink: 0;
     z-index: 20;
-    gap: 22px;
+    gap: 26px;
 }
 
 .view-header h2 {
@@ -1138,7 +1138,7 @@ html {
 
 .date-row {
     display: flex;
-    gap: 22px;
+    gap: 26px;
 }
 
 .date-row select,
@@ -1164,7 +1164,7 @@ html {
 .bazi-input-grid {
     display: flex;
     flex-direction: row;
-    gap: 22px;
+    gap: 26px;
     justify-content: space-between;
 }
 
@@ -1199,7 +1199,7 @@ html {
 .results-stack {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 26px;
     margin-top: 8px;
 }
 
@@ -1223,7 +1223,7 @@ html {
 
 .rev-age-badge {
     color: #e44d26;
-    margin-right: 22px;
+    margin-right: 26px;
 }
 
 /* Character Colors for Select Boxes */
@@ -1268,7 +1268,7 @@ html {
 .input-group span {
     font-size: 13px;
     color: #666;
-    margin-right: 22px;
+    margin-right: 26px;
     font-weight: 500;
 }
 
@@ -1710,7 +1710,7 @@ html {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 22px;
+    gap: 26px;
 }
 
 /* Five Elements Colors (Unified Phone Design) */
@@ -1760,20 +1760,20 @@ html {
     /* Tighter gap to grid */
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 26px;
 }
 
 .luck-grid {
     display: flex;
     justify-content: space-between;
-    gap: 22px;
+    gap: 26px;
     padding-bottom: 2px;
 }
 
 .monthly-grid {
     display: grid !important;
     grid-template-columns: repeat(12, 1fr) !important;
-    gap: 22px;
+    gap: 26px;
     padding-bottom: 0px;
     /* Reduced to pull solar grid closer */
     width: 100%;
@@ -1928,7 +1928,7 @@ html {
     border: 1px solid #f0f2f5;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 26px;
 }
 
 .luck-box.current-luck {
@@ -2387,7 +2387,7 @@ input {
 
 .info-scroller {
     display: flex;
-    gap: 22px;
+    gap: 26px;
     overflow-x: auto;
     padding-bottom: 10px;
 }
@@ -2554,7 +2554,7 @@ input {
 .element-label .text-group {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 26px;
     flex-shrink: 0;
 }
 
@@ -2868,6 +2868,7 @@ input {
         padding: 8px 6px;
     }
 }
+
 
 
 
