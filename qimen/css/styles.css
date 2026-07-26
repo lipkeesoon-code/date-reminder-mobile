@@ -140,8 +140,8 @@ html {
 }
 
 .qimen-header-action-btn img {
-    width: 35px;
-    height: 35px;
+    width: 38px;
+    height: 38px;
     object-fit: contain;
 }
 
@@ -2857,8 +2857,8 @@ input {
         padding: 4px 10px;
     }
     .qimen-header-action-btn img {
-        width: 30px;
-        height: 30px;
+        width: 33px;
+        height: 33px;
     }
     .qimen-header-actions {
         gap: 8px;
@@ -2868,6 +2868,7 @@ input {
         padding: 8px 6px;
     }
 }
+
 
 
 
