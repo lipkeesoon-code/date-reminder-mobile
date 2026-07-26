@@ -123,10 +123,10 @@ html {
 
 .qimen-header-actions {
     display: flex;
-    gap: 7px;
+    gap: 12px;
     align-items: center;
     margin-left: auto;
-    margin-right: 7px;
+    margin-right: 12px;
 }
 
 .qimen-header-action-btn {
@@ -2868,6 +2868,7 @@ input {
         padding: 8px 6px;
     }
 }
+
 
 
 
