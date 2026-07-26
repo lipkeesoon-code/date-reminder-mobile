@@ -171,7 +171,7 @@ html {
 
 
 .qimen-kaipan-btn.dirty-state {
-    background-color: #d8d8d8;
+    background-color: #cccccc;
 }
 .qimen-kaipan-btn:active {
     transform: scale(0.95);
@@ -2872,6 +2872,7 @@ input {
         padding: 8px 6px;
     }
 }
+
 
 
 
