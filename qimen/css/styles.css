@@ -2861,13 +2861,14 @@ input {
         height: 30px;
     }
     .qimen-header-actions {
-        gap: 12px;
-        margin-right: 12px;
+        gap: 8px;
+        margin-right: 8px;
     }
     .qimen-header-bar {
         padding: 8px 6px;
     }
 }
+
 
 
 
