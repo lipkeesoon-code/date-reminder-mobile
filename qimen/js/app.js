@@ -1432,11 +1432,14 @@ function init() {
         if (btn) {
             e.preventDefault();
             const yongshenOverlay = document.getElementById('yongshen-overlay');
+            const img = btn.querySelector('img');
             if (yongshenOverlay) {
                 if (yongshenOverlay.style.display === 'none' || yongshenOverlay.style.display === '') {
                     yongshenOverlay.style.display = 'block';
+                    if (img) img.src = 'img/资料On .png';
                 } else {
                     yongshenOverlay.style.display = 'none';
+                    if (img) img.src = 'img/资料.png';
                 }
             }
         }
