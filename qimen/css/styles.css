@@ -115,7 +115,7 @@ html {
 }
 
 .qimen-header-title {
-    font-size: 34px;
+    font-size: 41px;
     font-weight: 800;
     letter-spacing: 2px;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
@@ -123,10 +123,10 @@ html {
 
 .qimen-header-actions {
     display: flex;
-    gap: 8px;
+    gap: 16px;
     align-items: center;
     margin-left: auto;
-    margin-right: 8px;
+    margin-right: 16px;
 }
 
 .qimen-header-action-btn {
@@ -183,7 +183,7 @@ html {
 
 .qimen-date-selects {
     display: flex;
-    gap: 8px;
+    gap: 16px;
     flex: 1;
     overflow: hidden;
 }
@@ -445,7 +445,7 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 34px;
+    font-size: 41px;
     font-weight: 900;
     margin-top: -5px;
     position: relative;
@@ -513,7 +513,7 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 34px;
+    font-size: 41px;
     font-weight: 900;
     box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
     box-sizing: border-box;
@@ -540,7 +540,7 @@ html {
 .qimen-dstem-wrap {
     display: inline-block;
     position: relative;
-    font-size: 34px;
+    font-size: 41px;
     font-weight: 900;
 }
 
@@ -693,7 +693,7 @@ html {
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 8px;
-    font-size: 34px;
+    font-size: 41px;
     font-family: inherit;
     font-weight: bold;
     color: #8c74a5;
@@ -749,7 +749,7 @@ html {
 }
 
 .qimen-modal-close {
-    font-size: 24px;
+    font-size: 29px;
     cursor: pointer;
     color: #888;
 }
@@ -773,7 +773,7 @@ html {
     /* Support small screens */
     flex-shrink: 0;
     z-index: 20;
-    gap: 8px;
+    gap: 16px;
 }
 
 .view-header h2 {
@@ -1138,7 +1138,7 @@ html {
 
 .date-row {
     display: flex;
-    gap: 8px;
+    gap: 16px;
 }
 
 .date-row select,
@@ -1164,7 +1164,7 @@ html {
 .bazi-input-grid {
     display: flex;
     flex-direction: row;
-    gap: 8px;
+    gap: 16px;
     justify-content: space-between;
 }
 
@@ -1199,7 +1199,7 @@ html {
 .results-stack {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
     margin-top: 8px;
 }
 
@@ -1223,7 +1223,7 @@ html {
 
 .rev-age-badge {
     color: #e44d26;
-    margin-right: 8px;
+    margin-right: 16px;
 }
 
 /* Character Colors for Select Boxes */
@@ -1268,7 +1268,7 @@ html {
 .input-group span {
     font-size: 13px;
     color: #666;
-    margin-right: 8px;
+    margin-right: 16px;
     font-weight: 500;
 }
 
@@ -1710,7 +1710,7 @@ html {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
 }
 
 /* Five Elements Colors (Unified Phone Design) */
@@ -1760,20 +1760,20 @@ html {
     /* Tighter gap to grid */
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
 }
 
 .luck-grid {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
+    gap: 16px;
     padding-bottom: 2px;
 }
 
 .monthly-grid {
     display: grid !important;
     grid-template-columns: repeat(12, 1fr) !important;
-    gap: 8px;
+    gap: 16px;
     padding-bottom: 0px;
     /* Reduced to pull solar grid closer */
     width: 100%;
@@ -1928,7 +1928,7 @@ html {
     border: 1px solid #f0f2f5;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
 }
 
 .luck-box.current-luck {
@@ -2387,7 +2387,7 @@ input {
 
 .info-scroller {
     display: flex;
-    gap: 8px;
+    gap: 16px;
     overflow-x: auto;
     padding-bottom: 10px;
 }
@@ -2526,7 +2526,7 @@ input {
 }
 
 .chart-center-text {
-    font-size: 24px;
+    font-size: 29px;
     /* Scaled down */
     font-weight: 800;
     text-anchor: middle;
@@ -2554,7 +2554,7 @@ input {
 .element-label .text-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
     flex-shrink: 0;
 }
 
@@ -2817,7 +2817,7 @@ input {
 }
 .fallback-icon {
     display: none;
-    font-size: 24px;
+    font-size: 29px;
 }
 /* ????????,????????,??????? */
 #nav-btn-qimen img {
@@ -2849,7 +2849,7 @@ input {
 /* Responsive adjustments for narrow screens (like Galaxy S21, iPhone SE) */
 @media screen and (max-width: 400px) {
     .qimen-header-title {
-        font-size: 24px;
+        font-size: 29px;
         letter-spacing: 0px;
     }
     .qimen-kaipan-btn {
@@ -2868,4 +2868,5 @@ input {
         padding: 8px 6px;
     }
 }
+
 
