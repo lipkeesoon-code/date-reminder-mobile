@@ -1808,6 +1808,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnQuickNow = document.getElementById('btn-quick-now');
     if (btnQuickNow) {
         btnQuickNow.addEventListener('click', () => {
+            const btnKaipan = document.getElementById('qm-btn-kaipan');
+            if (btnKaipan) btnKaipan.classList.remove('dirty-state');
             const today = new Date();
             const year = today.getFullYear();
             const month = today.getMonth() + 1;
