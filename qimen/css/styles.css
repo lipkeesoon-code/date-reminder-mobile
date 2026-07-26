@@ -169,6 +169,10 @@ html {
     transition: transform 0.1s ease, background-color 0.1s ease;
 }
 
+
+.qimen-kaipan-btn.dirty-state {
+    background-color: #d8d8d8;
+}
 .qimen-kaipan-btn:active {
     transform: scale(0.95);
     background-color: #f2e9ee;
@@ -2868,6 +2872,7 @@ input {
         padding: 8px 6px;
     }
 }
+
 
 
 

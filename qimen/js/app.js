@@ -1279,8 +1279,18 @@ function initQimenHeaderControls() {
         if (curDay <= daysInMonth) sDay.value = curDay;
     };
 
+    const markDirty = () => {
+        if (btnKaipan) btnKaipan.classList.add('dirty-state');
+    };
+
     sYear.addEventListener('change', updateDays);
     sMonth.addEventListener('change', updateDays);
+    
+    sYear.addEventListener('change', markDirty);
+    sMonth.addEventListener('change', markDirty);
+    sDay.addEventListener('change', markDirty);
+    sTime.addEventListener('change', markDirty);
+
     updateDays();
 
     // 填充時间時辰列表
@@ -1293,6 +1303,7 @@ function initQimenHeaderControls() {
     // 绑定【開盘】按钮逻辑
     if (btnKaipan) {
         btnKaipan.onclick = () => {
+            btnKaipan.classList.remove('dirty-state');
             const y = sYear.value;
             const m = sMonth.value;
             const d = sDay.value;
