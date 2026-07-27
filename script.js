@@ -62,6 +62,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1500);
     };
 
+    const btnCloseFolders = document.getElementById("btn-close-folders");
+    if (btnCloseFolders) {
+        btnCloseFolders.addEventListener("click", () => {
+            if (navBtnCalendar) navBtnCalendar.click();
+        });
+    }
+
     if (navBtnList && navBtnCalendar) {
         navBtnList.addEventListener("click", () => {
             viewFolders.classList.add("active");

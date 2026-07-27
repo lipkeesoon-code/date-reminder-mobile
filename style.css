@@ -547,8 +547,8 @@ html, body {
     display: flex;
     gap: 4px;
     align-items: center;
-    overflow: hidden;
-    max-height: 28px;
+    overflow: visible;
+    max-height: 32px;
 }
 
 .search-bar-wrapper input {

@@ -434,18 +434,12 @@
                 <img src="../设计风格/Memory Games Icon .png" alt="🧠" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                 <span class="fallback-icon" style="display:none;">🧠</span>
             </button>
-            <button class="nav-btn" id="nav-btn-calculator" title="计算器" onclick="window.location.href='../index.html?v=2'">
-                <img src="../设计风格/cauculator icon.png" alt="🖩" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                <span class="fallback-icon" style="display:none;">🖩</span>
-            </button>
+
             <button class="nav-btn" id="nav-btn-notepad" title="Notepad" onclick="window.location.href='../index.html?v=2'">
                 <img src="../设计风格/Notepad icon .png" alt="📝" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                 <span class="fallback-icon" style="display:none;">📝</span>
             </button>
-            <button class="nav-btn" id="nav-btn-list" title="列表" onclick="window.location.href='../index.html?v=2'">
-                <img src="../设计风格/提醒Folder Icon .png" alt="📂" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
-                <span class="fallback-icon" style="display:none;">📂</span>
-            </button>
+
             <button class="nav-btn" id="nav-btn-calendar" title="日历" onclick="window.location.href='../index.html?v=2'">
                 <img src="../设计风格/YueLi Icon.png" alt="📅" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
                 <span class="fallback-icon" style="display:none;">📅</span>
@@ -1743,21 +1737,41 @@
             }
         });
 
+        const audioShuffleCasino = new Audio('../设计风格/Card shuffle 08 Casino long .mp3');
+        const audioShuffleBridge = new Audio('../设计风格/Cards Shuffle Bridge .mp3');
+        
         // 监听单选框点击事件（操作按钮）
         const actionRadios = document.querySelectorAll('input[name="action"]');
         actionRadios.forEach(radio => {
             radio.addEventListener('click', (e) => {
                 const action = e.target.value;
+                const dOpt = document.querySelector('input[name="display"]:checked').value;
                 if (action === 'shuffle') {
                     dealCards();
+                    audioShuffleBridge.currentTime = 0;
+                    audioShuffleBridge.play().catch(()=>{});
                 } else if (action === 'learn') {
                     learnCards();
+                    audioShuffleCasino.currentTime = 0;
+                    audioShuffleCasino.play().catch(()=>{});
                 } else if (action === 'close') {
-                    currentCards.forEach(c => c.isClosed = true);
+                    if (dOpt === 'both') {
+                        currentCards.forEach(c => c.isClosed = true);
+                    } else {
+                        currentCards.forEach(c => { c.isRevealed = false; c.isClosed = false; });
+                    }
                     renderGrid();
+                    audioShuffleBridge.currentTime = 0;
+                    audioShuffleBridge.play().catch(()=>{});
                 } else if (action === 'open') {
-                    currentCards.forEach(c => c.isClosed = false);
+                    if (dOpt === 'both') {
+                        currentCards.forEach(c => c.isClosed = false);
+                    } else {
+                        currentCards.forEach(c => { c.isRevealed = true; c.isClosed = false; });
+                    }
                     renderGrid();
+                    audioShuffleCasino.currentTime = 0;
+                    audioShuffleCasino.play().catch(()=>{});
                 }
                 // 操作完后取消选中，使其表现得像普通按钮
                 setTimeout(() => { e.target.checked = false; }, 150);
