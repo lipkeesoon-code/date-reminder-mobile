@@ -257,8 +257,8 @@ html {
     font-size: 12px;
     color: #555;
     position: absolute;
-    left: 60%;
-    top: 20px;
+    left: calc(50% + 16px);
+    top: 28px;
 }
 
 .qimen-h-tag {
