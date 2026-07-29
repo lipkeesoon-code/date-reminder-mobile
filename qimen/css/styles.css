@@ -1,4 +1,4 @@
-﻿/* ZiWi Mobile - Premium Design System */
+/* ZiWi Mobile - Premium Design System */
 :root {
     --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --accent-color: #ff9a9e;
@@ -257,8 +257,8 @@ html {
     font-size: 12px;
     color: #555;
     position: absolute;
-    right: -10px;
-    bottom: 4px;
+    left: 60%;
+    top: 20px;
 }
 
 .qimen-h-tag {
@@ -337,13 +337,13 @@ html {
 .qimen-side-bar {
     background: #5b6f93;
     color: #ffffff;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
     writing-mode: vertical-rl;
-    padding: 0 4px;
+    padding: 0 2px;
     letter-spacing: 2px;
     user-select: none;
 }
@@ -354,7 +354,7 @@ html {
 .qimen-side-bar.right {
 }
 
-/* 3. ä¹å®«æ ¼å¤§ç›˜ (3x3 Matrix) */
+/* 3. ä¹ å®«æ ¼å¤§ç›˜ (3x3 Matrix) */
 .qimen-grid-container {
     flex: 1;
     display: grid;
@@ -370,7 +370,7 @@ html {
 .qimen-cell {
     border: 1px solid #333333;
     position: relative;
-    padding: 4px;
+    padding: 4px 30px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -397,7 +397,7 @@ html {
     background-color: #f9fbfd;
 }
 
-/* å®«åä¸Žæ–¹ä½ */
+/* å®«å  ä¸Žæ–¹ä½  */
 .qimen-cell-top {
     display: flex;
     justify-content: space-between;
@@ -431,11 +431,11 @@ html {
     border-radius: 50%;
     padding: 1px 2px;
     font-size: 9px;
-    margin-left: 2px;
+    margin-left: 0px;
 }
 
 .ma-circle {
-    margin-left: -1px; /* Move left by 3px relative to its default 2px */
+    margin-left: -3px; /* Move left relative to its default 0px to overlap or keep tight if needed, but let's just make it 0 for now or keep tight */
 }
 
 .kong-circle.filled {
@@ -458,7 +458,7 @@ html {
 .qimen-tstem-tags-stack {
     position: absolute;
     right: 50%;
-    margin-right: 14px;
+    margin-right: 17px;
     top: 50%;
     transform: translateY(calc(-50% + 3px));
     display: flex;
@@ -469,7 +469,7 @@ html {
 }
 
 .qimen-jixing-tag, .qimen-rumu-tag {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: bold;
     color: #333;
     line-height: 1;
@@ -490,15 +490,15 @@ html {
 .qimen-parasite-stem-inline {
     position: absolute;
     right: 50%;
-    margin-right: 14px;
+    margin-right: 17px;
     top: 50%;
     transform: translateY(calc(-50% + 7px));
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
 }
 
 .qimen-parasite-stem-inline.shifted {
-    margin-right: 28px;
+    margin-right: 31px;
 }
 
 /* ä¸­å¤®æ–¹æ¡†ä¸Žå…«é—¨ */
@@ -511,7 +511,7 @@ html {
 
 .qimen-door-square {
     width: 44px;
-    height: 44px;
+    height: 54px;
     border: 2px solid #333333;
     background: #ffffff;
     display: flex;
@@ -538,7 +538,7 @@ html {
 /* åœ°ç›˜å¹²å±…ä¸­ */
 .qimen-dstem-row {
     text-align: center;
-    margin-bottom: 2px;
+    margin-bottom: -6px;
 }
 
 .qimen-dstem-wrap {

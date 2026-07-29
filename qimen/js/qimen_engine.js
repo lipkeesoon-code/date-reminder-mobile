@@ -453,7 +453,7 @@ const QimenEngine = (function () {
                 
                 if (isKong || isMa) {
                     let rowHtml = `<div style="display:flex; align-items:center; line-height:1.2; margin-bottom:1px;">`;
-                    rowHtml += `<span style="margin-right:2px; font-size:11px;">${z}</span>`;
+                    rowHtml += `<span style="margin-right:0px; font-size:11px;">${z}</span>`;
                     
                     if (isKong) {
                         // 老师的系统只在“填实”（原支存在于四柱）时显示蓝色底，而“冲实”时仍是普通空亡
