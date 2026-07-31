@@ -1838,3 +1838,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// YongShen Overlay Pagination Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const yongshenContainer = document.getElementById('yongshen-scroll-container');
+    const yongshenNavBtn = document.getElementById('yongshen-nav-btn');
+    
+    if (yongshenContainer && yongshenNavBtn) {
+        yongshenNavBtn.addEventListener('click', () => {
+            if (yongshenContainer.scrollLeft < yongshenContainer.clientWidth * 0.5) {
+                yongshenContainer.scrollTo({left: yongshenContainer.clientWidth, behavior: 'smooth'});
+            } else {
+                yongshenContainer.scrollTo({left: 0, behavior: 'smooth'});
+            }
+        });
+        
+        yongshenContainer.addEventListener('scroll', () => {
+            if (yongshenContainer.scrollLeft > yongshenContainer.clientWidth * 0.5) {
+                yongshenNavBtn.innerHTML = '&lt;';
+            } else {
+                yongshenNavBtn.innerHTML = '&gt;';
+            }
+        });
+    }
+});
