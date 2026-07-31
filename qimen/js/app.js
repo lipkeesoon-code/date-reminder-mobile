@@ -1320,6 +1320,10 @@ function initQimenHeaderControls() {
                 notes: State.currentActiveRecord ? State.currentActiveRecord.notes : ''
             };
 
+            if (typeof saveQimenHistory === 'function') {
+                saveQimenHistory(updatedRecord);
+            }
+
             // 重新调用排盤渲染
             renderMainBoard(updatedRecord);
         };
@@ -1858,6 +1862,103 @@ document.addEventListener('DOMContentLoaded', () => {
                 yongshenNavBtn.innerHTML = '&lt;';
             } else {
                 yongshenNavBtn.innerHTML = '&gt;';
+            }
+        });
+    }
+});
+
+// --- Qimen History Logic ---
+function saveQimenHistory(record) {
+    let history = JSON.parse(localStorage.getItem('qimen_history_13') || '[]');
+    // Add to top (newest first)
+    history.unshift({
+        gregYear: record.gregYear,
+        gregMonth: record.gregMonth,
+        gregDay: record.gregDay,
+        gregTime: record.gregTime,
+        timestamp: Date.now()
+    });
+    // Keep only 13 items
+    if (history.length > 13) {
+        history = history.slice(0, 13);
+    }
+    localStorage.setItem('qimen_history_13', JSON.stringify(history));
+    renderHistoryPanel();
+}
+
+function getZhiName(zhiValue) {
+    const timePeriods = [
+        { zhi: 'zi', label: '子时' },
+        { zhi: 'chou', label: '丑时' },
+        { zhi: 'yin', label: '寅时' },
+        { zhi: 'mao', label: '卯时' },
+        { zhi: 'chen', label: '辰时' },
+        { zhi: 'si', label: '巳时' },
+        { zhi: 'wu', label: '午时' },
+        { zhi: 'wei', label: '未时' },
+        { zhi: 'shen', label: '申时' },
+        { zhi: 'you', label: '酉时' },
+        { zhi: 'xu', label: '戌时' },
+        { zhi: 'hai', label: '亥时' }
+    ];
+    const match = timePeriods.find(tp => tp.zhi === zhiValue);
+    return match ? match.label : zhiValue;
+}
+
+const historyColors = ['#DB7A85', '#D87A85', '#B88A44', '#AA8F55', '#E39C43', '#E39C43', '#3C82A2', '#2B7E9F', '#6F9F42', '#6F9F42', '#D46D79', '#D46D79', '#AE7C37'];
+
+function renderHistoryPanel() {
+    const list = document.getElementById('history-list');
+    if (!list) return;
+    let history = JSON.parse(localStorage.getItem('qimen_history_13') || '[]');
+    let html = '';
+    const monthAbbrs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    history.forEach((item, index) => {
+        const monthName = monthAbbrs[parseInt(item.gregMonth) - 1] || item.gregMonth;
+        const color = historyColors[index % historyColors.length];
+        const numCircle = `<div style="width: 26px; height: 26px; border-radius: 50%; background: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; flex-shrink: 0;">${index + 1}</div>`;
+        const text = `<div style="font-family: serif; color: #667292; font-size: 16px; margin-left: 5px;">${item.gregYear}年 ${item.gregMonth}${monthName} ${item.gregDay} ${getZhiName(item.gregTime)}</div>`;
+        html += `<div class="history-item" data-index="${index}" style="display: flex; align-items: center; cursor: pointer; padding: 6px 4px; border-bottom: 1px dashed #e0dab3;" onmouseover="this.style.background='#f0ebcf'" onmouseout="this.style.background='transparent'">
+            ${numCircle} ${text}
+        </div>`;
+    });
+    list.innerHTML = html;
+
+    list.querySelectorAll('.history-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+            const idx = e.currentTarget.getAttribute('data-index');
+            const item = history[idx];
+            if (item) {
+                const sYear = document.getElementById('qm-select-year');
+                const sMonth = document.getElementById('qm-select-month');
+                const sDay = document.getElementById('qm-select-day');
+                const sTime = document.getElementById('qm-select-time');
+                const btnKaipan = document.getElementById('qm-btn-kaipan');
+                
+                if (sYear) sYear.value = item.gregYear;
+                if (sMonth) sMonth.value = item.gregMonth;
+                if (sMonth) sMonth.dispatchEvent(new Event('change'));
+                if (sDay) sDay.value = item.gregDay;
+                if (sTime) sTime.value = item.gregTime;
+                
+                if (btnKaipan) btnKaipan.click();
+                document.getElementById('history-panel').style.display = 'none';
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnHistory = document.getElementById('btn-history');
+    if (btnHistory) {
+        btnHistory.addEventListener('click', () => {
+            const panel = document.getElementById('history-panel');
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                if (panel.style.display === 'block') {
+                    renderHistoryPanel();
+                }
             }
         });
     }
