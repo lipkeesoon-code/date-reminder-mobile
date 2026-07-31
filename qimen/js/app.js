@@ -1922,7 +1922,7 @@ function renderHistoryPanel() {
         const monthName = monthAbbrs[parseInt(item.gregMonth) - 1] || item.gregMonth;
         const color = historyColors[index % historyColors.length];
         const numCircle = `<div style="width: 26px; height: 26px; border-radius: 50%; background: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; flex-shrink: 0;">${index + 1}</div>`;
-        const text = `<div style="font-family: 'Inter', 'Noto Sans SC', sans-serif; font-weight: 600; color: #8c8c8c; font-size: 16px; margin-left: 5px;">${item.gregYear}年 ${item.gregMonth}月${monthName} ${item.gregDay} ${getZhiName(item.gregTime)}</div>`;
+        const text = `<div style="font-family: 'Inter', 'Noto Sans SC', sans-serif; font-weight: 600; color: #8c8c8c; font-size: 16px; margin-left: 5px; white-space: nowrap;">${item.gregYear}年 ${item.gregMonth}月${monthName} ${item.gregDay} ${getZhiName(item.gregTime)}</div>`;
         html += `<div class="history-item" data-index="${index}" style="display: flex; align-items: center; cursor: pointer; padding: 6px 4px; border-bottom: 1px dashed #e0dab3;" onmouseover="this.style.background='#f0ebcf'" onmouseout="this.style.background='transparent'">
             ${numCircle} ${text}
         </div>`;
