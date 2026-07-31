@@ -35,13 +35,37 @@
             position: relative;
         }
         
-        /* Fit page on one screen, remove unnecessary padding */
+        /* Fit page on one screen completely */
         #view-main .view-content {
             padding-bottom: 5px !important; 
             padding-top: 0px !important;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden !important;
+        }
+        #qimen-board-print {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        #qimen-capture-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .qimen-grid-wrapper-with-side {
+            flex: 1;
+            min-height: 0;
+        }
+        .qimen-grid-container {
+            height: 100%;
+            aspect-ratio: auto !important;
         }
         .qimen-notes-section {
             margin-top: 2px !important;
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -202,13 +226,13 @@
                     <div id="yongshen-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10;">
                         <div id="yongshen-scroll-container" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; width: 100%; height: 100%; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;">
                             <div style="flex: 0 0 100%; scroll-snap-align: start; height: 100%; overflow-y: hidden;">
-                                <img src="img/YongShenZhiLiao.jpg?v=20260801_2" style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="用神资料1">
+                                <img src="img/YongShenZhiLiao.jpg?v=20260801_2" style="width: 100%; height: 100%; object-fit: contain; object-position: top; display: block;" alt="用神资料1">
                             </div>
                             <div style="flex: 0 0 100%; scroll-snap-align: start; height: 100%; overflow-y: hidden;">
-                                <img src="img/Si Hai .jpg?v=20260801_2" style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="用神资料2">
+                                <img src="img/Si Hai .jpg?v=20260801_2" style="width: 100%; height: 100%; object-fit: contain; object-position: top; display: block;" alt="用神资料2">
                             </div>
                         </div>
-                        <div id="yongshen-nav-btn" style="position: absolute; bottom: 15px; right: 5px; background: rgba(116, 158, 71, 0.9); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; z-index: 11; cursor: pointer; user-select: none;">
+                        <div id="yongshen-nav-btn" style="position: absolute; bottom: 5px; right: 5px; background: rgba(116, 158, 71, 0.9); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; z-index: 11; cursor: pointer; user-select: none;">
                             &gt;
                         </div>
                     </div>
