@@ -1902,7 +1902,11 @@ function getZhiName(zhiValue) {
         { zhi: 'hai', label: '亥时' }
     ];
     const match = timePeriods.find(tp => tp.zhi === zhiValue);
-    return match ? match.label : zhiValue;
+    let result = match ? match.label : zhiValue;
+    if (typeof result === 'string' && result.length === 1 && "子丑寅卯辰巳午未申酉戌亥".includes(result)) {
+        result += '时';
+    }
+    return result;
 }
 
 const historyColors = ['#DB7A85', '#D87A85', '#B88A44', '#AA8F55', '#E39C43', '#E39C43', '#3C82A2', '#2B7E9F', '#6F9F42', '#6F9F42', '#D46D79', '#D46D79', '#AE7C37'];
@@ -1918,7 +1922,7 @@ function renderHistoryPanel() {
         const monthName = monthAbbrs[parseInt(item.gregMonth) - 1] || item.gregMonth;
         const color = historyColors[index % historyColors.length];
         const numCircle = `<div style="width: 26px; height: 26px; border-radius: 50%; background: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; flex-shrink: 0;">${index + 1}</div>`;
-        const text = `<div style="font-family: serif; color: #667292; font-size: 16px; margin-left: 5px;">${item.gregYear}&nbsp;&nbsp;${item.gregMonth}月${monthName}&nbsp;&nbsp;${item.gregDay} ${getZhiName(item.gregTime)}时</div>`;
+        const text = `<div style="font-family: 'Inter', 'Noto Sans SC', sans-serif; font-weight: 600; color: #8c8c8c; font-size: 16px; margin-left: 5px;">${item.gregYear}年 ${item.gregMonth}月${monthName} ${item.gregDay} ${getZhiName(item.gregTime)}</div>`;
         html += `<div class="history-item" data-index="${index}" style="display: flex; align-items: center; cursor: pointer; padding: 6px 4px; border-bottom: 1px dashed #e0dab3;" onmouseover="this.style.background='#f0ebcf'" onmouseout="this.style.background='transparent'">
             ${numCircle} ${text}
         </div>`;
