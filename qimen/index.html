@@ -35,37 +35,13 @@
             position: relative;
         }
         
-        /* Fit page on one screen completely */
+        /* Fit page on one screen, remove unnecessary padding */
         #view-main .view-content {
             padding-bottom: 5px !important; 
             padding-top: 0px !important;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden !important;
-        }
-        #qimen-board-print {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-        #qimen-capture-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-        .qimen-grid-wrapper-with-side {
-            flex: 1;
-            min-height: 0;
-        }
-        .qimen-grid-container {
-            height: 100%;
-            aspect-ratio: auto !important;
         }
         .qimen-notes-section {
             margin-top: 2px !important;
-            flex-shrink: 0;
         }
     </style>
 </head>
