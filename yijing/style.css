@@ -6,6 +6,11 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
     background-color: #f7f5fa; /* æ·¡ç´«è‰²èƒŒæ™¯ */
     font-family: 'Outfit', 'Noto Sans SC', sans-serif;
@@ -878,3 +883,20 @@ body {
 }
 
 
+
+/* Action Card Overrides */
+.action-card .hexagram-symbol.empty {
+    display: none !important;
+}
+.action-card .card-main-content {
+    display: flex !important;
+    gap: 15px !important;
+    align-items: center !important;
+    margin-top: 0 !important;
+}
+.action-card .card-title {
+    width: auto !important;
+    word-break: normal !important;
+    white-space: nowrap !important;
+    writing-mode: horizontal-tb !important;
+}
