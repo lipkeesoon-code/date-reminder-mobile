@@ -909,3 +909,7 @@ background-color: #dbe2ef;
     white-space: nowrap !important;
     writing-mode: horizontal-tb !important;
 }
+
+.action-card .card-desc {
+    margin-top: -5px !important;
+}
