@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>易经占卜</title>
+    <link rel="stylesheet" href="style.css?v=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="phone-wrapper">
+        <div class="app-container">
+            <!-- 顶部留白，给电话、时间留空位 -->
+            <div class="status-bar-spacer"></div>
+
+            <!-- 顶部控制栏 -->
+            <div class="top-controls" style="margin-top: -33px; padding: 5px 20px 10px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn-divinate" id="btn-divinate" style="margin-top: 0; height: 52px; padding: 0 30px; font-size: 24px;">
+                    <span class="btn-icon" style="font-size: 28px;">☯</span>
+                    易经占卜
+                </button>
+                <img src="../设计风格/资料.png" id="learning-toggle-btn" alt="学习资料" style="width: 52px; height: 52px; cursor: pointer;">
+            </div>
+
+            <!-- 实战页面 -->
+            <div class="view-content active" id="view-practical">
+                <div class="result-container" id="result-container" style="display: none; margin-top: 10px;">
+                    
+                    <div class="result-card primary-card">
+                        <div class="card-badge">现状</div>
+                        <div class="card-static-desc">代表您所问之事的当前状态或初始环境。</div>
+                        <div class="card-main-content">
+                            <div class="card-title">本卦</div>
+                            <div class="hexagram-symbol" id="res-original-symbol"></div>
+                            <div class="card-hex-name" id="res-original-name">--</div>
+                        </div>
+                        <div class="card-desc" id="res-original-desc">释义：</div>
+                    </div>
+
+                    <div class="result-card process-card">
+                        <div class="card-badge">过程</div>
+                        <div class="card-static-desc">代表事情内部隐藏的危机或转机。</div>
+                        <div class="card-main-content">
+                            <div class="card-title">互卦</div>
+                            <div class="hexagram-symbol" id="res-nuclear-symbol"></div>
+                            <div class="card-hex-name" id="res-nuclear-name">--</div>
+                        </div>
+                        <div class="card-desc" id="res-nuclear-desc">释义：</div>
+                    </div>
+
+                    <div class="result-card action-card">
+                        <div class="card-badge">行动</div>
+                        <div class="card-static-desc">最精准的行动指导或警告。</div>
+                        <div class="card-main-content">
+                            <div class="card-title">动爻</div>
+                            <div class="hexagram-symbol empty"></div>
+                            <div class="card-hex-name" id="res-changing-line-name">--</div>
+                        </div>
+                        <div class="card-desc" id="res-changing-line-desc">释义：</div>
+                    </div>
+
+                    <div class="result-card future-card">
+                        <div class="card-badge">结局</div>
+                        <div class="card-static-desc">代表事物的未来发展趋势或最终结局。</div>
+                        <div class="card-main-content">
+                            <div class="card-title">变卦</div>
+                            <div class="hexagram-symbol" id="res-changed-symbol"></div>
+                            <div class="card-hex-name" id="res-changed-name">--</div>
+                        </div>
+                        <div class="card-desc" id="res-changed-desc">释义：</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 学习页面 -->
+            <div class="view-content" id="view-learning" style="display: none;">
+                <div class="learning-header">
+                    <h2 class="learning-title">易经64卦掌握天地法则，洞悉世间万象</h2>
+                </div>
+                
+                <div class="learning-list" id="learning-list">
+                    <!-- JS动态填充 -->
+                </div>
+            </div>
+
+            <!-- 底部导航工具栏 -->
+            <nav class="bottom-nav">
+                <button class="nav-btn active" id="nav-btn-yijing" title="易经">
+                    <img src="../设计风格/YiJing Icon .png" alt="☯" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon" style="display:none; font-size: 24px;">☯</span>
+                </button>
+                <button class="nav-btn" id="nav-btn-qimen" title="奇门遁甲" onclick="window.location.href='../qimen/index.html'">
+                    <img src="../设计风格/QiMen Icon .png" alt="☯" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon" style="display:none; font-size: 24px;">☯</span>
+                </button>
+                <button class="nav-btn" id="nav-btn-memory-game" title="记忆宫殿" onclick="window.location.href='../memory-game/index.html?v=6'">
+                    <img src="../设计风格/Memory Games Icon .png" alt="🧠" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon" style="display:none; font-size: 24px;">🧠</span>
+                </button>
+
+                <button class="nav-btn" id="nav-btn-notepad" title="Notepad" onclick="window.location.href='../index.html#notepad'">
+                    <img src="../设计风格/Notepad icon .png" alt="📝" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">📝</span>
+                </button>
+                <button class="nav-btn" id="nav-btn-calendar" title="日历" onclick="window.location.href='../index.html'">
+                    <img src="../设计风格/YueLi Icon.png" alt="📅" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+                    <span class="fallback-icon">📅</span>
+                </button>
+            </nav>
+
+        </div>
+    </div>
+
+    <script src="yijing_data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
