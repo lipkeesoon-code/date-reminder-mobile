@@ -1321,8 +1321,10 @@ function initQimenHeaderControls() {
             };
 
             if (typeof saveQimenHistory === 'function') {
-                saveQimenHistory(updatedRecord);
-            }
+                  if (!window.skipQimenHistorySave) {
+                      saveQimenHistory(updatedRecord);
+                  }
+              }
 
             // 重新调用排盤渲染
             renderMainBoard(updatedRecord);
@@ -1946,7 +1948,9 @@ function renderHistoryPanel() {
                 if (sDay) sDay.value = item.gregDay;
                 if (sTime) sTime.value = item.gregTime;
                 
+                window.skipQimenHistorySave = true;
                 if (btnKaipan) btnKaipan.click();
+                window.skipQimenHistorySave = false;
                 document.getElementById('history-panel').style.display = 'none';
             }
         });

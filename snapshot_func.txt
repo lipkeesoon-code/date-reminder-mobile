@@ -1,0 +1,111 @@
+ {
+    const snapBtn = document.getElementById('snapshot-btn');
+    if (!snapBtn) return;
+    
+    // Preload audio
+    const shutterSound = new Audio('shutter_sound.mp3');
+    
+    snapBtn.addEventListener('click', () => {
+        const container = document.getElementById('result-container');
+        if (!container || container.style.display === 'none') {
+            alert('请先进行占卜再截图！');
+            return;
+        }
+
+        const remarkBox = document.getElementById('divination-remark');
+        const remarkContainer = remarkBox ? remarkBox.parentElement : null;
+        
+        let isRemarkEmpty = !remarkBox || !remarkBox.value.trim();
+        
+        // Hide remark if empty
+        if (isRemarkEmpty && remarkContainer) {
+            remarkContainer.style.display = 'none';
+        }
+        
+        // Temporarily style container for snapshot to include background
+        const origBg = container.style.background;
+        const origPadding = container.style.padding;
+        const origBorderRadius = container.style.borderRadius;
+        const origMarginTop = container.style.marginTop;
+        const origMargin = container.style.margin;
+        
+        container.style.background = 'linear-gradient(135deg, #e6e3f0 0%, #f6ecf0 100%)';
+        container.style.padding = '20px 15px';
+        container.style.borderRadius = '0px'; // No border radius for full page look
+        container.style.margin = '0px';
+
+        // html2canvas BUG FIX: backdrop-filter makes cards blurry/transparent.
+        // We must temporarily replace it with a solid background.
+        const cards = container.querySelectorAll('.result-card');
+        const origCardStyles = [];
+        cards.forEach(card => {
+            origCardStyles.push({
+                background: card.style.background,
+                backdropFilter: card.style.backdropFilter
+            });
+            card.style.background = '#ffffff'; // Solid white background
+            card.style.backdropFilter = 'none';
+        });
+        
+        // Disable pointer events on remark box so cursor doesn't show in screenshot
+        if (remarkBox) {
+            remarkBox.style.pointerEvents = 'none';
+            remarkBox.blur(); 
+        }
+
+        // Wait a small delay to ensure DOM updates, then snapshot
+        setTimeout(() => {
+            html2canvas(container,, {
+                scale: 2, // High resolution
+                backgroundColor: '#e6e3f0',
+            }).then(canvas => {
+                // Restore styles
+                container.style.background = origBg;
+                container.style.padding = origPadding;
+                container.style.borderRadius = origBorderRadius;
+                container.style.marginTop = origMarginTop;
+                container.style.margin = origMargin;
+                
+                cards.forEach((card, i) => {
+                    card.style.background = origCardStyles[i].background;
+                    card.style.backdropFilter = origCardStyles[i].backdropFilter;
+                });
+                if (remarkBox) remarkBox.style.pointerEvents = 'auto';
+                
+                if (isRemarkEmpty && remarkContainer) {
+                    remarkContainer.style.display = '';
+                }
+                
+                // Play shutter sound and flash
+                shutterSound.currentTime = 0;
+                shutterSound.play().catch(e => console.log("Audio play blocked by browser", e));
+                
+                
+                
+                // Format filename: YiJing 0001, YiJing 0002, etc.
+                let snapshotCount = parseInt(localStorage.getItem('yijingSnapshotCount') || '1', 10);
+                let paddedCount = String(snapshotCount).padStart(4, '0');
+                let filename = `YiJing ${paddedCount}.jpg`;
+                localStorage.setItem('yijingSnapshotCount', snapshotCount + 1);
+                
+                // Trigger download as JPG
+                let link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL("image/jpeg", 1.0);
+                link.click();
+            }).catch(err => {
+                console.error("Snapshot failed: ", err);
+                // Restore styles on error too
+                container.style.background = origBg;
+                container.style.padding = origPadding;
+                container.style.borderRadius = origBorderRadius;
+                container.style.marginTop = origMarginTop;
+                container.style.margin = origMargin;
+                if (remarkBox) remarkBox.style.pointerEvents = 'auto';
+                if (isRemarkEmpty && remarkContainer) {
+                    remarkContainer.style.display = '';
+                }
+            });
+        }, 100);
+    });
+}

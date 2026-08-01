@@ -1,10 +1,18 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+
+    <script>
+    window.onerror = function(msg, url, line, col, error) {
+        alert("JS Error: " + msg + " at line " + line);
+        return false;
+    };
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>易经占卜</title>
-    <link rel="stylesheet" href="style.css?v=2.9">
+    <link rel="stylesheet" href="style.css?v=3.3">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -92,6 +100,31 @@
             text-overflow: ellipsis !important;
         }
 
+    
+        /* 备注框样式 */
+        .remark-box {
+            width: 100%;
+            border: 3px solid #be9452;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: inherit;
+            color: #be9452;
+            background-color: #fff;
+            box-sizing: border-box;
+            height: 48px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .remark-box:focus {
+            border-color: #9d8161;
+        }
+        .remark-box::placeholder {
+            color: rgba(128, 128, 128, 0.4);
+            font-weight: 700;
+        }
+
     </style>
 </head>
 
@@ -107,7 +140,8 @@
                     <span class="btn-icon" style="font-size: 22px;">☯</span>
                     易经占卜
                 </button>
-                <div style="display: flex; gap: 15px; align-items: center;">
+                <div style="display: flex; gap: 15px; align-items: center; position: relative; z-index: 3000;">
+                      <img src="snapshot.png" id="snapshot-btn" alt="截图" style="width: auto; height: 42px; cursor: pointer;">
                       <img src="history.png" id="history-toggle-btn" alt="历史记录" style="width: 42px; height: 42px; cursor: pointer;">
                       <img src="../设计风格/资料.png" id="learning-toggle-btn" alt="学习资料" style="width: 42px; height: 42px; cursor: pointer;">
                   </div>
@@ -168,6 +202,11 @@
                         </div>
                         <div class="card-desc" id="res-changed-desc">释义：</div>
                     </div>
+                    <!-- 备注框 -->
+                    <div style="margin-top: 15px; padding: 0 5px;">
+                        <input type="text" id="divination-remark" class="remark-box" placeholder="备注" />
+                    </div>
+
 
                 </div>
             </div>
@@ -212,6 +251,7 @@
     </div>
 
     <script src="yijing_data.js"></script>
-    <script src="script.js?v=2.9"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="script.js?v=4.1"></script>
 </body>
 </html>
