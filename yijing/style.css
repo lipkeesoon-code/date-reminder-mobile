@@ -192,13 +192,13 @@ body {
 .card-badge {
     display: inline-block;
     vertical-align: middle;
-    background: #8874a3;
+    background: #be9452;
     color: #fff;
     font-size: 11px;
     font-weight: 600;
     padding: 3px 10px;
     border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(136, 116, 163, 0.4);
+    box-shadow: 0 2px 5px rgba(190, 148, 82, 0.4);
     margin-bottom: 12px;
 }
 
