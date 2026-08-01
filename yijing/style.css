@@ -183,7 +183,7 @@ body {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(8px);
     border-radius: 16px;
-    padding: 13px 18px 10px 18px;
+    padding: 9px 18px 6px 18px;
     margin-bottom: 15px;
     position: relative;
     border: 1px solid rgba(255, 255, 255, 1);
