@@ -901,7 +901,7 @@ background-color: #dbe2ef;
     display: flex !important;
     gap: 15px !important;
     align-items: center !important;
-    margin-top: 0 !important;
+    margin-top: -8px !important;
 }
 .action-card .card-title {
     width: auto !important;
