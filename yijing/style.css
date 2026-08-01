@@ -148,6 +148,7 @@ body {
     padding: 15px 40px;
     font-size: 18px;
     font-weight: 600;
+    font-family: inherit;
     box-shadow: 0 8px 20px rgba(126, 99, 161, 0.3);
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
