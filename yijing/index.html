@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>易经占卜</title>
-    <link rel="stylesheet" href="style.css?v=2.1">
+    <link rel="stylesheet" href="style.css?v=2.9">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -27,6 +27,71 @@
     .action-card .card-desc {
             margin-top: -5px !important;
         }
+    
+        /* History Popup - Injected to bypass cache */
+        .history-popup {
+            position: absolute;
+            top: 60px;
+            right: 15px;
+            width: 300px;
+            background: #fdfcf6;
+            border: 3px solid #6b7cb8;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 0;
+            overflow-y: hidden;
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .history-popup.open {
+            max-height: 450px;
+            opacity: 1;
+            overflow-y: auto;
+            pointer-events: auto;
+        }
+
+        .history-list {
+            padding: 10px 15px;
+        }
+
+        .history-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 12px 0 !important;
+            border-bottom: 1px dashed #d5d1c8 !important;
+            cursor: pointer !important;
+        }
+
+        .history-item:last-child {
+            border-bottom: none !important;
+        }
+
+        .history-badge {
+            width: 26px !important;
+            height: 26px !important;
+            border-radius: 50% !important;
+            color: white !important;
+            font-size: 13px !important;
+            font-weight: bold !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+
+        .history-text {
+            font-size: 14px !important;
+            color: #89827d !important;
+            font-weight: bold !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
     </style>
 </head>
 
@@ -37,13 +102,24 @@
             <div class="status-bar-spacer"></div>
 
             <!-- 顶部控制栏 -->
-            <div class="top-controls" style="margin-top: -33px; padding: 5px 20px 10px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="top-controls" style="margin-top: -33px; padding: 5px 20px 10px 20px; display: flex; position: relative; z-index: 2000; justify-content: space-between; align-items: center;">
                 <button class="btn-divinate" id="btn-divinate" style="margin-top: 0; height: 42px; padding: 0 24px; font-size: 19px;">
                     <span class="btn-icon" style="font-size: 22px;">☯</span>
                     易经占卜
                 </button>
-                <img src="../设计风格/资料.png" id="learning-toggle-btn" alt="学习资料" style="width: 42px; height: 42px; cursor: pointer;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                      <img src="history.png" id="history-toggle-btn" alt="历史记录" style="width: 42px; height: 42px; cursor: pointer;">
+                      <img src="../设计风格/资料.png" id="learning-toggle-btn" alt="学习资料" style="width: 42px; height: 42px; cursor: pointer;">
+                  </div>
             </div>
+
+              <!-- 历史记录下拉框 -->
+              <div id="history-popup" class="history-popup">
+                  <div class="history-list" id="history-list">
+                      <!-- 历史记录项将由 JS 动态生成 -->
+                  </div>
+              </div>
+
 
             <!-- 实战页面 -->
             <div class="view-content active" id="view-practical">
@@ -136,6 +212,6 @@
     </div>
 
     <script src="yijing_data.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=2.9"></script>
 </body>
 </html>

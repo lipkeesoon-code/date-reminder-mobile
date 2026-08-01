@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initLearningPage();
     initDivination();
+    initHistory();
 });
 
 let isLearningView = false;
@@ -90,25 +91,29 @@ function initDivination() {
     });
 }
 
-function performDivination() {
+function performDivination(providedOriginalLines = null, providedChangingLinesIndex = null, skipSave = false) {
     // 随机生成 6 个爻 (1 = 阳, 0 = 阴)
     // 随机生成 0 到 2 个动爻
-    let originalLines = [];
+let originalLines = [];
     let changingLinesIndex = [];
     
-    for (let i = 0; i < 6; i++) {
-        originalLines.push(Math.random() > 0.5 ? 1 : 0);
+    if (providedOriginalLines && providedChangingLinesIndex) {
+        originalLines = [...providedOriginalLines];
+        changingLinesIndex = [...providedChangingLinesIndex];
+    } else {
+        for (let i = 0; i < 6; i++) {
+            originalLines.push(Math.random() > 0.5 ? 1 : 0);
+        }
+        
+        let numChanging = Math.random() > 0.8 ? (Math.random() > 0.5 ? 2 : 0) : 1;
+        let availableIndices = [0, 1, 2, 3, 4, 5];
+        for (let i = 0; i < numChanging; i++) {
+            let randIdx = Math.floor(Math.random() * availableIndices.length);
+            changingLinesIndex.push(availableIndices[randIdx]);
+            availableIndices.splice(randIdx, 1);
+        }
+        changingLinesIndex.sort();
     }
-    
-    // 随机决定动爻数量 (0 到 2 个，1个最常见)
-    let numChanging = Math.random() > 0.8 ? (Math.random() > 0.5 ? 2 : 0) : 1;
-    let availableIndices = [0, 1, 2, 3, 4, 5];
-    for (let i = 0; i < numChanging; i++) {
-        let randIdx = Math.floor(Math.random() * availableIndices.length);
-        changingLinesIndex.push(availableIndices[randIdx]);
-        availableIndices.splice(randIdx, 1);
-    }
-    changingLinesIndex.sort();
 
     // 变卦
     let changedLines = [...originalLines];
@@ -177,6 +182,7 @@ function performDivination() {
     
     // 动爻说明
     let changingDesc = "此卦无动爻，宜静守本分，按照本卦行事。";
+    let yaoNameStr = "无变爻";
     if (changingLinesIndex.length > 0) {
         let yaoNames = changingLinesIndex.map(idx => {
             let num = idx + 1;
@@ -186,16 +192,23 @@ function performDivination() {
             return `${val}${num === 2 ? '二' : num === 3 ? '三' : num === 4 ? '四' : '五'}`;
         });
         changingDesc = `代表事情正在发生转折，需注意相关的行动指导，参考变卦。`;
-        document.getElementById('res-changing-line-name').innerText = yaoNames.join('、');
+        yaoNameStr = yaoNames.join('、');
+        document.getElementById('res-changing-line-name').innerText = yaoNameStr;
     } else {
         document.getElementById('res-changing-line-name').innerText = "无变爻";
     }
     document.getElementById('res-changing-line-desc').innerHTML = `<strong>释义：</strong>${changingDesc}`;
 
-    // 绘制符号
+// 绘制符号
     drawHexagramSymbol('res-original-symbol', originalLines, changingLinesIndex);
     drawHexagramSymbol('res-nuclear-symbol', nuclearLines, []);
     drawHexagramSymbol('res-changed-symbol', changedLines, []);
+
+    // 保存历史记录
+    if (!skipSave) {
+        let changingText = changingLinesIndex.length > 0 ? (typeof yaoNameStr !== 'undefined' ? yaoNameStr : "变爻") : "无变爻";
+        saveHistoryRecord(originalLines, changingLinesIndex, origName, nuclearName, changingText, changedName);
+    }
 }
 
 function drawHexagramSymbol(containerId, lines, changingIndices) {
@@ -210,5 +223,95 @@ function drawHexagramSymbol(containerId, lines, changingIndices) {
         div.className = 'yao-line ' + (val === 1 ? 'yao-yang' : 'yao-yin');
         if (isChanging) div.classList.add('yao-changing');
         container.appendChild(div);
+    }
+}
+
+// --- 历史记录逻辑 ---
+const HISTORY_COLORS = [
+    '#ed7d9c', '#d35272', '#b68344', '#a1833c', '#d99745',
+    '#e09f48', '#387399', '#25708f', '#6da246', '#60a649',
+    '#e07583', '#d96475', '#ba8a38'
+];
+
+function initHistory() {
+    const historyBtn = document.getElementById('history-toggle-btn');
+    const historyPopup = document.getElementById('history-popup');
+    if (!historyBtn || !historyPopup) return;
+
+    historyBtn.addEventListener('click', () => {
+        historyPopup.classList.toggle('open');
+        if (historyPopup.classList.contains('open')) {
+            renderHistory();
+        }
+    });
+}
+
+function saveHistoryRecord(origLines, changingIdx, origName, nucName, changingText, changedName) {
+    let history = JSON.parse(localStorage.getItem('yijingHistory') || '[]');
+    let record = {
+        origLines,
+        changingIdx,
+        text: `${origName} | ${nucName} | ${changingText} | ${changedName}`,
+        timestamp: new Date().getTime()
+    };
+    
+    history.unshift(record);
+    if (history.length > 13) {
+        history.pop();
+    }
+    localStorage.setItem('yijingHistory', JSON.stringify(history));
+}
+
+function renderHistory() {
+    const list = document.getElementById('history-list');
+    if (!list) return;
+    
+    let history = JSON.parse(localStorage.getItem('yijingHistory') || '[]');
+    if (history.length === 0) {
+        list.innerHTML = '<div style="padding: 15px; text-align: center; color: #999;">暂无占卜记录</div>';
+        return;
+    }
+
+    let html = '';
+    history.forEach((item, index) => {
+        let color = HISTORY_COLORS[index % HISTORY_COLORS.length];
+        html += `<div class="history-item" onclick="restoreHistory(${index})">
+            <div class="history-badge" style="background-color: ${color};">${index + 1}</div>
+            <div class="history-text">${item.text}</div>
+        </div>`;
+    });
+    list.innerHTML = html;
+}
+
+function restoreHistory(index) {
+    let history = JSON.parse(localStorage.getItem('yijingHistory') || '[]');
+    let record = history[index];
+    if (record) {
+        // 关闭历史弹窗
+        document.getElementById('history-popup').classList.remove('open');
+        
+        // 切换到占卜页面 (如果当前在学习页面)
+        if (isLearningView) {
+            isLearningView = false;
+            document.getElementById('view-practical').style.display = 'flex';
+            document.getElementById('view-learning').style.display = 'none';
+            document.getElementById('learning-toggle-btn').src = "../设计风格/资料.png";
+        }
+        
+        const btn = document.getElementById('btn-divinate');
+        const resultContainer = document.getElementById('result-container');
+        
+        btn.innerText = '正在回放...';
+        btn.style.opacity = '0.7';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            performDivination(record.origLines, record.changingIdx, true); // skipSave = true
+            resultContainer.style.display = 'block';
+            
+            btn.innerHTML = '<span class="btn-icon">☯</span> 再次占卜';
+            btn.style.opacity = '1';
+            btn.disabled = false;
+        }, 500);
     }
 }

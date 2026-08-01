@@ -184,7 +184,7 @@ body {
     backdrop-filter: blur(8px);
     border-radius: 16px;
     padding: 9px 18px 6px 18px;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     position: relative;
     border: 1px solid rgba(255, 255, 255, 1);
     box-shadow: 0 6px 15px rgba(120, 100, 150, 0.08);
@@ -912,4 +912,66 @@ background-color: #dbe2ef;
 
 .action-card .card-desc {
     margin-top: -5px !important;
+}
+
+/* History Popup */
+.history-popup {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    left: 20px;
+    background: rgba(253, 252, 246, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 0;
+    overflow-y: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.history-popup.open {
+    max-height: 400px;
+    opacity: 1;
+    overflow-y: auto;
+}
+
+.history-list {
+    padding: 10px 15px;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed #d5d1c8;
+    cursor: pointer;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.history-text {
+    font-size: 15px;
+    color: #89827d;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
