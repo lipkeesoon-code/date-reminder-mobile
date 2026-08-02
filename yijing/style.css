@@ -862,10 +862,12 @@ background-color: #dbe2ef;
     margin-right: auto;
 }
 .calc-sound-toggle:active {
+    transform: scale(0.9);
+}
 
 /* Added for new Hexagram Details Layout */
 .hex-short, .res-hex-short {
-    color: #a35d7a;
+    color: #856aa8;
     font-weight: 500;
 }
 .hex-idiom {
@@ -884,11 +886,7 @@ background-color: #dbe2ef;
     white-space: nowrap;
 }
 .res-hex-idiom {
-    color: #a35d7a;
-    font-size: 16px;
-    font-weight: 400;
     margin-top: 2px;
-    text-align: center;
 }
 
 
@@ -975,3 +973,16 @@ background-color: #dbe2ef;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* Custom Card Colors based on user image */
+.primary-card .card-badge { background-color: #be9452 !important; }
+.primary-card .card-title, .primary-card .res-hex-idiom { color: #be9452 !important; }
+
+.process-card .card-badge { background-color: #9cb58e !important; }
+.process-card .card-title, .process-card .res-hex-idiom { color: #9cb58e !important; }
+
+.action-card .card-badge { background-color: #d89696 !important; }
+.action-card .card-title, .action-card .res-hex-idiom { color: #d89696 !important; }
+
+.future-card .card-badge { background-color: #7b9fb5 !important; }
+.future-card .card-title, .future-card .res-hex-idiom { color: #7b9fb5 !important; }
