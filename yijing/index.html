@@ -136,16 +136,48 @@
 
             <!-- 顶部控制栏 -->
             <div class="top-controls" style="margin-top: -33px; padding: 5px 20px 10px 20px; display: flex; position: relative; z-index: 2000; justify-content: space-between; align-items: center;">
-                <button class="btn-divinate" id="btn-divinate" style="margin-top: 0; height: 42px; padding: 0 24px; font-size: 19px;">
+                <button class="btn-divinate" id="btn-divinate" style="margin-top: 0; height: 42px; padding: 0 12px; font-size: 18px;">
                     <span class="btn-icon" style="font-size: 22px;">☯</span>
                     易经占卜
                 </button>
-                <div style="display: flex; gap: 15px; align-items: center; position: relative; z-index: 3000;">
-                      <img src="snapshot.png" id="snapshot-btn" alt="截图" style="width: auto; height: 42px; cursor: pointer;">
-                      <img src="history.png" id="history-toggle-btn" alt="历史记录" style="width: 42px; height: 42px; cursor: pointer;">
-                      <img src="../设计风格/资料.png" id="learning-toggle-btn" alt="学习资料" style="width: 42px; height: 42px; cursor: pointer;">
+                <div style="display: flex; gap: 4px; align-items: center; position: relative; z-index: 3000;">
+                      <img src="snapshot.png" id="snapshot-btn" alt="截图" style="width: auto; height: 40px; cursor: pointer;">
+                      <img src="../设计风格/Diy .png" id="diy-toggle-btn" alt="DIY排盘" style="width: 40px; height: 40px; cursor: pointer;">
+                      <img src="history.png" id="history-toggle-btn" alt="历史记录" style="width: 40px; height: 40px; cursor: pointer;">
+                      <img src="../设计风格/资料.png" id="learning-toggle-btn" alt="学习资料" style="width: 40px; height: 40px; cursor: pointer;">
                   </div>
             </div>
+
+
+              <!-- DIY 选择弹窗 -->
+              <div id="diy-modal" class="modal-overlay" style="display: none;">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h3 style="margin: 0; color: #4a3863;">DIY 占卜排盘</h3>
+                          <span class="close-btn" id="diy-close-btn" style="cursor: pointer; font-size: 24px;">&times;</span>
+                      </div>
+                      <div class="modal-body" style="padding: 15px 0;">
+                          <div class="form-group">
+                              <label style="display: block; margin-bottom: 8px; color: #63537d; font-weight: bold;">选择本卦：</label>
+                              <select id="diy-hex-select" class="diy-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; background: #f9f9f9;"></select>
+                          </div>
+                          
+                          <div class="form-group" style="margin-top: 15px;">
+                              <label style="display: block; margin-bottom: 8px; color: #63537d; font-weight: bold;">选择动爻 (单选)：</label>
+                              <div class="diy-yao-selector" style="display: flex; flex-direction: column-reverse; gap: 8px; background: #f4f0f8; padding: 10px; border-radius: 8px;">
+                                  <label class="diy-yao-row" style="display: flex; align-items: center; gap: 10px;"><input type="radio" name="diy_yao" value="0" checked><span>初爻 (最下)</span></label>
+                                  <label class="diy-yao-row" style="display: flex; align-items: center; gap: 10px;"><input type="radio" name="diy_yao" value="1"><span>二爻</span></label>
+                                  <label class="diy-yao-row" style="display: flex; align-items: center; gap: 10px;"><input type="radio" name="diy_yao" value="2"><span>三爻</span></label>
+                                  <label class="diy-yao-row" style="display: flex; align-items: center; gap: 10px;"><input type="radio" name="diy_yao" value="3"><span>四爻</span></label>
+                                  <label class="diy-yao-row" style="display: flex; align-items: center; gap: 10px;"><input type="radio" name="diy_yao" value="4"><span>五爻</span></label>
+                                  <label class="diy-yao-row" style="display: flex; align-items: center; gap: 10px;"><input type="radio" name="diy_yao" value="5"><span>上爻 (最上)</span></label>
+                              </div>
+                          </div>
+                          
+                          <button id="diy-confirm-btn" style="margin-top: 20px; width: 100%; padding: 12px; background: linear-gradient(135deg, #7c68a6 0%, #63537d 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">开始排盘</button>
+                      </div>
+                  </div>
+              </div>
 
               <!-- 历史记录下拉框 -->
               <div id="history-popup" class="history-popup">
@@ -160,10 +192,10 @@
                 <div class="result-container" id="result-container" style="display: none; margin-top: -8px;">
                     
                     <div class="result-card primary-card">
-                        <div class="card-badge">现状</div>
+                        <div class="card-badge">本卦现状</div>
                         <div class="card-static-desc">代表您所问之事的当前状态或初始环境。</div>
                         <div class="card-main-content">
-                            <div class="card-title">本卦</div>
+                            <img class="hexagram-image" id="res-original-img" src="" alt="本卦图片" style="display: none;">
                             <div class="hexagram-symbol" id="res-original-symbol"></div>
                             <div class="card-hex-name" id="res-original-name">--</div>
                         </div>
@@ -171,32 +203,21 @@
                     </div>
 
                     <div class="result-card process-card">
-                        <div class="card-badge">过程</div>
+                        <div class="card-badge">互卦过程</div>
                         <div class="card-static-desc">代表事情内部隐藏的危机或转机。</div>
                         <div class="card-main-content">
-                            <div class="card-title">互卦</div>
+                            <img class="hexagram-image" id="res-nuclear-img" src="" alt="互卦图片" style="display: none;">
                             <div class="hexagram-symbol" id="res-nuclear-symbol"></div>
                             <div class="card-hex-name" id="res-nuclear-name">--</div>
                         </div>
                         <div class="card-desc" id="res-nuclear-desc">释义：</div>
                     </div>
 
-                    <div class="result-card action-card">
-                        <div class="card-badge">行动</div>
-                        <div class="card-static-desc">最精准的行动指导或警告。</div>
-                        <div class="card-main-content">
-                            <div class="card-title">动爻</div>
-                            <div class="hexagram-symbol empty"></div>
-                            <div class="card-hex-name" id="res-changing-line-name">--</div>
-                        </div>
-                        <div class="card-desc" id="res-changing-line-desc">释义：</div>
-                    </div>
-
                     <div class="result-card future-card">
-                        <div class="card-badge">结局</div>
+                        <div class="card-badge">变卦结局</div>
                         <div class="card-static-desc">代表事物的未来发展趋势或最终结局。</div>
                         <div class="card-main-content">
-                            <div class="card-title">变卦</div>
+                            <img class="hexagram-image" id="res-changed-img" src="" alt="变卦图片" style="display: none;">
                             <div class="hexagram-symbol" id="res-changed-symbol"></div>
                             <div class="card-hex-name" id="res-changed-name">--</div>
                         </div>
@@ -215,6 +236,29 @@
             <div class="view-content" id="view-learning" style="display: none;">
                 <div class="learning-header">
                     <h2 class="learning-title">易经64卦掌握天地法则，洞悉世间万象</h2>
+                </div>
+
+                <div class="learning-legend" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 13px; color: #554371; padding: 15px; background: #fff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid rgba(230, 225, 240, 1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>【上上卦 / 发展顺遂，大吉之象】</span>
+                        <div style="width: 14px; height: 14px; background-color: #6e943d; border-radius: 3px;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>【中平卦 / 需待时机，稳中求胜】</span>
+                        <div style="width: 14px; height: 14px; background-color: #fab041; border-radius: 3px;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>【动荡卦 / 充满变数，需谨慎应对】</span>
+                        <div style="width: 14px; height: 14px; background-color: #1688b5; border-radius: 3px;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>【下下卦 / 陷入困境，警惕危机】</span>
+                        <div style="width: 14px; height: 14px; background-color: #f06595; border-radius: 3px;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>【其他具有特殊启示的卦】</span>
+                        <div style="width: 14px; height: 14px; background-color: #866aa9; border-radius: 3px;"></div>
+                    </div>
                 </div>
                 
                 <div class="learning-list" id="learning-list">

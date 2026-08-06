@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDivination();
     initHistory();
     initSnapshot();
+    initDIYModal();
 });
 
 let isLearningView = false;
@@ -30,25 +31,43 @@ function initTabs() {
 
 function initLearningPage() {
     const learningList = document.getElementById('learning-list');
-    let html = '';
     
+    const categoryColors = {
+        "【上上卦 / 发展顺遂，大吉之象】": "#6e943d",
+        "【中平卦 / 需待时机，稳中求胜】": "#fab041",
+        "【动荡卦 / 充满变数，需谨慎应对】": "#1688b5",
+        "【下下卦 / 陷入困境，警惕危机】": "#f06595",
+        "【其他具有特殊启示的卦】": "#866aa9"
+    };
+
+    let allItems = [];
     yijingSummary.forEach(category => {
-        html += `<div class="category-group">
-            <div class="category-title">${category.category}</div>`;
-        
+        const color = categoryColors[category.category] || "#43335c";
         category.items.forEach(item => {
-            const details = typeof hexagramDetails !== 'undefined' && hexagramDetails[item.id] ? hexagramDetails[item.id] : { shortName: "", idiom: "", keyword: "" };
-            let idiomText = details.idiom;
-            if (details.keyword) idiomText += ` / ${details.keyword}`;
-            let extraHtml = details.shortName ? `<span class="hex-short">（${details.shortName}）</span> <span class="hex-idiom">${idiomText}</span>` : '';
-            html += `<div class="hex-card">
-                <div class="hex-name"><strong>${item.id}. ${item.name}</strong> ${extraHtml}</div>
-                <div class="hex-desc">${item.desc}</div>
-            </div>`;
+            allItems.push({ ...item, color: color });
         });
-        
-        html += `</div>`;
     });
+
+    allItems.sort((a, b) => a.id - b.id);
+
+    let html = '<div class="category-group">';
+    
+    allItems.forEach(item => {
+        const details = typeof hexagramDetails !== 'undefined' && hexagramDetails[item.id] ? hexagramDetails[item.id] : { shortName: "", idiom: "", keyword: "" };
+        let idiomText = details.idiom;
+        if (details.keyword) idiomText += `/${details.keyword}`;
+        let imgHtml = `<img src="images/gua_crop/${item.id}.jpg" class="learning-hex-img" alt="${item.name}" onerror="this.style.display='none'">`;
+        
+        let extraHtml = details.shortName ? `<span class="hex-short" style="color: ${item.color} !important;">(${details.shortName})</span><span class="hex-idiom" style="color: ${item.color} !important;">${idiomText}</span>` : '';
+        html += `<div class="hex-card">
+            ${imgHtml}
+            <div class="hex-name" style="color: ${item.color} !important;"><strong>${item.id}.${item.name}</strong>${extraHtml}</div>
+            <div class="hex-desc">${item.desc}</div>
+            <div style="clear: both;"></div>
+        </div>`;
+    });
+    
+    html += `</div>`;
 
     learningList.innerHTML = html;
 }
@@ -91,6 +110,87 @@ function initDivination() {
         }, 1000);
     });
 }
+
+function initDIYModal() {
+    const diyToggleBtn = document.getElementById('diy-toggle-btn');
+    const diyModal = document.getElementById('diy-modal');
+    const diyCloseBtn = document.getElementById('diy-close-btn');
+    const diyHexSelect = document.getElementById('diy-hex-select');
+    const diyConfirmBtn = document.getElementById('diy-confirm-btn');
+
+    if (!diyToggleBtn || !diyModal) return;
+
+    // Hardcoded 64 hexagrams in exact King Wen sequence (IDs 1 to 64)
+    const allHexNames = [
+        "乾为天", "坤为地", "水雷屯", "山水蒙", "水天需", "天水讼", "地水师", "水地比",
+        "风天小畜", "天泽履", "地天泰", "天地否", "天火同人", "火天大有", "地山谦", "雷地豫",
+        "泽雷随", "山风蛊", "地泽临", "风地观", "火雷噬嗑", "山火贲", "山地剥", "地雷复",
+        "天雷无妄", "山天大畜", "山雷颐", "泽风大过", "坎为水", "离为火", "泽山咸", "雷风恒",
+        "天山遁", "雷天大壮", "火地晋", "地火明夷", "风火家人", "火泽睽", "水山蹇", "雷水解",
+        "山泽损", "风雷益", "泽天夬", "天风姤", "泽地萃", "地风升", "泽水困", "水风井",
+        "泽火革", "火风鼎", "震为雷", "艮为山", "风山渐", "雷泽归妹", "雷火丰", "火山旅",
+        "巽为风", "兑为泽", "风水涣", "水泽节", "风泽中孚", "雷山小过", "水火既济", "火水未济"
+    ];
+
+    allHexNames.forEach((name, index) => {
+        let option = document.createElement('option');
+        option.value = name;
+        option.textContent = `${index + 1}. ${name}`;
+        diyHexSelect.appendChild(option);
+    });
+
+    // Hack: Add empty options at the bottom to bypass a known Chrome DevTools 
+    // bug where the native select scrollbar cuts off the last few items in mobile simulator.
+    for (let i = 0; i < 3; i++) {
+        let dummyOpt = document.createElement('option');
+        dummyOpt.value = "";
+        dummyOpt.textContent = " ";
+        dummyOpt.disabled = true;
+        diyHexSelect.appendChild(dummyOpt);
+    }
+
+    diyToggleBtn.addEventListener('click', () => {
+        diyModal.style.display = 'flex';
+    });
+
+    diyCloseBtn.addEventListener('click', () => {
+        diyModal.style.display = 'none';
+    });
+
+    diyConfirmBtn.addEventListener('click', () => {
+        const selectedHexName = diyHexSelect.value;
+        const selectedYao = parseInt(document.querySelector('input[name="diy_yao"]:checked').value);
+        
+        // Find binary lines for the selected hexagram
+        let binaryStr = "";
+        for (const [bin, name] of Object.entries(hexagramDict)) {
+            if (name === selectedHexName) {
+                binaryStr = bin;
+                break;
+            }
+        }
+        
+        if (!binaryStr) return;
+        
+        // originalLines is array of 0s and 1s, from bottom (0) to top (5)
+        let originalLines = binaryStr.split('').map(Number);
+        let changingLinesIndex = [selectedYao]; // The index from 0 (bottom) to 5 (top)
+        
+        diyModal.style.display = 'none';
+        
+        const resultContainer = document.getElementById('result-container');
+        resultContainer.style.display = 'none';
+        
+        const clickSound = new Audio('../设计风格/Poker Chips Stack Drop 4 004 Add Big Sound .mp3');
+        clickSound.play().catch(e => console.log('Audio error:', e));
+        
+        setTimeout(() => {
+            performDivination(originalLines, changingLinesIndex, false);
+            resultContainer.style.display = 'block';
+        }, 500);
+    });
+}
+
 
 function performDivination(providedOriginalLines = null, providedChangingLinesIndex = null, skipSave = false) {
     // 随机生成 6 个爻 (1 = 阳, 0 = 阴)
@@ -144,11 +244,23 @@ let originalLines = [];
     // 建立解释映射
     let hexDescMap = {};
     let hexIdMap = {};
+    let hexColorMap = {};
+    
+    const categoryColors = {
+        "【上上卦 / 发展顺遂，大吉之象】": "#6e943d",
+        "【中平卦 / 需待时机，稳中求胜】": "#fab041",
+        "【动荡卦 / 充满变数，需谨慎应对】": "#1688b5",
+        "【下下卦 / 陷入困境，警惕危机】": "#f06595",
+        "【其他具有特殊启示的卦】": "#866aa9"
+    };
+
     if (typeof yijingSummary !== 'undefined') {
         yijingSummary.forEach(category => {
+            const catColor = categoryColors[category.category] || "#43335c";
             category.items.forEach(item => {
                 hexDescMap[item.name] = item.desc;
                 hexIdMap[item.name] = item.id;
+                hexColorMap[item.name] = catColor;
             });
         });
     }
@@ -159,15 +271,16 @@ let originalLines = [];
 
     const formatNameHtml = (name) => {
         let id = hexIdMap[name];
+        let color = hexColorMap[name] || "#43335c";
         if (!id) return name;
         const details = typeof hexagramDetails !== 'undefined' && hexagramDetails[id] ? hexagramDetails[id] : { shortName: "", idiom: "", keyword: "" };
-        let shortNameHtml = details.shortName ? `<span class="res-hex-short">（${details.shortName}）</span>` : '';
+        let shortNameHtml = details.shortName ? `<span class="res-hex-short" style="color: ${color} !important;">（${details.shortName}）</span>` : '';
         let idiomText = details.idiom;
         if (details.keyword) idiomText += ` / ${details.keyword}`;
-        let idiomHtml = idiomText ? `<div class="res-hex-idiom">${idiomText}</div>` : '';
+        let idiomHtml = idiomText ? `<div class="res-hex-idiom" style="color: ${color} !important;">${idiomText}</div>` : '';
         
-        return `<div class="res-name-block">
-            <div class="res-name-line1"><strong>${id} ${name}</strong> ${shortNameHtml}</div>
+        return `<div class="res-name-block" style="color: ${color} !important;">
+            <div class="res-name-line1" style="color: ${color} !important;"><strong>${id} ${name}</strong> ${shortNameHtml}</div>
             ${idiomHtml}
         </div>`;
     };
@@ -177,12 +290,24 @@ let originalLines = [];
     document.getElementById('res-nuclear-name').innerHTML = formatNameHtml(nuclearName);
     document.getElementById('res-changed-name').innerHTML = formatNameHtml(changedName);
     
+    if (hexIdMap[origName]) {
+        document.getElementById('res-original-img').src = `images/gua_crop/${hexIdMap[origName]}.jpg`;
+        document.getElementById('res-original-img').style.display = 'block';
+    }
+    if (hexIdMap[nuclearName]) {
+        document.getElementById('res-nuclear-img').src = `images/gua_crop/${hexIdMap[nuclearName]}.jpg`;
+        document.getElementById('res-nuclear-img').style.display = 'block';
+    }
+    if (hexIdMap[changedName]) {
+        document.getElementById('res-changed-img').src = `images/gua_crop/${hexIdMap[changedName]}.jpg`;
+        document.getElementById('res-changed-img').style.display = 'block';
+    }
+    
     document.getElementById('res-original-desc').innerHTML = `<strong>释义：</strong>${origDesc}`;
     document.getElementById('res-nuclear-desc').innerHTML = `<strong>释义：</strong>${nuclearDesc}`;
     document.getElementById('res-changed-desc').innerHTML = `<strong>释义：</strong>${changedDesc}`;
     
     // 动爻说明
-    let changingDesc = "此卦无动爻，宜静守本分，按照本卦行事。";
     let yaoNameStr = "无变爻";
     if (changingLinesIndex.length > 0) {
         let yaoNames = changingLinesIndex.map(idx => {
@@ -192,13 +317,8 @@ let originalLines = [];
             if (num === 6) return `上${val}`;
             return `${val}${num === 2 ? '二' : num === 3 ? '三' : num === 4 ? '四' : '五'}`;
         });
-        changingDesc = `代表事情正在发生转折，需注意相关的行动指导，参考变卦。`;
         yaoNameStr = yaoNames.join('、');
-        document.getElementById('res-changing-line-name').innerText = yaoNameStr;
-    } else {
-        document.getElementById('res-changing-line-name').innerText = "无变爻";
     }
-    document.getElementById('res-changing-line-desc').innerHTML = `<strong>释义：</strong>${changingDesc}`;
 
 // 绘制符号
     drawHexagramSymbol('res-original-symbol', originalLines, changingLinesIndex);

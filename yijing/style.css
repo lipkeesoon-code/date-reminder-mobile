@@ -230,10 +230,19 @@ body {
 
 .card-main-content {
     display: grid;
-    grid-template-columns: 35px 60px auto;
+    grid-template-columns: 55px 50px auto;
+    gap: 12px;
     align-items: center;
     margin-top: -5px;
     margin-bottom: 6px;
+}
+
+.hexagram-image {
+    width: 100%;
+    height: 55px;
+    border-radius: 4px;
+    object-fit: cover;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 .card-desc {
@@ -320,6 +329,18 @@ body {
     margin-bottom: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     border: 1px solid rgba(230, 225, 240, 1);
+}
+
+.learning-hex-img {
+    float: left;
+    width: 53px;
+    height: 53px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+    margin-bottom: 0px;
+    margin-top: 7px;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 .hex-name {
@@ -986,3 +1007,34 @@ background-color: #dbe2ef;
 
 .future-card .card-badge { background-color: #7b9fb5 !important; }
 .future-card .card-title, .future-card .res-hex-idiom { color: #7b9fb5 !important; }
+
+/* DIY Modal Styles */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 320px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}

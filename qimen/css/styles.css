@@ -187,7 +187,7 @@ html {
 
 .qimen-date-selects {
     display: flex;
-    gap: 8px;
+    gap: 2px; /* Reduced gap from 8px to 2px */
     flex: 1;
     overflow: hidden;
 }
@@ -198,10 +198,10 @@ html {
     border: 1px solid #999999;
     font-size: 11px;
     font-weight: bold;
-    padding: 2px 14px 2px 4px; /* Added right padding for the arrow */
+    padding: 2px 10px 2px 2px; /* Reduced padding */
     border-radius: 0;
     outline: none;
-    text-align: left; /* Center align often ignores arrow width */
+    text-align: left;
     font-family: inherit;
     min-width: 0;
 }
@@ -277,7 +277,8 @@ html {
 
 /* å³ä¾§è¥¿åŽ†æ—¶é—´ä¸Žæ ¼å±€ */
 .qimen-meta-box {
-    width: 220px; /* Widened to give date selects more room */
+    flex: 1.5; /* Use a flexible proportion to adapt well on desktop and mobile */
+    min-width: 230px;
     background: #ffffff;
     padding: 4px 0 4px 6px;
     display: flex;
@@ -294,8 +295,8 @@ html {
 .qimen-meta-label {
     background: #8c74a5;
     color: #ffffff;
-    padding: 2px 6px;
-    margin-right: 6px;
+    padding: 2px 4px; /* Reduced from 6px */
+    margin-right: 4px; /* Reduced from 6px */
     font-weight: bold;
     font-size: 11px;
     display: flex;
