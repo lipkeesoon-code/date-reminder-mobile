@@ -113,7 +113,7 @@ body {
 .view-content {
     flex: 1;
     overflow-y: auto;
-    padding: 10px 20px 90px;
+    padding: 10px 20px 140px;
     display: flex;
     flex-direction: column;
 }
@@ -166,7 +166,7 @@ body {
     font-size: 22px;
 }
 
-/* å åœç»“æžœå¡ç‰‡ */
+/* å  å œç»“æžœå ¡ç‰‡ */
 .result-container {
     display: flex;
     flex-direction: column;
@@ -251,7 +251,7 @@ body {
     line-height: 1.35;
 }
 
-/* å¦è±¡ç¬¦å· (é˜´é˜³çˆ»å¯è§†åŒ–) */
+/* å ¦è±¡ç¬¦å · (é˜´é˜³çˆ»å ¯è§†åŒ–) */
 .hexagram-symbol {
     display: flex;
     flex-direction: column;
@@ -291,7 +291,7 @@ body {
     background-color: #d1a868;
 }
 
-/* å­¦ä¹ é¡µé¢æ ·å¼ */
+/* å­¦ä¹ é¡µé ¢æ ·å¼  */
 .learning-header {
     text-align: center;
     margin-bottom: 20px;
@@ -369,11 +369,10 @@ background-color: #dbe2ef;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    gap: 0; /* Ã¨â€¡ÂªÃ¥Å Â¨Ã¥Ë†â€ Ã©â€¦ÂÃ§Â©ÂºÃ©â€”Â´ */
+    gap: 0; /* Ã¨â€¡ÂªÃ¥Å Â¨Ã¥Ë†â€ Ã©â€¦Â Ã§Â©ÂºÃ©â€”Â´ */
     height: 68px;
     flex-shrink: 0;
     padding: 4px 2px;
-    padding-
 }
 
 .nav-btn {

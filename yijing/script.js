@@ -290,16 +290,23 @@ let originalLines = [];
     document.getElementById('res-nuclear-name').innerHTML = formatNameHtml(nuclearName);
     document.getElementById('res-changed-name').innerHTML = formatNameHtml(changedName);
     
+    const getImgSrc = (id) => {
+        if (typeof hexagramImagesBase64 !== 'undefined' && hexagramImagesBase64[id]) {
+            return hexagramImagesBase64[id];
+        }
+        return `images/gua_crop/${id}.jpg`;
+    };
+
     if (hexIdMap[origName]) {
-        document.getElementById('res-original-img').src = `images/gua_crop/${hexIdMap[origName]}.jpg`;
+        document.getElementById('res-original-img').src = getImgSrc(hexIdMap[origName]);
         document.getElementById('res-original-img').style.display = 'block';
     }
     if (hexIdMap[nuclearName]) {
-        document.getElementById('res-nuclear-img').src = `images/gua_crop/${hexIdMap[nuclearName]}.jpg`;
+        document.getElementById('res-nuclear-img').src = getImgSrc(hexIdMap[nuclearName]);
         document.getElementById('res-nuclear-img').style.display = 'block';
     }
     if (hexIdMap[changedName]) {
-        document.getElementById('res-changed-img').src = `images/gua_crop/${hexIdMap[changedName]}.jpg`;
+        document.getElementById('res-changed-img').src = getImgSrc(hexIdMap[changedName]);
         document.getElementById('res-changed-img').style.display = 'block';
     }
     
@@ -503,6 +510,7 @@ function initSnapshot() {
         
         // Disable pointer events on remark box so cursor doesn't show in screenshot
         if (remarkBox) {
+            remarkBox.setAttribute('value', remarkBox.value);
             remarkBox.style.pointerEvents = 'none';
             remarkBox.blur(); 
         }
@@ -512,7 +520,6 @@ function initSnapshot() {
             html2canvas(container, {
                 scale: 4, // Ultra high resolution
                 useCORS: true,
-                allowTaint: true,
                 backgroundColor: '#e6e3f0',
             }).then(canvas => {
                 // Restore styles
@@ -548,10 +555,13 @@ function initSnapshot() {
                 // Trigger download as JPG
                 let link = document.createElement('a');
                 link.download = filename;
-                link.href = canvas.toDataURL("image/jpeg", 1.0);
+                let dataUrl = canvas.toDataURL("image/jpeg", 1.0);
+                link.href = dataUrl;
                 link.click();
+                
             }).catch(err => {
                 console.error("Snapshot failed: ", err);
+                alert("截图生成失败，可能是浏览器安全限制（如双击打开本地文件）。建议将文件放在服务器或使用本地服务器(如Live Server)运行。错误详情：" + err);
                 // Restore styles on error too
                 container.style.background = origBg;
                 container.style.padding = origPadding;
