@@ -510,6 +510,47 @@ function getElemColorClass(elem) {
     return map[elem] || "";
 }
 
+// --- 奇門遁甲 × 易经64卦 推算函数 ---
+// 规则：门(下卦号码) + 星(上卦号码) = 易经64卦
+function getQimenHexagram(starName, doorName) {
+    // 九星 → 上卦爻(3位二进制字符串，由下到上)
+    const STAR_TO_TRIGRAM = {
+        '天心': '111', '天柱': '110', '天英': '101', '天衝': '100', '天冲': '100', '天衡': '100',
+        '天輔': '011', '天辅': '011', '天蓬': '010', '天任': '001', '天芮': '000'
+    };
+    // 八門 → 下卦爻
+    const DOOR_TO_TRIGRAM = {
+        '開': '111', '開門': '111', '驚': '110', '驚門': '110', '景': '101', '景門': '101',
+        '傷': '100', '傷門': '100', '杜': '011', '杜門': '011', '休': '010', '休門': '010',
+        '生': '001', '生門': '001', '死': '000', '死門': '000'
+    };
+    const upperTrigram = STAR_TO_TRIGRAM[starName];
+    const lowerTrigram = DOOR_TO_TRIGRAM[doorName];
+    if (!upperTrigram || !lowerTrigram) return null;
+    const hexKey = lowerTrigram + upperTrigram;
+    const QIMEN_HEX_TABLE = {
+        '111111':[1,'乾'],  '000111':[12,'否'], '101111':[13,'同人'], '110111':[10,'履'],
+        '100111':[25,'无妄'],'011111':[44,'姤'], '010111':[6,'讼'],   '001111':[33,'遁'],
+        '111000':[11,'泰'],  '000000':[2,'坤'],  '101000':[36,'明夷'], '110000':[19,'临'],
+        '100000':[24,'复'],  '011000':[46,'升'],  '010000':[7,'师'],   '001000':[15,'谦'],
+        '111101':[14,'大有'],'000101':[35,'晋'],  '101101':[30,'离'],  '110101':[38,'睽'],
+        '100101':[21,'噬嗑'],'011101':[50,'鼎'],  '010101':[64,'未济'],'001101':[56,'旅'],
+        '111110':[43,'夬'],  '000110':[45,'萃'],  '101110':[49,'革'],  '110110':[58,'兑'],
+        '100110':[17,'随'],  '011110':[28,'大过'],'010110':[47,'困'],  '001110':[31,'咸'],
+        '111100':[34,'大壮'],'000100':[16,'豫'],  '101100':[55,'丰'],  '110100':[54,'归妹'],
+        '100100':[51,'震'],  '011100':[32,'恒'],  '010100':[40,'解'],  '001100':[62,'小过'],
+        '111011':[9,'小畜'], '000011':[20,'观'],  '101011':[37,'家人'],'110011':[61,'中孚'],
+        '100011':[42,'益'],  '011011':[57,'巽'],  '010011':[59,'涣'],  '001011':[53,'渐'],
+        '111010':[5,'需'],   '000010':[8,'比'],   '101010':[63,'既济'],'110010':[60,'节'],
+        '100010':[3,'屯'],   '011010':[48,'井'],  '010010':[29,'坎'],  '001010':[39,'蹇'],
+        '111001':[26,'大畜'],'000001':[23,'剥'],  '101001':[22,'贲'],  '110001':[41,'损'],
+        '100001':[27,'颐'],  '011001':[18,'蛊'],  '010001':[4,'蒙'],   '001001':[52,'艮']
+    };
+    const hexEntry = QIMEN_HEX_TABLE[hexKey];
+    if (!hexEntry) return null;
+    return { num: hexEntry[0], name: hexEntry[1] };
+}
+
 function renderMainBoard(record) {
     if (!record) return;
     State.currentActiveRecord = record;
@@ -665,6 +706,21 @@ function renderMainBoard(record) {
                     ? `<div class="qimen-badge-stack">${pData.badges.map(b => `<span class="qimen-badge-item">${b}</span>`).join('')}</div>`
                     : '';
 
+                // 推算此宫的易经64卦 (门=下卦, 星=上卦)
+                const hexData = getQimenHexagram(pData.star, pData.door);
+                let hexColor = '#866aa9';
+                if (hexData && hexData.num !== null) {
+                    const n = hexData.num;
+                    if ([1, 2, 11, 14, 42, 46, 50].includes(n)) hexColor = '#6e943d';
+                    else if ([5, 9, 15, 17, 24, 31, 32, 37, 48, 53].includes(n)) hexColor = '#fab041';
+                    else if ([3, 6, 12, 21, 28, 29, 43, 49].includes(n)) hexColor = '#1688b5';
+                    else if ([4, 18, 23, 36, 39, 47].includes(n)) hexColor = '#f06595';
+                    else hexColor = '#866aa9';
+                }
+                const hexHtml = hexData
+                    ? `<div class="qimen-hexagram-tag" style="color: ${hexColor}">${hexData.num !== null ? hexData.num + ' ' : ''}${hexData.name}</div>`
+                    : '';
+
                 cell.innerHTML = `
                     ${pData.isInnerPlate ? '<div class="qimen-inner-triangle"></div>' : ''}
                     <div class="qimen-cell-top">
@@ -699,6 +755,7 @@ function renderMainBoard(record) {
                     ${zhanHtml}
                     ${badgeHtml}
                     <div class="qimen-num-bottomright">${pData.ziBai}</div>
+                    ${hexHtml}
                 `;
             }
 

@@ -453,6 +453,7 @@ html {
     font-weight: 900;
     margin-top: -5px;
     position: relative;
+    transform: translateY(-8px);
 }
 
 .qimen-tstem-tags-stack {
@@ -539,6 +540,7 @@ html {
 .qimen-dstem-row {
     text-align: center;
     margin-bottom: -6px;
+    transform: translateY(-8px);
 }
 
 .qimen-dstem-wrap {
@@ -550,7 +552,7 @@ html {
 
 .qimen-energy-symbol {
     position: absolute;
-    top: 2px;
+    top: 7px;
     right: -14px;
     font-size: 13px;
     font-weight: bold;
@@ -558,14 +560,14 @@ html {
 
 .qimen-energy-symbol.circle-small {
     font-size: 11px;
-    top: 3px;
+    top: 8px;
     -webkit-text-stroke: 1px currentColor;
     text-stroke: 1px currentColor;
 }
 
 .qimen-energy-symbol.circle-large {
     font-size: 15px;
-    top: 1px;
+    top: 6px;
 }
 
 .qimen-dstem-prefix {
@@ -2882,3 +2884,19 @@ input {
 
 
 
+
+/* 奇门遁甲64卦 标签 (底部署中) */
+.qimen-hexagram-tag {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: 0px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+    text-align: center;
+}
