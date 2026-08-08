@@ -363,7 +363,7 @@ html {
     border: 2px solid #222222;
     background: #ffffff;
     position: relative;
-    aspect-ratio: 65 / 62;
+    aspect-ratio: 1 / 0.94;
     width: 100%;
 }
 
@@ -453,7 +453,6 @@ html {
     font-weight: 900;
     margin-top: -5px;
     position: relative;
-    transform: translateY(-8px);
 }
 
 .qimen-tstem-tags-stack {
