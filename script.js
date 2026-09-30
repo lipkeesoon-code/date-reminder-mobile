@@ -2695,6 +2695,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Notepad Editor 逻辑
+    const attachTitleRename = (titleEl) => {
+        titleEl.style.cursor = "text";
+        titleEl.addEventListener("click", () => {
+            const currentFolder = notepadData.find(f => f.id === currentEditingFolderId);
+            const currentFile = currentFolder?.files.find(f => f.id === currentEditingFileId);
+            if (!currentFile) return;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.value = currentFile.name;
+            input.style.cssText = "width:100%;font-size:18px;font-weight:bold;color:#9d78a9;border:none;border-bottom:2px solid #9d78a9;background:transparent;outline:none;padding:0;box-sizing:border-box;";
+            titleEl.replaceWith(input);
+            input.focus();
+            input.select();
+
+            const applyRename = () => {
+                const newName = input.value.trim() || currentFile.name;
+                currentFile.name = newName;
+                saveNotepadData();
+                renderNotepadFolders();
+                const newDiv = document.createElement("div");
+                newDiv.id = "editor-file-title";
+                newDiv.className = "editor-title-bar";
+                newDiv.textContent = newName;
+                input.parentNode?.replaceChild(newDiv, input);
+                attachTitleRename(newDiv); // 再次绑定，支持无限次重命名
+            };
+
+            input.addEventListener("blur", applyRename);
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+                if (e.key === "Escape") { input.value = currentFile.name; input.blur(); }
+            });
+        });
+    };
+
     const openNotepadEditor = (folderId, fileId) => {
         currentEditingFolderId = folderId;
         currentEditingFileId = fileId;
@@ -2702,7 +2738,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const folder = notepadData.find(f => f.id === folderId);
         const file = folder.files.find(f => f.id === fileId);
         
-        document.getElementById("editor-file-title").textContent = file.name;
+        // cloneNode 清除旧的事件监听，避免重复注册
+        const oldTitleEl = document.getElementById("editor-file-title");
+        const newTitleEl = document.createElement("div");
+        newTitleEl.id = "editor-file-title";
+        newTitleEl.className = "editor-title-bar";
+        newTitleEl.textContent = file.name;
+        oldTitleEl.parentNode.replaceChild(newTitleEl, oldTitleEl);
+        attachTitleRename(newTitleEl);
+
         document.getElementById("editor-textarea").value = file.content || "";
         
         viewNotepad.classList.remove("active");
